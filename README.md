@@ -13,13 +13,13 @@
 **Screenshots:**
 
 ## Homepage
-![image](https://cdn.discordapp.com/attachments/907685213595897898/1408103882873241620/homepage.png?ex=68a8866e&is=68a734ee&hm=ba7303762568ffb39dbe58df95ecd7580ecd03ad1b553c28d20a3e12d291db9f&)
+![image](https://cdn.discordapp.com/attachments/907685213595897898/1408103882873241620/homepage.png?ex=68b1182e&is=68afc6ae&hm=53f8575f7d589bc58d302b5b55d25067752ea983c550c76db1918b7c46b500a9&)
 
 ## Login
-![image](https://cdn.discordapp.com/attachments/907685213595897898/1408103886929137704/login.png?ex=68a8866f&is=68a734ef&hm=889bd159422a2fd7e5d339295de06d94d17697a3630a43b3966aedde0840f7e6&)
+![image](https://cdn.discordapp.com/attachments/907685213595897898/1408103886929137704/login.png?ex=68b1182f&is=68afc6af&hm=1c0c3c4225aecdb9aab2268e4e92cef71bd72b967f26f7f7acbb33ecc91df1c0&)
 
 ## Signup (Register)
-![image](https://cdn.discordapp.com/attachments/907685213595897898/1408103900904558823/signup.png?ex=68a88673&is=68a734f3&hm=2bc8f6119a85f060b99a8c58e1e394d32464057c00b6c0695ff5679a8a648048&)
+![image](https://cdn.discordapp.com/attachments/907685213595897898/1408103900904558823/signup.png?ex=68b11833&is=68afc6b3&hm=ae6aae20da03a6deae923c46480aaf8b6b76fdeca9ebf6b036d5be1d12b8f0ba&)
 
 ## Forgot Password
-![image](https://cdn.discordapp.com/attachments/907685213595897898/1408104229620547584/image.png?ex=68a886c1&is=68a73541&hm=b911860638d3c0ce63f94a9ab4860a764b9ba09374477fdd8668431f8950dca5&)
+![image](https://cdn.discordapp.com/attachments/907685213595897898/1408104229620547584/image.png?ex=68b11881&is=68afc701&hm=7992e71ce40a4a65957a12b5096cc4b1dc75f8867d0d70dc278dc93091d4ab81&)
