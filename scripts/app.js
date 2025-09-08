@@ -1152,7 +1152,7 @@ class BarangayLinkApp {
         alert(`Welcome ${user.fullName}, you are now logged in!`);
         document.getElementById('auth-modal').remove();
         // redirect to dashboard page if needed
-        // window.location.href = '/dashboard.html';
+        window.location.href = '/dashboard.html';
     });
 
     // --- RESET VALIDATION ---
