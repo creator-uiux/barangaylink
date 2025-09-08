@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - BarangayLink</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="dashboard-body">
+    <!-- Dashboard Navigation -->
+    <nav class="dashboard-navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-link"></i>
+                <span>BarangayLink</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#dashboard" class="active">Dashboard</a></li>
+                <li><a href="#announcements">Announcements</a></li>
+                <li><a href="#events">Events</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="#my-requests">My Requests</a></li>
+                <li><a href="#" id="logoutBtn">Logout</a></li>
+            </ul>
+            <div class="user-profile">
+                <i class="fas fa-user-circle"></i>
+                <span id="userName">Welcome, User</span>
+            </div>
+            <div class="hamburger" id="dashboardHamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Welcome Banner -->
+    <section class="welcome-banner">
+        <div class="container">
+            <div class="welcome-content">
+                <h1 id="welcomeMessage">Welcome, Resident!</h1>
+                <p>Stay up to date with the latest barangay news, events, and services.</p>
+                <div class="weather-info">
+                    <i class="fas fa-sun"></i>
+                    <span>Today: Sunny, 28°C</span>
+                </div>
+            </div>
+            <div class="welcome-stats">
+                <div class="stat-item">
+                    <span class="stat-number">3</span>
+                    <span class="stat-label">New Announcements</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">2</span>
+                    <span class="stat-label">Upcoming Events</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">1</span>
+                    <span class="stat-label">Pending Requests</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Access Cards -->
+    <section class="quick-access">
+        <div class="container">
+            <h2>Quick Access</h2>
+            <div class="quick-access-grid">
+                <div class="quick-card" data-action="announcements">
+                    <div class="card-icon">
+                        <i class="fas fa-bullhorn"></i>
+                    </div>
+                    <h3>Announcements</h3>
+                    <p>View latest barangay announcements and updates</p>
+                    <div class="card-badge">3 New</div>
+                </div>
+                <div class="quick-card" data-action="events">
+                    <div class="card-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <h3>Events</h3>
+                    <p>Check upcoming community events and activities</p>
+                    <div class="card-badge">2 Upcoming</div>
+                </div>
+                <div class="quick-card" data-action="projects">
+                    <div class="card-icon">
+                        <i class="fas fa-hammer"></i>
+                    </div>
+                    <h3>Projects</h3>
+                    <p>Track ongoing barangay development projects</p>
+                </div>
+                <div class="quick-card" data-action="documents">
+                    <div class="card-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h3>Request Documents</h3>
+                    <p>Apply for barangay certificates and clearances</p>
+                </div>
+                <div class="quick-card" data-action="concerns">
+                    <div class="card-icon">
+                        <i class="fas fa-comment-alt"></i>
+                    </div>
+                    <h3>Submit Concerns</h3>
+                    <p>Report issues or submit feedback to barangay officials</p>
+                </div>
+                <div class="quick-card" data-action="profile">
+                    <div class="card-icon">
+                        <i class="fas fa-user-cog"></i>
+                    </div>
+                    <h3>My Profile</h3>
+                    <p>Update your personal information and settings</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recent Updates Feed -->
+    <section class="recent-updates">
+        <div class="container">
+            <h2>Recent Updates</h2>
+            <div class="updates-feed">
+                <div class="update-item">
+                    <div class="update-icon">
+                        <i class="fas fa-bullhorn"></i>
+                    </div>
+                    <div class="update-content">
+                        <h4>New Announcement: Community Clean-up Drive</h4>
+                        <p>Join us for our monthly community clean-up drive this Saturday at 7:00 AM.</p>
+                        <span class="update-time">2 hours ago</span>
+                    </div>
+                </div>
+                <div class="update-item">
+                    <div class="update-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div class="update-content">
+                        <h4>Event Reminder: Barangay Assembly Meeting</h4>
+                        <p>Monthly barangay assembly meeting scheduled for December 20, 2024.</p>
+                        <span class="update-time">1 day ago</span>
+                    </div>
+                </div>
+                <div class="update-item">
+                    <div class="update-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="update-content">
+                        <h4>Document Request Approved</h4>
+                        <p>Your barangay clearance request has been approved and is ready for pickup.</p>
+                        <span class="update-time">2 days ago</span>
+                    </div>
+                </div>
+                <div class="update-item">
+                    <div class="update-icon">
+                        <i class="fas fa-hammer"></i>
+                    </div>
+                    <div class="update-content">
+                        <h4>Project Update: Road Improvement</h4>
+                        <p>Phase 2 of the road improvement project on Main Street has been completed.</p>
+                        <span class="update-time">3 days ago</span>
+                    </div>
+                </div>
+                <div class="update-item">
+                    <div class="update-icon">
+                        <i class="fas fa-medkit"></i>
+                    </div>
+                    <div class="update-content">
+                        <h4>Health Service: Free Medical Check-up</h4>
+                        <p>Free medical check-up available at the barangay health center every Tuesday and Thursday.</p>
+                        <span class="update-time">1 week ago</span>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-secondary load-more">Load More Updates</button>
+        </div>
+    </section>
+
+    <!-- Document Request Modal -->
+    <div id="documentModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-header">
+                <h2>Request Document</h2>
+            </div>
+            <form id="documentForm">
+                <div class="form-group">
+                    <label for="documentType">Document Type</label>
+                    <select id="documentType" name="documentType" required>
+                        <option value="">Select Document Type</option>
+                        <option value="barangay-clearance">Barangay Clearance</option>
+                        <option value="certificate-residency">Certificate of Residency</option>
+                        <option value="certificate-indigency">Certificate of Indigency</option>
+                        <option value="business-permit">Business Permit</option>
+                        <option value="id-replacement">ID Replacement</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="purpose">Purpose</label>
+                    <input type="text" id="purpose" name="purpose" placeholder="e.g., Employment, Business, etc." required>
+                </div>
+                <div class="form-group">
+                    <label for="contactNumber">Contact Number</label>
+                    <input type="tel" id="contactNumber" name="contactNumber" required>
+                </div>
+                <div class="form-group">
+                    <label for="additionalNotes">Additional Notes (Optional)</label>
+                    <textarea id="additionalNotes" name="additionalNotes" rows="3" placeholder="Any additional information..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary full-width">Submit Request</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Submit Concerns Modal -->
+    <div id="concernModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-header">
+                <h2>Submit Concern</h2>
+            </div>
+            <form id="concernForm">
+                <div class="form-group">
+                    <label for="concernType">Concern Type</label>
+                    <select id="concernType" name="concernType" required>
+                        <option value="">Select Concern Type</option>
+                        <option value="infrastructure">Infrastructure</option>
+                        <option value="public-safety">Public Safety</option>
+                        <option value="sanitation">Sanitation</option>
+                        <option value="noise-complaint">Noise Complaint</option>
+                        <option value="community-service">Community Service</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="concernTitle">Title</label>
+                    <input type="text" id="concernTitle" name="concernTitle" placeholder="Brief title of your concern" required>
+                </div>
+                <div class="form-group">
+                    <label for="concernDescription">Description</label>
+                    <textarea id="concernDescription" name="concernDescription" rows="4" placeholder="Please describe your concern in detail..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="concernLocation">Location (Optional)</label>
+                    <input type="text" id="concernLocation" name="concernLocation" placeholder="Specific location or address">
+                </div>
+                <div class="form-group">
+                    <label for="urgencyLevel">Urgency Level</label>
+                    <select id="urgencyLevel" name="urgencyLevel" required>
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                        <option value="emergency">Emergency</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary full-width">Submit Concern</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

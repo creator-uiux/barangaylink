@@ -4,21 +4,788 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BarangayLink - Your Direct Link to Local Updates and Services</title>
-    <link rel="stylesheet" href="./styles/globals.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Feather Icons for SVG icons -->
+    <script src="https://unpkg.com/feather-icons"></script>
+    <!-- Sonner for toast notifications -->
+    <script src="https://unpkg.com/sonner@2.0.3/dist/index.umd.js"></script>
 </head>
-<body class="min-h-screen bg-white">
-    <div id="app" class="min-h-screen bg-white">
-        <!-- Content will be dynamically loaded here -->
+<body>
+    <!-- Loading Screen -->
+    <div id="loading" class="loading-screen">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Landing Page -->
+    <div id="landing-page" class="page-container">
+        <!-- Navigation -->
+        <nav class="nav-fixed">
+            <div class="nav-container">
+                <div class="nav-content">
+                    <div class="nav-brand">
+                        <i data-feather="link" class="nav-icon"></i>
+                        <span class="nav-title">BarangayLink</span>
+                    </div>
+                    
+                    <!-- Desktop Menu -->
+                    <div class="nav-menu-desktop">
+                        <button onclick="scrollToSection('home')" class="nav-link">Home</button>
+                        <button onclick="scrollToSection('announcements')" class="nav-link">Announcements</button>
+                        <button onclick="scrollToSection('events')" class="nav-link">Events</button>
+                        <button onclick="scrollToSection('projects')" class="nav-link">Projects</button>
+                        <button onclick="scrollToSection('contact')" class="nav-link">Contact</button>
+                        <button onclick="openAuthModal()" class="btn btn-primary">Login / Signup</button>
+                    </div>
+
+                    <!-- Mobile Menu Button -->
+                    <div class="nav-mobile-button">
+                        <button onclick="toggleMobileMenu()" class="mobile-menu-btn">
+                            <div class="hamburger">
+                                <span class="hamburger-line"></span>
+                                <span class="hamburger-line"></span>
+                                <span class="hamburger-line"></span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mobile Menu -->
+                <div id="mobile-menu" class="nav-mobile-menu">
+                    <div class="mobile-menu-content">
+                        <button onclick="scrollToSection('home')" class="mobile-menu-item">Home</button>
+                        <button onclick="scrollToSection('announcements')" class="mobile-menu-item">Announcements</button>
+                        <button onclick="scrollToSection('events')" class="mobile-menu-item">Events</button>
+                        <button onclick="scrollToSection('projects')" class="mobile-menu-item">Projects</button>
+                        <button onclick="scrollToSection('contact')" class="mobile-menu-item">Contact</button>
+                        <button onclick="openAuthModal()" class="btn btn-primary mobile-auth-btn">Login / Signup</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section id="home" class="hero-section">
+            <div class="container">
+                <div class="hero-content">
+                    <div class="hero-text">
+                        <h1 class="hero-title">BarangayLink - Your Direct Link to Local Updates and Services</h1>
+                        <p class="hero-description">Stay connected with your barangay community. Get real-time updates, access services, and participate in local governance.</p>
+                        <div class="hero-buttons">
+                            <button onclick="openAuthModal()" class="btn btn-primary btn-lg">Get Started</button>
+                            <button onclick="scrollToSection('announcements')" class="btn btn-outline btn-lg">View Announcements</button>
+                        </div>
+                    </div>
+                    <div class="hero-visual">
+                        <div class="hero-circle">
+                            <i data-feather="users" class="hero-icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Announcements Preview -->
+        <section id="announcements" class="announcements-section">
+            <div class="container">
+                <h2 class="section-title">Latest Announcements</h2>
+                <div class="announcements-grid">
+                    <div class="announcement-card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i data-feather="users" class="icon-primary"></i>
+                            </div>
+                            <span class="badge badge-secondary">Dec 15, 2024</span>
+                        </div>
+                        <h3 class="card-title">Community Clean-up Drive</h3>
+                        <p class="card-description">Join us for our monthly community clean-up drive this Saturday at 7:00 AM. Let's keep our barangay clean and green!</p>
+                        <button class="link-button">Read More →</button>
+                    </div>
+
+                    <div class="announcement-card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i data-feather="calendar" class="icon-primary"></i>
+                            </div>
+                            <span class="badge badge-secondary">Dec 12, 2024</span>
+                        </div>
+                        <h3 class="card-title">Barangay Assembly Meeting</h3>
+                        <p class="card-description">Monthly barangay assembly meeting scheduled for December 20, 2024. All residents are encouraged to attend.</p>
+                        <button class="link-button">Read More →</button>
+                    </div>
+
+                    <div class="announcement-card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i data-feather="file-text" class="icon-primary"></i>
+                            </div>
+                            <span class="badge badge-secondary">Dec 10, 2024</span>
+                        </div>
+                        <h3 class="card-title">Free Medical Check-up</h3>
+                        <p class="card-description">Free medical check-up and consultation available at the barangay health center every Tuesday and Thursday.</p>
+                        <button class="link-button">Read More →</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Events & Projects Timeline -->
+        <section id="events" class="events-section">
+            <div class="container">
+                <h2 class="section-title">Events & Projects</h2>
+                <div class="timeline-container">
+                    <div class="timeline">
+                        <div class="timeline-line"></div>
+                        
+                        <div class="timeline-item timeline-right">
+                            <div class="timeline-content">
+                                <h3 class="timeline-title">Christmas Festival</h3>
+                                <p class="timeline-description">Annual Christmas celebration with cultural performances, food stalls, and activities for the whole family.</p>
+                            </div>
+                            <div class="timeline-badge">Dec 2024</div>
+                        </div>
+
+                        <div class="timeline-item timeline-left">
+                            <div class="timeline-content">
+                                <h3 class="timeline-title">Road Improvement Project</h3>
+                                <p class="timeline-description">Major road repairs and improvements completed on Main Street and surrounding areas.</p>
+                            </div>
+                            <div class="timeline-badge">Nov 2024</div>
+                        </div>
+
+                        <div class="timeline-item timeline-right">
+                            <div class="timeline-content">
+                                <h3 class="timeline-title">Youth Skills Training</h3>
+                                <p class="timeline-description">Computer literacy and vocational training program for barangay youth aged 16-25.</p>
+                            </div>
+                            <div class="timeline-badge">Oct 2024</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works -->
+        <section class="how-it-works-section">
+            <div class="container">
+                <h2 class="section-title">How It Works</h2>
+                <div class="steps-grid">
+                    <div class="step-item">
+                        <div class="step-icon-container">
+                            <div class="step-icon">
+                                <i data-feather="users" class="step-icon-svg"></i>
+                            </div>
+                            <div class="step-number">1</div>
+                        </div>
+                        <h3 class="step-title">Register</h3>
+                        <p class="step-description">Create your account with basic information to get started with BarangayLink services.</p>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-icon-container">
+                            <div class="step-icon">
+                                <i data-feather="check-circle" class="step-icon-svg"></i>
+                            </div>
+                            <div class="step-number">2</div>
+                        </div>
+                        <h3 class="step-title">Login</h3>
+                        <p class="step-description">Access your personalized dashboard with your registered credentials.</p>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-icon-container">
+                            <div class="step-icon">
+                                <i data-feather="calendar" class="step-icon-svg"></i>
+                            </div>
+                            <div class="step-number">3</div>
+                        </div>
+                        <h3 class="step-title">Stay Updated</h3>
+                        <p class="step-description">Receive real-time notifications about announcements, events, and important updates.</p>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-icon-container">
+                            <div class="step-icon">
+                                <i data-feather="file-text" class="step-icon-svg"></i>
+                            </div>
+                            <div class="step-number">4</div>
+                        </div>
+                        <h3 class="step-title">Request Documents</h3>
+                        <p class="step-description">Submit requests for barangay certificates and other official documents online.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="contact-section">
+            <div class="container">
+                <h2 class="section-title">Contact Us</h2>
+                <div class="contact-grid">
+                    <div class="contact-info">
+                        <h3 class="contact-info-title">Get in Touch</h3>
+                        <div class="contact-details">
+                            <div class="contact-detail">
+                                <i data-feather="map-pin" class="contact-icon"></i>
+                                <div class="contact-text">
+                                    <p>Barangay Hall, Main Street</p>
+                                    <p class="text-muted">Your City, Philippines</p>
+                                </div>
+                            </div>
+                            <div class="contact-detail">
+                                <i data-feather="phone" class="contact-icon"></i>
+                                <p class="text-muted">+63 (02) 123-4567</p>
+                            </div>
+                            <div class="contact-detail">
+                                <i data-feather="mail" class="contact-icon"></i>
+                                <p class="text-muted">info@barangaylink.com</p>
+                            </div>
+                            <div class="contact-detail">
+                                <i data-feather="clock" class="contact-icon"></i>
+                                <p class="text-muted">Monday - Friday: 8:00 AM - 5:00 PM</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="contact-form-container">
+                        <div class="card">
+                            <form id="contact-form" class="contact-form">
+                                <div class="form-group">
+                                    <label for="contact-name">Name</label>
+                                    <input type="text" id="contact-name" name="name" placeholder="Your full name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="contact-email">Email</label>
+                                    <input type="email" id="contact-email" name="email" placeholder="Your email address" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="contact-message">Message</label>
+                                    <textarea id="contact-message" name="message" placeholder="Your message..." rows="5" required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-full" id="contact-submit">
+                                    <span class="btn-text">Send Message</span>
+                                    <span class="btn-loading">Sending...</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-grid">
+                    <div class="footer-brand">
+                        <div class="footer-logo">
+                            <i data-feather="link" class="footer-icon"></i>
+                            <span class="footer-title">BarangayLink</span>
+                        </div>
+                        <p class="footer-description">Connecting communities, empowering residents, and promoting transparency in local governance.</p>
+                    </div>
+                    <div class="footer-links">
+                        <h4 class="footer-heading">Quick Links</h4>
+                        <ul class="footer-list">
+                            <li><button onclick="scrollToSection('home')" class="footer-link">Home</button></li>
+                            <li><button onclick="scrollToSection('announcements')" class="footer-link">Announcements</button></li>
+                            <li><button onclick="scrollToSection('events')" class="footer-link">Events</button></li>
+                            <li><button onclick="scrollToSection('contact')" class="footer-link">Contact</button></li>
+                        </ul>
+                    </div>
+                    <div class="footer-links">
+                        <h4 class="footer-heading">Services</h4>
+                        <ul class="footer-list">
+                            <li><a href="#" class="footer-link">Document Requests</a></li>
+                            <li><a href="#" class="footer-link">Community Reports</a></li>
+                            <li><a href="#" class="footer-link">Online Services</a></li>
+                            <li><a href="#" class="footer-link">Support</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-info">
+                        <h4 class="footer-heading">Barangay Info</h4>
+                        <div class="footer-details">
+                            <p><span class="footer-label">Captain:</span> Juan Dela Cruz</p>
+                            <p><span class="footer-label">Population:</span> 15,000</p>
+                            <p><span class="footer-label">Area:</span> 2.5 sq km</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2024 BarangayLink. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Dashboard Page -->
+    <div id="dashboard-page" class="page-container" style="display: none;">
+        <!-- Dashboard Navigation -->
+        <nav class="dashboard-nav">
+            <div class="nav-container">
+                <div class="nav-content">
+                    <div class="nav-brand">
+                        <i data-feather="link" class="nav-icon"></i>
+                        <span class="nav-title">BarangayLink</span>
+                    </div>
+                    
+                    <!-- Desktop Menu -->
+                    <div class="nav-menu-desktop">
+                        <a href="#" class="dashboard-nav-link active">Dashboard</a>
+                        <a href="#" class="dashboard-nav-link">Announcements</a>
+                        <a href="#" class="dashboard-nav-link">Events</a>
+                        <a href="#" class="dashboard-nav-link">Projects</a>
+                        <a href="#" class="dashboard-nav-link">My Requests</a>
+                        <button onclick="logout()" class="btn btn-ghost">
+                            <i data-feather="log-out" class="btn-icon"></i>
+                            Logout
+                        </button>
+                    </div>
+
+                    <!-- User Profile -->
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <i data-feather="settings" class="user-icon"></i>
+                            <span id="user-welcome">Welcome, User</span>
+                        </div>
+                        
+                        <!-- Mobile Menu Button -->
+                        <div class="nav-mobile-button">
+                            <button onclick="toggleDashboardMobileMenu()" class="mobile-menu-btn">
+                                <div class="hamburger">
+                                    <span class="hamburger-line"></span>
+                                    <span class="hamburger-line"></span>
+                                    <span class="hamburger-line"></span>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile Menu -->
+                <div id="dashboard-mobile-menu" class="dashboard-mobile-menu">
+                    <div class="mobile-menu-content">
+                        <a href="#" class="mobile-menu-item">Dashboard</a>
+                        <a href="#" class="mobile-menu-item">Announcements</a>
+                        <a href="#" class="mobile-menu-item">Events</a>
+                        <a href="#" class="mobile-menu-item">Projects</a>
+                        <a href="#" class="mobile-menu-item">My Requests</a>
+                        <button onclick="logout()" class="btn btn-ghost mobile-logout-btn">
+                            <i data-feather="log-out" class="btn-icon"></i>
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Welcome Banner -->
+        <section class="welcome-banner">
+            <div class="container">
+                <div class="welcome-content">
+                    <div class="welcome-text">
+                        <h1 id="welcome-message" class="welcome-title">Welcome, User!</h1>
+                        <p class="welcome-description">Stay up to date with the latest barangay news, events, and services.</p>
+                        <div class="weather-info">
+                            <i data-feather="sun" class="weather-icon"></i>
+                            <span class="weather-text">Today: Sunny, 28°C</span>
+                        </div>
+                    </div>
+                    <div class="stats-container">
+                        <div class="stat-card">
+                            <div class="stat-number">3</div>
+                            <div class="stat-label">New Announcements</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">2</div>
+                            <div class="stat-label">Upcoming Events</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">1</div>
+                            <div class="stat-label">Pending Requests</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Access Cards -->
+        <section class="quick-access-section">
+            <div class="container">
+                <h2 class="section-title">Quick Access</h2>
+                <div class="quick-access-grid">
+                    <div class="quick-access-card" onclick="showToast('info', 'Redirecting to announcements...')">
+                        <div class="card-badge badge-red">3 New</div>
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i data-feather="users" class="icon-primary"></i>
+                            </div>
+                            <h3 class="card-title">Announcements</h3>
+                        </div>
+                        <div class="card-content">
+                            <p class="card-description">View latest barangay announcements and updates</p>
+                        </div>
+                    </div>
+
+                    <div class="quick-access-card" onclick="showToast('info', 'Redirecting to events...')">
+                        <div class="card-badge badge-blue">2 Upcoming</div>
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i data-feather="calendar" class="icon-primary"></i>
+                            </div>
+                            <h3 class="card-title">Events</h3>
+                        </div>
+                        <div class="card-content">
+                            <p class="card-description">Check upcoming community events and activities</p>
+                        </div>
+                    </div>
+
+                    <div class="quick-access-card" onclick="showToast('info', 'Redirecting to projects...')">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i data-feather="tool" class="icon-primary"></i>
+                            </div>
+                            <h3 class="card-title">Projects</h3>
+                        </div>
+                        <div class="card-content">
+                            <p class="card-description">Track ongoing barangay development projects</p>
+                        </div>
+                    </div>
+
+                    <div class="quick-access-card" onclick="openDocumentModal()">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i data-feather="file-text" class="icon-primary"></i>
+                            </div>
+                            <h3 class="card-title">Request Documents</h3>
+                        </div>
+                        <div class="card-content">
+                            <p class="card-description">Apply for barangay certificates and clearances</p>
+                        </div>
+                    </div>
+
+                    <div class="quick-access-card" onclick="openConcernModal()">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i data-feather="message-square" class="icon-primary"></i>
+                            </div>
+                            <h3 class="card-title">Submit Concerns</h3>
+                        </div>
+                        <div class="card-content">
+                            <p class="card-description">Report issues or submit feedback to barangay officials</p>
+                        </div>
+                    </div>
+
+                    <div class="quick-access-card" onclick="showToast('info', 'Redirecting to profile settings...')">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i data-feather="settings" class="icon-primary"></i>
+                            </div>
+                            <h3 class="card-title">My Profile</h3>
+                        </div>
+                        <div class="card-content">
+                            <p class="card-description">Update your personal information and settings</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recent Updates -->
+        <section class="recent-updates-section">
+            <div class="container">
+                <h2 class="section-title">Recent Updates</h2>
+                <div class="card updates-card">
+                    <div class="updates-list">
+                        <div class="update-item">
+                            <div class="update-icon">
+                                <div class="update-icon-circle">
+                                    <i data-feather="users" class="icon-primary"></i>
+                                </div>
+                            </div>
+                            <div class="update-content">
+                                <h4 class="update-title">New Announcement: Community Clean-up Drive</h4>
+                                <p class="update-description">Join us for our monthly community clean-up drive this Saturday at 7:00 AM.</p>
+                                <div class="update-time">
+                                    <i data-feather="clock" class="time-icon"></i>
+                                    2 hours ago
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="update-item">
+                            <div class="update-icon">
+                                <div class="update-icon-circle">
+                                    <i data-feather="calendar" class="icon-primary"></i>
+                                </div>
+                            </div>
+                            <div class="update-content">
+                                <h4 class="update-title">Event Reminder: Barangay Assembly Meeting</h4>
+                                <p class="update-description">Monthly barangay assembly meeting scheduled for December 20, 2024.</p>
+                                <div class="update-time">
+                                    <i data-feather="clock" class="time-icon"></i>
+                                    1 day ago
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="update-item">
+                            <div class="update-icon">
+                                <div class="update-icon-circle">
+                                    <i data-feather="check-circle" class="icon-primary"></i>
+                                </div>
+                            </div>
+                            <div class="update-content">
+                                <h4 class="update-title">Document Request Approved</h4>
+                                <p class="update-description">Your barangay clearance request has been approved and is ready for pickup.</p>
+                                <div class="update-time">
+                                    <i data-feather="clock" class="time-icon"></i>
+                                    2 days ago
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="update-item">
+                            <div class="update-icon">
+                                <div class="update-icon-circle">
+                                    <i data-feather="tool" class="icon-primary"></i>
+                                </div>
+                            </div>
+                            <div class="update-content">
+                                <h4 class="update-title">Project Update: Road Improvement</h4>
+                                <p class="update-description">Phase 2 of the road improvement project on Main Street has been completed.</p>
+                                <div class="update-time">
+                                    <i data-feather="clock" class="time-icon"></i>
+                                    3 days ago
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="update-item">
+                            <div class="update-icon">
+                                <div class="update-icon-circle">
+                                    <i data-feather="file-text" class="icon-primary"></i>
+                                </div>
+                            </div>
+                            <div class="update-content">
+                                <h4 class="update-title">Health Service: Free Medical Check-up</h4>
+                                <p class="update-description">Free medical check-up available at the barangay health center every Tuesday and Thursday.</p>
+                                <div class="update-time">
+                                    <i data-feather="clock" class="time-icon"></i>
+                                    1 week ago
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="load-more-container">
+                    <button onclick="showToast('info', 'Loading more updates...')" class="btn btn-outline">Load More Updates</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="modal">
+        <div class="modal-backdrop" onclick="closeAuthModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Welcome to BarangayLink</h2>
+                <p class="modal-description">Sign in to your account or create a new one to access BarangayLink services.</p>
+                <button class="modal-close" onclick="closeAuthModal()">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+            
+            <div class="tabs">
+                <div class="tab-list">
+                    <button class="tab-trigger active" onclick="switchAuthTab('login')">Login</button>
+                    <button class="tab-trigger" onclick="switchAuthTab('signup')">Sign Up</button>
+                    <button class="tab-trigger" onclick="switchAuthTab('reset')">Reset</button>
+                </div>
+                
+                <!-- Login Tab -->
+                <div id="login-tab" class="tab-content active">
+                    <form id="login-form" class="auth-form">
+                        <div class="form-group">
+                            <label for="login-email">Email</label>
+                            <input type="email" id="login-email" name="email" placeholder="Enter your email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password">Password</label>
+                            <input type="password" id="login-password" name="password" placeholder="Enter your password" required>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="remember-me" name="rememberMe">
+                            <label for="remember-me" class="checkbox-label">Remember me</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full" id="login-submit">
+                            <span class="btn-text">Login</span>
+                            <span class="btn-loading">Logging in...</span>
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Signup Tab -->
+                <div id="signup-tab" class="tab-content">
+                    <form id="signup-form" class="auth-form">
+                        <div class="form-group">
+                            <label for="signup-fullname">Full Name</label>
+                            <input type="text" id="signup-fullname" name="fullName" placeholder="Enter your full name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-email">Email</label>
+                            <input type="email" id="signup-email" name="email" placeholder="Enter your email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-password">Password</label>
+                            <input type="password" id="signup-password" name="password" placeholder="Enter your password" required>
+                            <p class="form-hint">Password must be at least 6 characters long</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-confirm-password">Confirm Password</label>
+                            <input type="password" id="signup-confirm-password" name="confirmPassword" placeholder="Confirm your password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full" id="signup-submit">
+                            <span class="btn-text">Register</span>
+                            <span class="btn-loading">Creating account...</span>
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Reset Tab -->
+                <div id="reset-tab" class="tab-content">
+                    <form id="reset-form" class="auth-form">
+                        <p class="form-description">Enter your email address and we'll send you instructions to reset your password.</p>
+                        <div class="form-group">
+                            <label for="reset-email">Email</label>
+                            <input type="email" id="reset-email" name="email" placeholder="Enter your email" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full" id="reset-submit">
+                            <span class="btn-text">Reset Password</span>
+                            <span class="btn-loading">Sending...</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Document Request Modal -->
+    <div id="document-modal" class="modal">
+        <div class="modal-backdrop" onclick="closeDocumentModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Request Document</h2>
+                <p class="modal-description">Submit a request for barangay certificates and official documents.</p>
+                <button class="modal-close" onclick="closeDocumentModal()">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+            
+            <form id="document-form" class="document-form">
+                <div class="form-group">
+                    <label for="document-type">Document Type *</label>
+                    <select id="document-type" name="documentType" required>
+                        <option value="">Select Document Type</option>
+                        <option value="barangay-clearance">Barangay Clearance</option>
+                        <option value="certificate-residency">Certificate of Residency</option>
+                        <option value="certificate-indigency">Certificate of Indigency</option>
+                        <option value="business-permit">Business Permit</option>
+                        <option value="id-replacement">ID Replacement</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="document-purpose">Purpose *</label>
+                    <input type="text" id="document-purpose" name="purpose" placeholder="e.g., Employment, Business, etc." required>
+                </div>
+
+                <div class="form-group">
+                    <label for="document-contact">Contact Number *</label>
+                    <input type="tel" id="document-contact" name="contactNumber" placeholder="Your contact number" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="document-notes">Additional Notes</label>
+                    <textarea id="document-notes" name="additionalNotes" placeholder="Any additional information..." rows="3"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full" id="document-submit">
+                    <span class="btn-text">Submit Request</span>
+                    <span class="btn-loading">Submitting Request...</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Concern Modal -->
+    <div id="concern-modal" class="modal">
+        <div class="modal-backdrop" onclick="closeConcernModal()"></div>
+        <div class="modal-content concern-modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Submit Concern</h2>
+                <p class="modal-description">Report community issues or submit feedback to barangay officials.</p>
+                <button class="modal-close" onclick="closeConcernModal()">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+            
+            <form id="concern-form" class="concern-form">
+                <div class="form-group">
+                    <label for="concern-type">Concern Type *</label>
+                    <select id="concern-type" name="concernType" required>
+                        <option value="">Select Concern Type</option>
+                        <option value="infrastructure">Infrastructure</option>
+                        <option value="public-safety">Public Safety</option>
+                        <option value="sanitation">Sanitation</option>
+                        <option value="noise-complaint">Noise Complaint</option>
+                        <option value="community-service">Community Service</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="concern-title">Title *</label>
+                    <input type="text" id="concern-title" name="concernTitle" placeholder="Brief title of your concern" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="concern-description">Description *</label>
+                    <textarea id="concern-description" name="concernDescription" placeholder="Please describe your concern in detail..." rows="4" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="concern-location">Location</label>
+                    <input type="text" id="concern-location" name="concernLocation" placeholder="Specific location or address (optional)">
+                </div>
+
+                <div class="form-group">
+                    <label for="concern-urgency">Urgency Level *</label>
+                    <select id="concern-urgency" name="urgencyLevel" required>
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                        <option value="emergency">Emergency</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full" id="concern-submit">
+                    <span class="btn-text">Submit Concern</span>
+                    <span class="btn-loading">Submitting Concern...</span>
+                </button>
+            </form>
+        </div>
     </div>
 
     <!-- Toast Container -->
-    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+    <div id="toast-container" class="toast-container"></div>
 
-    <!-- Scripts -->
-    <script src="./scripts/utils.js"></script>
-    <script src="./scripts/components.js"></script>
-    <script src="./scripts/app.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // Initialize feather icons when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+            initializeApp();
+        });
+    </script>
 </body>
 </html>
