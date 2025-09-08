@@ -1052,123 +1052,133 @@ class BarangayLinkApp {
         this.setupAuthModalEventListeners();
     }
 
-    setupAuthModalEventListeners() {
-        const modal = document.getElementById('auth-modal');
-        if (!modal) return;
+ setupAuthModalEventListeners = function () {
+    const loginForm = document.getElementById('login-form');
+    const signupForm = document.getElementById('signup-form');
+    const resetForm = document.getElementById('reset-form');
 
-        // Tab switching
-        const loginTab = modal.querySelector('#login-tab');
-        const signupTab = modal.querySelector('#signup-tab');
-        const resetTab = modal.querySelector('#reset-tab');
-        
-        const loginContent = modal.querySelector('#login-content');
-        const signupContent = modal.querySelector('#signup-content');
-        const resetContent = modal.querySelector('#reset-content');
+    const loginTab = document.getElementById('login-tab');
+    const signupTab = document.getElementById('signup-tab');
+    const resetTab = document.getElementById('reset-tab');
 
-        const switchTab = (activeTab, activeContent) => {
-            // Reset all tabs
-            [loginTab, signupTab, resetTab].forEach(tab => {
-                tab.className = 'flex-1 py-3 px-4 text-sm font-medium transition-colors text-gray-500 hover:text-gray-700';
-            });
-            [loginContent, signupContent, resetContent].forEach(content => {
-                content.classList.add('hidden');
-            });
-            
-            // Activate selected tab
-            activeTab.className = 'flex-1 py-3 px-4 text-sm font-medium transition-colors text-blue-600 border-b-2 border-blue-600 bg-blue-50';
-            activeContent.classList.remove('hidden');
-        };
+    const loginContent = document.getElementById('login-content');
+    const signupContent = document.getElementById('signup-content');
+    const resetContent = document.getElementById('reset-content');
 
-        loginTab.addEventListener('click', () => switchTab(loginTab, loginContent));
-        signupTab.addEventListener('click', () => switchTab(signupTab, signupContent));
-        resetTab.addEventListener('click', () => switchTab(resetTab, resetContent));
-
-        // Close modal
-        modal.querySelector('#close-modal').addEventListener('click', () => this.closeAuthModal());
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) this.closeAuthModal();
-        });
-
-        // Password toggle functionality
-        const togglePassword = (inputId, toggleId) => {
-            const input = modal.querySelector(`#${inputId}`);
-            const toggle = modal.querySelector(`#${toggleId}`);
-            const icon = toggle.querySelector('i');
-            
-            toggle.addEventListener('click', () => {
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    icon.className = 'fas fa-eye-slash';
-                } else {
-                    input.type = 'password';
-                    icon.className = 'fas fa-eye';
-                }
-            });
-        };
-
-        togglePassword('login-password', 'toggle-login-password');
-        togglePassword('signup-password', 'toggle-signup-password');
-        togglePassword('signup-confirm-password', 'toggle-signup-confirm-password');
-
-        // Form submissions
-        modal.querySelector('#login-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const email = formData.get('email');
-            const password = formData.get('password');
-
-            if (!email || !password) {
-                Toast.error('Please fill in all fields');
-                return;
-            }
-
-            this.handleLogin(email);
-        });
-
-        modal.querySelector('#signup-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const fullName = formData.get('fullName');
-            const email = formData.get('email');
-            const password = formData.get('password');
-            const confirmPassword = formData.get('confirmPassword');
-
-            if (!fullName || !email || !password || !confirmPassword) {
-                Toast.error('Please fill in all fields');
-                return;
-            }
-
-            if (password !== confirmPassword) {
-                Toast.error('Passwords do not match');
-                return;
-            }
-
-            if (password.length < 8) {
-                Toast.error('Password must be at least 8 characters long');
-                return;
-            }
-
-            this.handleLogin(email, fullName);
-        });
-
-        modal.querySelector('#reset-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const email = formData.get('email');
-
-            if (!email) {
-                Toast.error('Please enter your email address');
-                return;
-            }
-
-            Toast.success('Password reset link sent to your email!');
-            switchTab(loginTab, loginContent);
-        });
-
-        // Forgot password and back to login
-        modal.querySelector('#forgot-password').addEventListener('click', () => switchTab(resetTab, resetContent));
-        modal.querySelector('#back-to-login').addEventListener('click', () => switchTab(loginTab, loginContent));
+    // Tab switching
+    function switchTab(active) {
+        loginContent.classList.add('hidden');
+        signupContent.classList.add('hidden');
+        resetContent.classList.add('hidden');
+        if (active === 'login') loginContent.classList.remove('hidden');
+        if (active === 'signup') signupContent.classList.remove('hidden');
+        if (active === 'reset') resetContent.classList.remove('hidden');
     }
+
+    loginTab.addEventListener('click', () => switchTab('login'));
+    signupTab.addEventListener('click', () => switchTab('signup'));
+    resetTab.addEventListener('click', () => switchTab('reset'));
+    document.getElementById('back-to-login').addEventListener('click', () => switchTab('login'));
+
+    // Close modal
+    document.getElementById('close-modal').addEventListener('click', () => {
+        document.getElementById('auth-modal').remove();
+    });
+
+    // Helpers
+    function showError(message) {
+        alert(message); // you can swap this for Toast.error()
+    }
+
+    function getUsers() {
+        return JSON.parse(localStorage.getItem('users')) || [];
+    }
+
+    function saveUsers(users) {
+        localStorage.setItem('users', JSON.stringify(users));
+    }
+
+    // --- SIGNUP VALIDATION ---
+    signupForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const fullName = document.getElementById('signup-name').value.trim();
+        const email = document.getElementById('signup-email').value.trim();
+        const password = document.getElementById('signup-password').value.trim();
+        const confirmPassword = document.getElementById('signup-confirm-password').value.trim();
+
+        if (!fullName || !email || !password || !confirmPassword) {
+            return showError('All fields are required.');
+        }
+        if (password.length < 8) {
+            return showError('Password must be at least 8 characters long.');
+        }
+        if (password !== confirmPassword) {
+            return showError('Passwords do not match.');
+        }
+
+        let users = getUsers();
+        if (users.some(u => u.email === email)) {
+            return showError('This email is already registered.');
+        }
+
+        users.push({ fullName, email, password });
+        saveUsers(users);
+
+        alert('Account created successfully! Please login.');
+        switchTab('login');
+    });
+
+    // --- LOGIN VALIDATION ---
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value.trim();
+
+        if (!email || !password) {
+            return showError('Please enter both email and password.');
+        }
+
+        const users = getUsers();
+        if (users.length === 0) {
+            return showError('No registered users found. Please sign up first.');
+        }
+
+        const user = users.find(u => u.email === email && u.password === password);
+        if (!user) {
+            return showError('Invalid email or password.');
+        }
+
+        localStorage.setItem('loggedInUser', JSON.stringify(user));
+        alert(`Welcome ${user.fullName}, you are now logged in!`);
+        document.getElementById('auth-modal').remove();
+        // redirect to dashboard page if needed
+        // window.location.href = '/dashboard.html';
+    });
+
+    // --- RESET VALIDATION ---
+    resetForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('reset-email').value.trim();
+
+        if (!email) {
+            return showError('Please enter your email.');
+        }
+
+        const users = getUsers();
+        if (users.length === 0) {
+            return showError('No registered users. Please sign up first.');
+        }
+
+        const user = users.find(u => u.email === email);
+        if (!user) {
+            return showError('No account found with this email. Please sign up first.');
+        }
+
+        alert(`Password reset link sent to ${email} (simulation).`);
+        switchTab('login');
+    });
+};
+
 
     setupGlobalEventListeners() {
         // Make scrollToSection available globally
