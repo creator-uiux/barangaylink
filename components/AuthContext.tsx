@@ -4,14 +4,15 @@ interface User {
   id: number;
   fullName: string;
   email: string;
+  role: 'admin' | 'user';
   createdAt: string;
 }
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (email: string, password: string, rememberMe?: boolean) => Promise<{ success: boolean; message: string }>;
-  signup: (fullName: string, email: string, password: string) => Promise<{ success: boolean; message: string }>;
+  login: (email: string, password: string, role: 'admin' | 'user', rememberMe?: boolean) => Promise<{ success: boolean; message: string }>;
+  signup: (fullName: string, email: string, password: string, role: 'admin' | 'user') => Promise<{ success: boolean; message: string }>;
   logout: () => void;
   resetPassword: (email: string) => Promise<{ success: boolean; message: string }>;
 }
@@ -49,14 +50,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('barangaylink_users', JSON.stringify(users));
   };
 
-  const login = async (email: string, password: string, rememberMe = false): Promise<{ success: boolean; message: string }> => {
+  const login = async (email: string, password: string, role: 'admin' | 'user', rememberMe = false): Promise<{ success: boolean; message: string }> => {
     const users = getUsers();
-    const foundUser = users.find(u => u.email === email && u.password === password);
+    const foundUser = users.find(u => u.email === email && u.password === password && u.role === role);
 
     if (!foundUser) {
       return {
         success: false,
-        message: 'Invalid email or password. Please sign up if you don\'t have an account.'
+        message: 'Invalid email, password, or role selection. Please check your credentials and role.'
       };
     }
 
@@ -64,6 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       id: foundUser.id,
       fullName: foundUser.fullName,
       email: foundUser.email,
+      role: foundUser.role,
       createdAt: foundUser.createdAt
     };
 
@@ -78,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { success: true, message: 'Login successful!' };
   };
 
-  const signup = async (fullName: string, email: string, password: string): Promise<{ success: boolean; message: string }> => {
+  const signup = async (fullName: string, email: string, password: string, role: 'admin' | 'user'): Promise<{ success: boolean; message: string }> => {
     const users = getUsers();
 
     if (users.find(u => u.email === email)) {
@@ -93,6 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       fullName,
       email,
       password,
+      role,
       createdAt: new Date().toISOString()
     };
 

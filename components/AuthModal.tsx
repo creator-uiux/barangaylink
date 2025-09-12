@@ -5,6 +5,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Checkbox } from './ui/checkbox';
+import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { useAuth } from './AuthContext';
 import { toast } from 'sonner@2.0.3';
 
@@ -25,9 +26,16 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
     const formData = new FormData(e.currentTarget);
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
+    const role = formData.get('role') as 'admin' | 'user';
     const rememberMe = formData.get('rememberMe') === 'on';
 
-    const result = await login(email, password, rememberMe);
+    if (!role) {
+      toast.error('Please select your role (Admin or User)');
+      setIsLoading(false);
+      return;
+    }
+
+    const result = await login(email, password, role, rememberMe);
     
     if (result.success) {
       toast.success(result.message);
@@ -49,6 +57,13 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
     const confirmPassword = formData.get('confirmPassword') as string;
+    const role = formData.get('role') as 'admin' | 'user';
+
+    if (!role) {
+      toast.error('Please select your role (Admin or User)');
+      setIsLoading(false);
+      return;
+    }
 
     if (password.length < 6) {
       toast.error('Password must be at least 6 characters long');
@@ -62,7 +77,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
       return;
     }
 
-    const result = await signup(fullName, email, password);
+    const result = await signup(fullName, email, password, role);
     
     if (result.success) {
       toast.success(result.message);
@@ -133,6 +148,19 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                   required
                 />
               </div>
+              <div className="space-y-2">
+                <Label>Select your role</Label>
+                <RadioGroup name="role" required>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="user" id="role-user" />
+                    <Label htmlFor="role-user">User</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="admin" id="role-admin" />
+                    <Label htmlFor="role-admin">Admin</Label>
+                  </div>
+                </RadioGroup>
+              </div>
               <div className="flex items-center space-x-2">
                 <Checkbox id="rememberMe" name="rememberMe" />
                 <Label htmlFor="rememberMe" className="text-sm">Remember me</Label>
@@ -185,6 +213,19 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                   placeholder="Confirm your password"
                   required
                 />
+              </div>
+              <div className="space-y-2">
+                <Label>Select your role</Label>
+                <RadioGroup name="role" required>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="user" id="signup-role-user" />
+                    <Label htmlFor="signup-role-user">User</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="admin" id="signup-role-admin" />
+                    <Label htmlFor="signup-role-admin">Admin</Label>
+                  </div>
+                </RadioGroup>
               </div>
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? 'Creating account...' : 'Register'}

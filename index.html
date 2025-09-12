@@ -4,267 +4,182 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BarangayLink - Your Direct Link to Local Updates and Services</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles/globals.css">
     <link rel="stylesheet" href="styles.css">
-    <!-- Feather Icons for SVG icons -->
-    <script src="https://unpkg.com/feather-icons"></script>
-    <!-- Sonner for toast notifications -->
-    <script src="https://unpkg.com/sonner@2.0.3/dist/index.umd.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 </head>
-<body>
-    <!-- Loading Screen -->
-    <div id="loading" class="loading-screen">
-        <div class="loading-spinner"></div>
+<body class="min-h-screen bg-background text-foreground">
+    <!-- Loading Spinner -->
+    <div id="loading" class="fixed inset-0 bg-white flex items-center justify-center z-50">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
     </div>
 
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
     <!-- Landing Page -->
-    <div id="landing-page" class="page-container">
+    <div id="landing-page" class="hidden">
         <!-- Navigation -->
-        <nav class="nav-fixed">
-            <div class="nav-container">
-                <div class="nav-content">
-                    <div class="nav-brand">
-                        <i data-feather="link" class="nav-icon"></i>
-                        <span class="nav-title">BarangayLink</span>
+        <nav class="bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center space-x-2">
+                        <i data-lucide="link" class="h-8 w-8"></i>
+                        <span class="text-xl font-semibold">BarangayLink</span>
                     </div>
-                    
-                    <!-- Desktop Menu -->
-                    <div class="nav-menu-desktop">
-                        <button onclick="scrollToSection('home')" class="nav-link">Home</button>
-                        <button onclick="scrollToSection('announcements')" class="nav-link">Announcements</button>
-                        <button onclick="scrollToSection('events')" class="nav-link">Events</button>
-                        <button onclick="scrollToSection('projects')" class="nav-link">Projects</button>
-                        <button onclick="scrollToSection('contact')" class="nav-link">Contact</button>
-                        <button onclick="openAuthModal()" class="btn btn-primary">Login / Signup</button>
-                    </div>
-
-                    <!-- Mobile Menu Button -->
-                    <div class="nav-mobile-button">
-                        <button onclick="toggleMobileMenu()" class="mobile-menu-btn">
-                            <div class="hamburger">
-                                <span class="hamburger-line"></span>
-                                <span class="hamburger-line"></span>
-                                <span class="hamburger-line"></span>
-                            </div>
+                    <div class="flex items-center space-x-4">
+                        <button id="login-btn" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-md transition-colors">
+                            Sign In
                         </button>
-                    </div>
-                </div>
-
-                <!-- Mobile Menu -->
-                <div id="mobile-menu" class="nav-mobile-menu">
-                    <div class="mobile-menu-content">
-                        <button onclick="scrollToSection('home')" class="mobile-menu-item">Home</button>
-                        <button onclick="scrollToSection('announcements')" class="mobile-menu-item">Announcements</button>
-                        <button onclick="scrollToSection('events')" class="mobile-menu-item">Events</button>
-                        <button onclick="scrollToSection('projects')" class="mobile-menu-item">Projects</button>
-                        <button onclick="scrollToSection('contact')" class="mobile-menu-item">Contact</button>
-                        <button onclick="openAuthModal()" class="btn btn-primary mobile-auth-btn">Login / Signup</button>
+                        <button id="get-started-btn" class="bg-white text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-md transition-colors font-medium">
+                            Get Started
+                        </button>
                     </div>
                 </div>
             </div>
         </nav>
 
         <!-- Hero Section -->
-        <section id="home" class="hero-section">
-            <div class="container">
-                <div class="hero-content">
-                    <div class="hero-text">
-                        <h1 class="hero-title">BarangayLink - Your Direct Link to Local Updates and Services</h1>
-                        <p class="hero-description">Stay connected with your barangay community. Get real-time updates, access services, and participate in local governance.</p>
-                        <div class="hero-buttons">
-                            <button onclick="openAuthModal()" class="btn btn-primary btn-lg">Get Started</button>
-                            <button onclick="scrollToSection('announcements')" class="btn btn-outline btn-lg">View Announcements</button>
+        <section class="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white py-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                        BarangayLink<br>
+                        <span class="text-blue-200">Your Direct Link to Local Updates and Services</span>
+                    </h1>
+                    <p class="text-xl md:text-2xl mb-8 text-blue-100 max-w-3xl mx-auto">
+                        Access barangay services, submit document requests, report concerns, and stay connected with your community - all in one convenient platform.
+                    </p>
+                    <button id="hero-get-started" class="bg-white text-blue-600 hover:bg-blue-50 px-8 py-3 rounded-lg text-lg font-semibold transition-colors">
+                        Get Started Today
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services Section -->
+        <section class="py-16 bg-gray-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold mb-4">Our Services</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto">
+                        Streamlined access to essential barangay services designed to make your life easier.
+                    </p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                            <i data-lucide="file-text" class="w-6 h-6 text-blue-600"></i>
                         </div>
+                        <h3 class="text-xl font-semibold mb-2">Document Requests</h3>
+                        <p class="text-gray-600">Request barangay clearance, certificates, and other official documents online.</p>
                     </div>
-                    <div class="hero-visual">
-                        <div class="hero-circle">
-                            <i data-feather="users" class="hero-icon"></i>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                            <i data-lucide="message-square" class="w-6 h-6 text-green-600"></i>
                         </div>
+                        <h3 class="text-xl font-semibold mb-2">Submit Concerns</h3>
+                        <p class="text-gray-600">Report community issues, safety concerns, or submit feedback to officials.</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                            <i data-lucide="calendar" class="w-6 h-6 text-purple-600"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Community Events</h3>
+                        <p class="text-gray-600">Stay updated with upcoming community events and announcements.</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+                            <i data-lucide="users" class="w-6 h-6 text-orange-600"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Community Directory</h3>
+                        <p class="text-gray-600">Connect with fellow residents and community leaders.</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
+                            <i data-lucide="alert-triangle" class="w-6 h-6 text-red-600"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Emergency Alerts</h3>
+                        <p class="text-gray-600">Receive important emergency notifications and safety updates.</p>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                        <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
+                            <i data-lucide="info" class="w-6 h-6 text-indigo-600"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Information Hub</h3>
+                        <p class="text-gray-600">Access important barangay information, policies, and guidelines.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Announcements Preview -->
-        <section id="announcements" class="announcements-section">
-            <div class="container">
-                <h2 class="section-title">Latest Announcements</h2>
-                <div class="announcements-grid">
-                    <div class="announcement-card">
-                        <div class="card-header">
-                            <div class="card-icon">
-                                <i data-feather="users" class="icon-primary"></i>
-                            </div>
-                            <span class="badge badge-secondary">Dec 15, 2024</span>
-                        </div>
-                        <h3 class="card-title">Community Clean-up Drive</h3>
-                        <p class="card-description">Join us for our monthly community clean-up drive this Saturday at 7:00 AM. Let's keep our barangay clean and green!</p>
-                        <button class="link-button">Read More →</button>
-                    </div>
-
-                    <div class="announcement-card">
-                        <div class="card-header">
-                            <div class="card-icon">
-                                <i data-feather="calendar" class="icon-primary"></i>
-                            </div>
-                            <span class="badge badge-secondary">Dec 12, 2024</span>
-                        </div>
-                        <h3 class="card-title">Barangay Assembly Meeting</h3>
-                        <p class="card-description">Monthly barangay assembly meeting scheduled for December 20, 2024. All residents are encouraged to attend.</p>
-                        <button class="link-button">Read More →</button>
-                    </div>
-
-                    <div class="announcement-card">
-                        <div class="card-header">
-                            <div class="card-icon">
-                                <i data-feather="file-text" class="icon-primary"></i>
-                            </div>
-                            <span class="badge badge-secondary">Dec 10, 2024</span>
-                        </div>
-                        <h3 class="card-title">Free Medical Check-up</h3>
-                        <p class="card-description">Free medical check-up and consultation available at the barangay health center every Tuesday and Thursday.</p>
-                        <button class="link-button">Read More →</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Events & Projects Timeline -->
-        <section id="events" class="events-section">
-            <div class="container">
-                <h2 class="section-title">Events & Projects</h2>
-                <div class="timeline-container">
-                    <div class="timeline">
-                        <div class="timeline-line"></div>
-                        
-                        <div class="timeline-item timeline-right">
-                            <div class="timeline-content">
-                                <h3 class="timeline-title">Christmas Festival</h3>
-                                <p class="timeline-description">Annual Christmas celebration with cultural performances, food stalls, and activities for the whole family.</p>
-                            </div>
-                            <div class="timeline-badge">Dec 2024</div>
-                        </div>
-
-                        <div class="timeline-item timeline-left">
-                            <div class="timeline-content">
-                                <h3 class="timeline-title">Road Improvement Project</h3>
-                                <p class="timeline-description">Major road repairs and improvements completed on Main Street and surrounding areas.</p>
-                            </div>
-                            <div class="timeline-badge">Nov 2024</div>
-                        </div>
-
-                        <div class="timeline-item timeline-right">
-                            <div class="timeline-content">
-                                <h3 class="timeline-title">Youth Skills Training</h3>
-                                <p class="timeline-description">Computer literacy and vocational training program for barangay youth aged 16-25.</p>
-                            </div>
-                            <div class="timeline-badge">Oct 2024</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- How It Works -->
-        <section class="how-it-works-section">
-            <div class="container">
-                <h2 class="section-title">How It Works</h2>
-                <div class="steps-grid">
-                    <div class="step-item">
-                        <div class="step-icon-container">
-                            <div class="step-icon">
-                                <i data-feather="users" class="step-icon-svg"></i>
-                            </div>
-                            <div class="step-number">1</div>
-                        </div>
-                        <h3 class="step-title">Register</h3>
-                        <p class="step-description">Create your account with basic information to get started with BarangayLink services.</p>
-                    </div>
-
-                    <div class="step-item">
-                        <div class="step-icon-container">
-                            <div class="step-icon">
-                                <i data-feather="check-circle" class="step-icon-svg"></i>
-                            </div>
-                            <div class="step-number">2</div>
-                        </div>
-                        <h3 class="step-title">Login</h3>
-                        <p class="step-description">Access your personalized dashboard with your registered credentials.</p>
-                    </div>
-
-                    <div class="step-item">
-                        <div class="step-icon-container">
-                            <div class="step-icon">
-                                <i data-feather="calendar" class="step-icon-svg"></i>
-                            </div>
-                            <div class="step-number">3</div>
-                        </div>
-                        <h3 class="step-title">Stay Updated</h3>
-                        <p class="step-description">Receive real-time notifications about announcements, events, and important updates.</p>
-                    </div>
-
-                    <div class="step-item">
-                        <div class="step-icon-container">
-                            <div class="step-icon">
-                                <i data-feather="file-text" class="step-icon-svg"></i>
-                            </div>
-                            <div class="step-number">4</div>
-                        </div>
-                        <h3 class="step-title">Request Documents</h3>
-                        <p class="step-description">Submit requests for barangay certificates and other official documents online.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Contact Section -->
-        <section id="contact" class="contact-section">
-            <div class="container">
-                <h2 class="section-title">Contact Us</h2>
-                <div class="contact-grid">
-                    <div class="contact-info">
-                        <h3 class="contact-info-title">Get in Touch</h3>
-                        <div class="contact-details">
-                            <div class="contact-detail">
-                                <i data-feather="map-pin" class="contact-icon"></i>
-                                <div class="contact-text">
-                                    <p>Barangay Hall, Main Street</p>
-                                    <p class="text-muted">Your City, Philippines</p>
+        <!-- Features Section -->
+        <section class="py-16">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid lg:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <h2 class="text-3xl font-bold mb-6">Why Choose BarangayLink?</h2>
+                        <div class="space-y-6">
+                            <div class="flex items-start space-x-3">
+                                <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                    <i data-lucide="check" class="w-4 h-4 text-green-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold mb-1">24/7 Accessibility</h3>
+                                    <p class="text-gray-600">Access services anytime, anywhere from your computer or mobile device.</p>
                                 </div>
                             </div>
-                            <div class="contact-detail">
-                                <i data-feather="phone" class="contact-icon"></i>
-                                <p class="text-muted">+63 (02) 123-4567</p>
+                            
+                            <div class="flex items-start space-x-3">
+                                <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                    <i data-lucide="check" class="w-4 h-4 text-green-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold mb-1">Streamlined Processes</h3>
+                                    <p class="text-gray-600">Reduce paperwork and waiting times with our efficient digital processes.</p>
+                                </div>
                             </div>
-                            <div class="contact-detail">
-                                <i data-feather="mail" class="contact-icon"></i>
-                                <p class="text-muted">info@barangaylink.com</p>
+                            
+                            <div class="flex items-start space-x-3">
+                                <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                    <i data-lucide="check" class="w-4 h-4 text-green-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold mb-1">Real-time Updates</h3>
+                                    <p class="text-gray-600">Stay informed with instant notifications about your requests and community news.</p>
+                                </div>
                             </div>
-                            <div class="contact-detail">
-                                <i data-feather="clock" class="contact-icon"></i>
-                                <p class="text-muted">Monday - Friday: 8:00 AM - 5:00 PM</p>
+                            
+                            <div class="flex items-start space-x-3">
+                                <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                    <i data-lucide="check" class="w-4 h-4 text-green-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold mb-1">Secure & Private</h3>
+                                    <p class="text-gray-600">Your personal information is protected with industry-standard security measures.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="contact-form-container">
-                        <div class="card">
-                            <form id="contact-form" class="contact-form">
-                                <div class="form-group">
-                                    <label for="contact-name">Name</label>
-                                    <input type="text" id="contact-name" name="name" placeholder="Your full name" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="contact-email">Email</label>
-                                    <input type="email" id="contact-email" name="email" placeholder="Your email address" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="contact-message">Message</label>
-                                    <textarea id="contact-message" name="message" placeholder="Your message..." rows="5" required></textarea>
-                                </div>
-                                <button type="submit" class="btn btn-primary btn-full" id="contact-submit">
-                                    <span class="btn-text">Send Message</span>
-                                    <span class="btn-loading">Sending...</span>
-                                </button>
-                            </form>
+                    
+                    <div class="bg-gradient-to-br from-blue-50 to-indigo-100 p-8 rounded-lg">
+                        <div class="text-center">
+                            <div class="w-24 h-24 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <i data-lucide="smartphone" class="w-12 h-12 text-white"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold mb-4">Join 1,000+ Residents</h3>
+                            <p class="text-gray-600 mb-6">Already using BarangayLink to access services and stay connected with their community.</p>
+                            <button class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                                Get Started Now
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -272,88 +187,93 @@
         </section>
 
         <!-- Footer -->
-        <footer class="footer">
-            <div class="container">
-                <div class="footer-grid">
-                    <div class="footer-brand">
-                        <div class="footer-logo">
-                            <i data-feather="link" class="footer-icon"></i>
-                            <span class="footer-title">BarangayLink</span>
+        <footer class="bg-gray-800 text-white py-12">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid md:grid-cols-4 gap-8">
+                    <div>
+                        <div class="flex items-center space-x-2 mb-4">
+                            <i data-lucide="link" class="h-8 w-8"></i>
+                            <span class="text-xl font-semibold">BarangayLink</span>
                         </div>
-                        <p class="footer-description">Connecting communities, empowering residents, and promoting transparency in local governance.</p>
+                        <p class="text-gray-300">Connecting communities through digital innovation.</p>
                     </div>
-                    <div class="footer-links">
-                        <h4 class="footer-heading">Quick Links</h4>
-                        <ul class="footer-list">
-                            <li><button onclick="scrollToSection('home')" class="footer-link">Home</button></li>
-                            <li><button onclick="scrollToSection('announcements')" class="footer-link">Announcements</button></li>
-                            <li><button onclick="scrollToSection('events')" class="footer-link">Events</button></li>
-                            <li><button onclick="scrollToSection('contact')" class="footer-link">Contact</button></li>
+                    
+                    <div>
+                        <h3 class="font-semibold mb-4">Services</h3>
+                        <ul class="space-y-2 text-gray-300">
+                            <li>Document Requests</li>
+                            <li>Submit Concerns</li>
+                            <li>Community Events</li>
+                            <li>Emergency Alerts</li>
                         </ul>
                     </div>
-                    <div class="footer-links">
-                        <h4 class="footer-heading">Services</h4>
-                        <ul class="footer-list">
-                            <li><a href="#" class="footer-link">Document Requests</a></li>
-                            <li><a href="#" class="footer-link">Community Reports</a></li>
-                            <li><a href="#" class="footer-link">Online Services</a></li>
-                            <li><a href="#" class="footer-link">Support</a></li>
+                    
+                    <div>
+                        <h3 class="font-semibold mb-4">Support</h3>
+                        <ul class="space-y-2 text-gray-300">
+                            <li>Help Center</li>
+                            <li>Contact Us</li>
+                            <li>User Guide</li>
+                            <li>FAQ</li>
                         </ul>
                     </div>
-                    <div class="footer-info">
-                        <h4 class="footer-heading">Barangay Info</h4>
-                        <div class="footer-details">
-                            <p><span class="footer-label">Captain:</span> Juan Dela Cruz</p>
-                            <p><span class="footer-label">Population:</span> 15,000</p>
-                            <p><span class="footer-label">Area:</span> 2.5 sq km</p>
+                    
+                    <div>
+                        <h3 class="font-semibold mb-4">Contact</h3>
+                        <div class="space-y-2 text-gray-300">
+                            <p>📧 info@barangaylink.gov</p>
+                            <p>📞 (02) 123-4567</p>
+                            <p>📍 Barangay Hall, Your City</p>
                         </div>
                     </div>
                 </div>
-                <div class="footer-bottom">
-                    <p>&copy; 2024 BarangayLink. All rights reserved.</p>
+                
+                <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                    <p>&copy; 2025 BarangayLink. All rights reserved.</p>
                 </div>
             </div>
         </footer>
     </div>
 
-    <!-- Dashboard Page -->
-    <div id="dashboard-page" class="page-container" style="display: none;">
-        <!-- Dashboard Navigation -->
-        <nav class="dashboard-nav">
-            <div class="nav-container">
-                <div class="nav-content">
-                    <div class="nav-brand">
-                        <i data-feather="link" class="nav-icon"></i>
-                        <span class="nav-title">BarangayLink</span>
+    <!-- User Dashboard -->
+    <div id="user-dashboard" class="hidden">
+        <!-- Navigation -->
+        <nav class="bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center space-x-2">
+                        <i data-lucide="link" class="h-8 w-8"></i>
+                        <span class="text-xl font-semibold">BarangayLink</span>
                     </div>
                     
                     <!-- Desktop Menu -->
-                    <div class="nav-menu-desktop">
-                        <a href="#" class="dashboard-nav-link active">Dashboard</a>
-                        <a href="#" class="dashboard-nav-link">Announcements</a>
-                        <a href="#" class="dashboard-nav-link">Events</a>
-                        <a href="#" class="dashboard-nav-link">Projects</a>
-                        <a href="#" class="dashboard-nav-link">My Requests</a>
-                        <button onclick="logout()" class="btn btn-ghost">
-                            <i data-feather="log-out" class="btn-icon"></i>
+                    <div class="hidden md:flex items-center space-x-8">
+                        <button id="user-overview-btn" class="hover:bg-white/10 px-3 py-2 rounded-md transition-colors bg-white/10">
+                            Dashboard
+                        </button>
+                        <button id="user-profile-btn" class="hover:bg-white/10 px-3 py-2 rounded-md transition-colors">
+                            My Profile
+                        </button>
+                        <button id="user-logout-btn" class="text-white hover:bg-white/10 px-3 py-2 rounded-md transition-colors">
+                            <i data-lucide="log-out" class="w-4 h-4 mr-2 inline"></i>
                             Logout
                         </button>
                     </div>
 
                     <!-- User Profile -->
-                    <div class="user-profile">
-                        <div class="user-info">
-                            <i data-feather="settings" class="user-icon"></i>
-                            <span id="user-welcome">Welcome, User</span>
+                    <div class="flex items-center space-x-3">
+                        <div class="hidden md:flex items-center space-x-2">
+                            <i data-lucide="user" class="w-5 h-5"></i>
+                            <span id="user-name-nav">User</span>
                         </div>
                         
                         <!-- Mobile Menu Button -->
-                        <div class="nav-mobile-button">
-                            <button onclick="toggleDashboardMobileMenu()" class="mobile-menu-btn">
-                                <div class="hamburger">
-                                    <span class="hamburger-line"></span>
-                                    <span class="hamburger-line"></span>
-                                    <span class="hamburger-line"></span>
+                        <div class="md:hidden">
+                            <button id="user-mobile-menu-btn" class="p-2 rounded-md hover:bg-white/10">
+                                <div class="w-6 h-6 flex flex-col justify-around">
+                                    <span class="h-0.5 w-6 bg-white transform transition"></span>
+                                    <span class="h-0.5 w-6 bg-white transition"></span>
+                                    <span class="h-0.5 w-6 bg-white transform transition"></span>
                                 </div>
                             </button>
                         </div>
@@ -361,15 +281,16 @@
                 </div>
 
                 <!-- Mobile Menu -->
-                <div id="dashboard-mobile-menu" class="dashboard-mobile-menu">
-                    <div class="mobile-menu-content">
-                        <a href="#" class="mobile-menu-item">Dashboard</a>
-                        <a href="#" class="mobile-menu-item">Announcements</a>
-                        <a href="#" class="mobile-menu-item">Events</a>
-                        <a href="#" class="mobile-menu-item">Projects</a>
-                        <a href="#" class="mobile-menu-item">My Requests</a>
-                        <button onclick="logout()" class="btn btn-ghost mobile-logout-btn">
-                            <i data-feather="log-out" class="btn-icon"></i>
+                <div id="user-mobile-menu" class="hidden md:hidden bg-blue-700 border-t border-blue-600">
+                    <div class="px-2 pt-2 pb-3 space-y-1">
+                        <button id="user-overview-mobile-btn" class="block px-3 py-2 hover:bg-white/10 rounded-md w-full text-left">
+                            Dashboard
+                        </button>
+                        <button id="user-profile-mobile-btn" class="block px-3 py-2 hover:bg-white/10 rounded-md w-full text-left">
+                            My Profile
+                        </button>
+                        <button id="user-logout-mobile-btn" class="w-full justify-start text-white hover:bg-white/10 mt-2 px-3 py-2 rounded-md text-left">
+                            <i data-lucide="log-out" class="w-4 h-4 mr-2 inline"></i>
                             Logout
                         </button>
                     </div>
@@ -377,315 +298,554 @@
             </div>
         </nav>
 
-        <!-- Welcome Banner -->
-        <section class="welcome-banner">
-            <div class="container">
-                <div class="welcome-content">
-                    <div class="welcome-text">
-                        <h1 id="welcome-message" class="welcome-title">Welcome, User!</h1>
-                        <p class="welcome-description">Stay up to date with the latest barangay news, events, and services.</p>
-                        <div class="weather-info">
-                            <i data-feather="sun" class="weather-icon"></i>
-                            <span class="weather-text">Today: Sunny, 28°C</span>
+        <!-- User Dashboard Content -->
+        <div id="user-overview-section">
+            <!-- Hero Section -->
+            <section class="bg-gradient-to-r from-blue-600 to-blue-700 text-white py-12">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                        <div class="text-center lg:text-left mb-8 lg:mb-0">
+                            <h1 class="text-3xl font-bold mb-2">Welcome, <span id="user-welcome-name">User</span>!</h1>
+                            <p class="text-blue-100 mb-4">Stay up to date with the latest barangay news, events, and services.</p>
+                            <div class="flex items-center justify-center lg:justify-start space-x-2">
+                                <i data-lucide="sun" class="w-5 h-5"></i>
+                                <span class="text-blue-100">Today: Sunny, 28°C</span>
+                            </div>
+                        </div>
+                        <div class="flex space-x-8 text-center">
+                            <div class="bg-white/10 p-4 rounded-lg">
+                                <div class="text-2xl font-bold">3</div>
+                                <div class="text-sm text-blue-100">New Announcements</div>
+                            </div>
+                            <div class="bg-white/10 p-4 rounded-lg">
+                                <div class="text-2xl font-bold">2</div>
+                                <div class="text-sm text-blue-100">Upcoming Events</div>
+                            </div>
+                            <div class="bg-white/10 p-4 rounded-lg">
+                                <div class="text-2xl font-bold" id="user-pending-requests">0</div>
+                                <div class="text-sm text-blue-100">Pending Requests</div>
+                            </div>
                         </div>
                     </div>
-                    <div class="stats-container">
-                        <div class="stat-card">
-                            <div class="stat-number">3</div>
-                            <div class="stat-label">New Announcements</div>
+                </div>
+            </section>
+
+            <!-- Quick Access Cards -->
+            <section class="py-12">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <h2 class="text-2xl font-bold mb-8">Quick Access</h2>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 hover:-translate-y-1 border-l-4 border-l-blue-600 cursor-pointer" onclick="openDocumentModal()">
+                            <div class="p-6">
+                                <div class="flex items-center space-x-3 mb-3">
+                                    <div class="p-2 bg-blue-100 rounded-lg">
+                                        <i data-lucide="file-text" class="w-6 h-6 text-blue-600"></i>
+                                    </div>
+                                    <h3 class="text-lg font-semibold">Request Documents</h3>
+                                </div>
+                                <p class="text-gray-600">Submit requests for barangay clearance, certificates, and other official documents</p>
+                            </div>
                         </div>
-                        <div class="stat-card">
-                            <div class="stat-number">2</div>
-                            <div class="stat-label">Upcoming Events</div>
+
+                        <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 hover:-translate-y-1 border-l-4 border-l-green-600 cursor-pointer" onclick="openConcernModal()">
+                            <div class="p-6">
+                                <div class="flex items-center space-x-3 mb-3">
+                                    <div class="p-2 bg-green-100 rounded-lg">
+                                        <i data-lucide="message-square" class="w-6 h-6 text-green-600"></i>
+                                    </div>
+                                    <h3 class="text-lg font-semibold">Submit Concerns</h3>
+                                </div>
+                                <p class="text-gray-600">Report issues or submit feedback to barangay officials</p>
+                            </div>
                         </div>
-                        <div class="stat-card">
-                            <div class="stat-number">1</div>
-                            <div class="stat-label">Pending Requests</div>
+
+                        <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 hover:-translate-y-1 border-l-4 border-l-purple-600 cursor-pointer" onclick="showUserProfile()">
+                            <div class="p-6">
+                                <div class="flex items-center space-x-3 mb-3">
+                                    <div class="p-2 bg-purple-100 rounded-lg">
+                                        <i data-lucide="settings" class="w-6 h-6 text-purple-600"></i>
+                                    </div>
+                                    <h3 class="text-lg font-semibold">My Profile</h3>
+                                </div>
+                                <p class="text-gray-600">Update your personal information and settings</p>
+                            </div>
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recent Updates -->
+            <section class="py-12 bg-gray-50">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <h2 class="text-2xl font-bold mb-8">Recent Updates</h2>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <div class="flex items-start space-x-3">
+                                <div class="p-2 bg-blue-100 rounded-lg">
+                                    <i data-lucide="users" class="w-5 h-5 text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold mb-1">New Announcement: Community Clean-up Drive</h3>
+                                    <p class="text-gray-600 text-sm mb-2">Join us for our monthly community clean-up drive this Saturday at 7:00 AM.</p>
+                                    <span class="text-xs text-gray-500">2 hours ago</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <div class="flex items-start space-x-3">
+                                <div class="p-2 bg-green-100 rounded-lg">
+                                    <i data-lucide="calendar" class="w-5 h-5 text-green-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold mb-1">Upcoming Event: Health and Wellness Fair</h3>
+                                    <p class="text-gray-600 text-sm mb-2">Free health checkups and wellness activities for all residents next weekend.</p>
+                                    <span class="text-xs text-gray-500">1 day ago</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <div class="flex items-start space-x-3">
+                                <div class="p-2 bg-orange-100 rounded-lg">
+                                    <i data-lucide="alert-triangle" class="w-5 h-5 text-orange-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold mb-1">Service Advisory: Road Maintenance</h3>
+                                    <p class="text-gray-600 text-sm mb-2">Temporary road closure on Main Street for maintenance works from 6 AM to 12 PM.</p>
+                                    <span class="text-xs text-gray-500">3 days ago</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- User Profile Section -->
+        <div id="user-profile-section" class="hidden">
+            <section class="py-8 bg-gray-50 min-h-screen">
+                <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="mb-8">
+                        <h1 class="text-3xl font-bold mb-2">My Profile</h1>
+                        <p class="text-gray-600">Manage your account information and settings</p>
+                    </div>
+
+                    <div class="grid gap-6 lg:grid-cols-3">
+                        <!-- Profile Information Card -->
+                        <div class="lg:col-span-2">
+                            <div class="bg-white rounded-lg shadow-md">
+                                <div class="p-6 border-b flex items-center justify-between">
+                                    <h3 class="text-lg font-semibold">Personal Information</h3>
+                                    <button id="edit-profile-btn" class="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                                        <i data-lucide="edit" class="w-4 h-4 mr-2 inline"></i>
+                                        Edit
+                                    </button>
+                                </div>
+                                <div class="p-6 space-y-4">
+                                    <div class="grid md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                                            <input id="profile-fullname" type="text" readonly class="w-full p-3 border border-gray-300 rounded-md bg-gray-50">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                                            <input id="profile-email" type="email" readonly class="w-full p-3 border border-gray-300 rounded-md bg-gray-50">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                                            <input id="profile-phone" type="tel" readonly class="w-full p-3 border border-gray-300 rounded-md bg-gray-50" placeholder="Enter your phone number">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                                            <input id="profile-address" type="text" readonly class="w-full p-3 border border-gray-300 rounded-md bg-gray-50" placeholder="Enter your address">
+                                        </div>
+                                    </div>
+
+                                    <div id="profile-edit-actions" class="hidden flex space-x-3 pt-4">
+                                        <button id="save-profile-btn" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                                            Save Changes
+                                        </button>
+                                        <button id="cancel-profile-btn" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors">
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Statistics Card -->
+                        <div class="space-y-6">
+                            <div class="bg-white rounded-lg shadow-md p-6">
+                                <h3 class="text-lg font-semibold mb-4">Account Statistics</h3>
+                                <div class="space-y-4">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-600">Document Requests</span>
+                                        <span id="profile-requests-count" class="font-semibold text-blue-600">0</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-600">Concerns Submitted</span>
+                                        <span id="profile-concerns-count" class="font-semibold text-green-600">0</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-600">Member Since</span>
+                                        <span id="profile-member-since" class="font-semibold text-gray-700">-</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-lg shadow-md p-6">
+                                <h3 class="text-lg font-semibold mb-4">Account Actions</h3>
+                                <div class="space-y-3">
+                                    <button class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors" onclick="openDocumentModal()">
+                                        Request Document
+                                    </button>
+                                    <button class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors" onclick="openConcernModal()">
+                                        Submit Concern
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="admin-dashboard" class="hidden">
+        <!-- Navigation -->
+        <nav class="bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center space-x-2">
+                        <i data-lucide="link" class="h-8 w-8"></i>
+                        <span class="text-xl font-semibold">BarangayLink Admin</span>
+                    </div>
+                    
+                    <!-- Desktop Menu -->
+                    <div class="hidden md:flex items-center space-x-8">
+                        <button id="admin-overview-btn" class="hover:bg-white/10 px-3 py-2 rounded-md transition-colors bg-white/10">
+                            Dashboard
+                        </button>
+                        <button id="admin-requests-btn" class="hover:bg-white/10 px-3 py-2 rounded-md transition-colors">
+                            Document Requests
+                        </button>
+                        <button id="admin-concerns-btn" class="hover:bg-white/10 px-3 py-2 rounded-md transition-colors">
+                            Concerns
+                        </button>
+                        <button id="admin-users-btn" class="hover:bg-white/10 px-3 py-2 rounded-md transition-colors">
+                            Users
+                        </button>
+                        <button id="admin-logout-btn" class="text-white hover:bg-white/10 px-3 py-2 rounded-md transition-colors">
+                            <i data-lucide="log-out" class="w-4 h-4 mr-2 inline"></i>
+                            Logout
+                        </button>
+                    </div>
+
+                    <!-- User Profile -->
+                    <div class="flex items-center space-x-3">
+                        <div class="hidden md:flex items-center space-x-2">
+                            <i data-lucide="settings" class="w-5 h-5"></i>
+                            <span>Admin: <span id="admin-name-nav">Admin</span></span>
+                        </div>
+                        
+                        <!-- Mobile Menu Button -->
+                        <div class="md:hidden">
+                            <button id="admin-mobile-menu-btn" class="p-2 rounded-md hover:bg-white/10">
+                                <div class="w-6 h-6 flex flex-col justify-around">
+                                    <span class="h-0.5 w-6 bg-white transform transition"></span>
+                                    <span class="h-0.5 w-6 bg-white transition"></span>
+                                    <span class="h-0.5 w-6 bg-white transform transition"></span>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile Menu -->
+                <div id="admin-mobile-menu" class="hidden md:hidden bg-blue-700 border-t border-blue-600">
+                    <div class="px-2 pt-2 pb-3 space-y-1">
+                        <button id="admin-overview-mobile-btn" class="block px-3 py-2 hover:bg-white/10 rounded-md w-full text-left">
+                            Dashboard
+                        </button>
+                        <button id="admin-requests-mobile-btn" class="block px-3 py-2 hover:bg-white/10 rounded-md w-full text-left">
+                            Document Requests
+                        </button>
+                        <button id="admin-concerns-mobile-btn" class="block px-3 py-2 hover:bg-white/10 rounded-md w-full text-left">
+                            Concerns
+                        </button>
+                        <button id="admin-users-mobile-btn" class="block px-3 py-2 hover:bg-white/10 rounded-md w-full text-left">
+                            Users
+                        </button>
+                        <button id="admin-logout-mobile-btn" class="w-full justify-start text-white hover:bg-white/10 mt-2 px-3 py-2 rounded-md text-left">
+                            <i data-lucide="log-out" class="w-4 h-4 mr-2 inline"></i>
+                            Logout
+                        </button>
                     </div>
                 </div>
             </div>
-        </section>
+        </nav>
 
-        <!-- Quick Access Cards -->
-        <section class="quick-access-section">
-            <div class="container">
-                <h2 class="section-title">Quick Access</h2>
-                <div class="quick-access-grid">
-                    <div class="quick-access-card" onclick="showToast('info', 'Redirecting to announcements...')">
-                        <div class="card-badge badge-red">3 New</div>
-                        <div class="card-header">
-                            <div class="card-icon">
-                                <i data-feather="users" class="icon-primary"></i>
+        <!-- Admin Dashboard Content -->
+        <div id="admin-overview-section">
+            <section class="py-8">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="mb-8">
+                        <h1 class="text-3xl font-bold mb-2">Admin Dashboard</h1>
+                        <p class="text-gray-600">Monitor and manage all barangay activities</p>
+                    </div>
+
+                    <!-- Statistics Cards -->
+                    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-600">Total Users</p>
+                                    <p id="admin-total-users" class="text-2xl font-bold text-blue-600">0</p>
+                                </div>
+                                <i data-lucide="users" class="w-8 h-8 text-blue-600"></i>
                             </div>
-                            <h3 class="card-title">Announcements</h3>
                         </div>
-                        <div class="card-content">
-                            <p class="card-description">View latest barangay announcements and updates</p>
+
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-600">Document Requests</p>
+                                    <p id="admin-total-requests" class="text-2xl font-bold text-green-600">0</p>
+                                </div>
+                                <i data-lucide="file-text" class="w-8 h-8 text-green-600"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-600">Concerns Submitted</p>
+                                    <p id="admin-total-concerns" class="text-2xl font-bold text-orange-600">0</p>
+                                </div>
+                                <i data-lucide="message-square" class="w-8 h-8 text-orange-600"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-600">Pending Requests</p>
+                                    <p id="admin-pending-requests" class="text-2xl font-bold text-red-600">0</p>
+                                </div>
+                                <i data-lucide="clock" class="w-8 h-8 text-red-600"></i>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="quick-access-card" onclick="showToast('info', 'Redirecting to events...')">
-                        <div class="card-badge badge-blue">2 Upcoming</div>
-                        <div class="card-header">
-                            <div class="card-icon">
-                                <i data-feather="calendar" class="icon-primary"></i>
-                            </div>
-                            <h3 class="card-title">Events</h3>
+                    <!-- Recent Activity -->
+                    <div class="bg-white rounded-lg shadow-md">
+                        <div class="p-6 border-b">
+                            <h3 class="text-lg font-semibold">Recent Activity</h3>
                         </div>
-                        <div class="card-content">
-                            <p class="card-description">Check upcoming community events and activities</p>
-                        </div>
-                    </div>
-
-                    <div class="quick-access-card" onclick="showToast('info', 'Redirecting to projects...')">
-                        <div class="card-header">
-                            <div class="card-icon">
-                                <i data-feather="tool" class="icon-primary"></i>
-                            </div>
-                            <h3 class="card-title">Projects</h3>
-                        </div>
-                        <div class="card-content">
-                            <p class="card-description">Track ongoing barangay development projects</p>
-                        </div>
-                    </div>
-
-                    <div class="quick-access-card" onclick="openDocumentModal()">
-                        <div class="card-header">
-                            <div class="card-icon">
-                                <i data-feather="file-text" class="icon-primary"></i>
-                            </div>
-                            <h3 class="card-title">Request Documents</h3>
-                        </div>
-                        <div class="card-content">
-                            <p class="card-description">Apply for barangay certificates and clearances</p>
-                        </div>
-                    </div>
-
-                    <div class="quick-access-card" onclick="openConcernModal()">
-                        <div class="card-header">
-                            <div class="card-icon">
-                                <i data-feather="message-square" class="icon-primary"></i>
-                            </div>
-                            <h3 class="card-title">Submit Concerns</h3>
-                        </div>
-                        <div class="card-content">
-                            <p class="card-description">Report issues or submit feedback to barangay officials</p>
-                        </div>
-                    </div>
-
-                    <div class="quick-access-card" onclick="showToast('info', 'Redirecting to profile settings...')">
-                        <div class="card-header">
-                            <div class="card-icon">
-                                <i data-feather="settings" class="icon-primary"></i>
-                            </div>
-                            <h3 class="card-title">My Profile</h3>
-                        </div>
-                        <div class="card-content">
-                            <p class="card-description">Update your personal information and settings</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Recent Updates -->
-        <section class="recent-updates-section">
-            <div class="container">
-                <h2 class="section-title">Recent Updates</h2>
-                <div class="card updates-card">
-                    <div class="updates-list">
-                        <div class="update-item">
-                            <div class="update-icon">
-                                <div class="update-icon-circle">
-                                    <i data-feather="users" class="icon-primary"></i>
-                                </div>
-                            </div>
-                            <div class="update-content">
-                                <h4 class="update-title">New Announcement: Community Clean-up Drive</h4>
-                                <p class="update-description">Join us for our monthly community clean-up drive this Saturday at 7:00 AM.</p>
-                                <div class="update-time">
-                                    <i data-feather="clock" class="time-icon"></i>
-                                    2 hours ago
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="update-item">
-                            <div class="update-icon">
-                                <div class="update-icon-circle">
-                                    <i data-feather="calendar" class="icon-primary"></i>
-                                </div>
-                            </div>
-                            <div class="update-content">
-                                <h4 class="update-title">Event Reminder: Barangay Assembly Meeting</h4>
-                                <p class="update-description">Monthly barangay assembly meeting scheduled for December 20, 2024.</p>
-                                <div class="update-time">
-                                    <i data-feather="clock" class="time-icon"></i>
-                                    1 day ago
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="update-item">
-                            <div class="update-icon">
-                                <div class="update-icon-circle">
-                                    <i data-feather="check-circle" class="icon-primary"></i>
-                                </div>
-                            </div>
-                            <div class="update-content">
-                                <h4 class="update-title">Document Request Approved</h4>
-                                <p class="update-description">Your barangay clearance request has been approved and is ready for pickup.</p>
-                                <div class="update-time">
-                                    <i data-feather="clock" class="time-icon"></i>
-                                    2 days ago
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="update-item">
-                            <div class="update-icon">
-                                <div class="update-icon-circle">
-                                    <i data-feather="tool" class="icon-primary"></i>
-                                </div>
-                            </div>
-                            <div class="update-content">
-                                <h4 class="update-title">Project Update: Road Improvement</h4>
-                                <p class="update-description">Phase 2 of the road improvement project on Main Street has been completed.</p>
-                                <div class="update-time">
-                                    <i data-feather="clock" class="time-icon"></i>
-                                    3 days ago
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="update-item">
-                            <div class="update-icon">
-                                <div class="update-icon-circle">
-                                    <i data-feather="file-text" class="icon-primary"></i>
-                                </div>
-                            </div>
-                            <div class="update-content">
-                                <h4 class="update-title">Health Service: Free Medical Check-up</h4>
-                                <p class="update-description">Free medical check-up available at the barangay health center every Tuesday and Thursday.</p>
-                                <div class="update-time">
-                                    <i data-feather="clock" class="time-icon"></i>
-                                    1 week ago
-                                </div>
+                        <div class="p-6">
+                            <div id="admin-recent-activity" class="space-y-4">
+                                <!-- Recent activity items will be populated here -->
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="load-more-container">
-                    <button onclick="showToast('info', 'Loading more updates...')" class="btn btn-outline">Load More Updates</button>
+            </section>
+        </div>
+
+        <!-- Admin Requests Section -->
+        <div id="admin-requests-section" class="hidden">
+            <section class="py-8 bg-gray-50 min-h-screen">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+                        <div>
+                            <h1 class="text-3xl font-bold mb-2">Document Requests</h1>
+                            <p class="text-gray-600">Manage all user document requests</p>
+                        </div>
+                        <div class="flex items-center space-x-2 mt-4 md:mt-0">
+                            <div class="relative">
+                                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <input id="admin-requests-search" type="text" placeholder="Search requests..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-md">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="admin-requests-list" class="space-y-4">
+                        <!-- Requests will be populated here -->
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        </div>
+
+        <!-- Admin Concerns Section -->
+        <div id="admin-concerns-section" class="hidden">
+            <section class="py-8 bg-gray-50 min-h-screen">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+                        <div>
+                            <h1 class="text-3xl font-bold mb-2">Community Concerns</h1>
+                            <p class="text-gray-600">Manage all user submitted concerns</p>
+                        </div>
+                        <div class="flex items-center space-x-2 mt-4 md:mt-0">
+                            <div class="relative">
+                                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <input id="admin-concerns-search" type="text" placeholder="Search concerns..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-md">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="admin-concerns-list" class="space-y-4">
+                        <!-- Concerns will be populated here -->
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Admin Users Section -->
+        <div id="admin-users-section" class="hidden">
+            <section class="py-8 bg-gray-50 min-h-screen">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+                        <div>
+                            <h1 class="text-3xl font-bold mb-2">Registered Users</h1>
+                            <p class="text-gray-600">View all registered barangay users</p>
+                        </div>
+                        <div class="flex items-center space-x-2 mt-4 md:mt-0">
+                            <div class="relative">
+                                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <input id="admin-users-search" type="text" placeholder="Search users..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-md">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="admin-users-list" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Users will be populated here -->
+                    </div>
+                </div>
+            </section>
+        </div>
     </div>
 
     <!-- Auth Modal -->
-    <div id="auth-modal" class="modal">
-        <div class="modal-backdrop" onclick="closeAuthModal()"></div>
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Welcome to BarangayLink</h2>
-                <p class="modal-description">Sign in to your account or create a new one to access BarangayLink services.</p>
-                <button class="modal-close" onclick="closeAuthModal()">
-                    <i data-feather="x"></i>
-                </button>
+    <div id="auth-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg max-w-md w-full mx-4">
+            <div class="p-6 border-b text-center">
+                <h2 class="text-2xl font-bold">Welcome to BarangayLink</h2>
+                <p class="text-gray-600 mt-2">Sign in to your account or create a new one to access BarangayLink services.</p>
             </div>
             
-            <div class="tabs">
-                <div class="tab-list">
-                    <button class="tab-trigger active" onclick="switchAuthTab('login')">Login</button>
-                    <button class="tab-trigger" onclick="switchAuthTab('signup')">Sign Up</button>
-                    <button class="tab-trigger" onclick="switchAuthTab('reset')">Reset</button>
+            <div class="p-6">
+                <!-- Tab Navigation -->
+                <div class="flex border-b mb-6">
+                    <button id="login-tab" class="flex-1 py-2 px-4 text-center border-b-2 border-blue-600 text-blue-600 font-medium">Login</button>
+                    <button id="signup-tab" class="flex-1 py-2 px-4 text-center border-b-2 border-transparent text-gray-500 hover:text-gray-700">Sign Up</button>
+                    <button id="reset-tab" class="flex-1 py-2 px-4 text-center border-b-2 border-transparent text-gray-500 hover:text-gray-700">Reset</button>
                 </div>
-                
-                <!-- Login Tab -->
-                <div id="login-tab" class="tab-content active">
-                    <form id="login-form" class="auth-form">
-                        <div class="form-group">
-                            <label for="login-email">Email</label>
-                            <input type="email" id="login-email" name="email" placeholder="Enter your email" required>
+
+                <!-- Login Form -->
+                <div id="login-form" class="space-y-4">
+                    <div>
+                        <label for="login-email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input id="login-email" type="email" required class="w-full p-3 border border-gray-300 rounded-md" placeholder="Enter your email">
+                    </div>
+                    <div>
+                        <label for="login-password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <input id="login-password" type="password" required class="w-full p-3 border border-gray-300 rounded-md" placeholder="Enter your password">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Select your role</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="radio" name="login-role" value="user" class="mr-2" checked>
+                                <span>User</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="login-role" value="admin" class="mr-2">
+                                <span>Admin</span>
+                            </label>
                         </div>
-                        <div class="form-group">
-                            <label for="login-password">Password</label>
-                            <input type="password" id="login-password" name="password" placeholder="Enter your password" required>
-                        </div>
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="remember-me" name="rememberMe">
-                            <label for="remember-me" class="checkbox-label">Remember me</label>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-full" id="login-submit">
-                            <span class="btn-text">Login</span>
-                            <span class="btn-loading">Logging in...</span>
-                        </button>
-                    </form>
+                    </div>
+                    <div class="flex items-center">
+                        <input id="remember-me" type="checkbox" class="mr-2">
+                        <label for="remember-me" class="text-sm">Remember me</label>
+                    </div>
+                    <button id="login-submit" type="button" class="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 transition-colors">
+                        Login
+                    </button>
                 </div>
-                
-                <!-- Signup Tab -->
-                <div id="signup-tab" class="tab-content">
-                    <form id="signup-form" class="auth-form">
-                        <div class="form-group">
-                            <label for="signup-fullname">Full Name</label>
-                            <input type="text" id="signup-fullname" name="fullName" placeholder="Enter your full name" required>
+
+                <!-- Signup Form -->
+                <div id="signup-form" class="hidden space-y-4">
+                    <div>
+                        <label for="signup-fullname" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                        <input id="signup-fullname" type="text" required class="w-full p-3 border border-gray-300 rounded-md" placeholder="Enter your full name">
+                    </div>
+                    <div>
+                        <label for="signup-email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input id="signup-email" type="email" required class="w-full p-3 border border-gray-300 rounded-md" placeholder="Enter your email">
+                    </div>
+                    <div>
+                        <label for="signup-password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <input id="signup-password" type="password" required class="w-full p-3 border border-gray-300 rounded-md" placeholder="Enter your password">
+                        <p class="text-sm text-gray-500 mt-1">Password must be at least 6 characters long</p>
+                    </div>
+                    <div>
+                        <label for="signup-confirm-password" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                        <input id="signup-confirm-password" type="password" required class="w-full p-3 border border-gray-300 rounded-md" placeholder="Confirm your password">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Select your role</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="radio" name="signup-role" value="user" class="mr-2" checked>
+                                <span>User</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="signup-role" value="admin" class="mr-2">
+                                <span>Admin</span>
+                            </label>
                         </div>
-                        <div class="form-group">
-                            <label for="signup-email">Email</label>
-                            <input type="email" id="signup-email" name="email" placeholder="Enter your email" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="signup-password">Password</label>
-                            <input type="password" id="signup-password" name="password" placeholder="Enter your password" required>
-                            <p class="form-hint">Password must be at least 6 characters long</p>
-                        </div>
-                        <div class="form-group">
-                            <label for="signup-confirm-password">Confirm Password</label>
-                            <input type="password" id="signup-confirm-password" name="confirmPassword" placeholder="Confirm your password" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-full" id="signup-submit">
-                            <span class="btn-text">Register</span>
-                            <span class="btn-loading">Creating account...</span>
-                        </button>
-                    </form>
+                    </div>
+                    <button id="signup-submit" type="button" class="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 transition-colors">
+                        Register
+                    </button>
                 </div>
-                
-                <!-- Reset Tab -->
-                <div id="reset-tab" class="tab-content">
-                    <form id="reset-form" class="auth-form">
-                        <p class="form-description">Enter your email address and we'll send you instructions to reset your password.</p>
-                        <div class="form-group">
-                            <label for="reset-email">Email</label>
-                            <input type="email" id="reset-email" name="email" placeholder="Enter your email" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-full" id="reset-submit">
-                            <span class="btn-text">Reset Password</span>
-                            <span class="btn-loading">Sending...</span>
-                        </button>
-                    </form>
+
+                <!-- Reset Form -->
+                <div id="reset-form" class="hidden space-y-4">
+                    <p class="text-sm text-gray-600 mb-4">
+                        Enter your email address and we'll send you instructions to reset your password.
+                    </p>
+                    <div>
+                        <label for="reset-email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input id="reset-email" type="email" required class="w-full p-3 border border-gray-300 rounded-md" placeholder="Enter your email">
+                    </div>
+                    <button id="reset-submit" type="button" class="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 transition-colors">
+                        Reset Password
+                    </button>
                 </div>
+            </div>
+
+            <div class="p-4 border-t text-center">
+                <button id="close-auth-modal" class="text-gray-500 hover:text-gray-700">Close</button>
             </div>
         </div>
     </div>
 
     <!-- Document Request Modal -->
-    <div id="document-modal" class="modal">
-        <div class="modal-backdrop" onclick="closeDocumentModal()"></div>
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Request Document</h2>
-                <p class="modal-description">Submit a request for barangay certificates and official documents.</p>
-                <button class="modal-close" onclick="closeDocumentModal()">
-                    <i data-feather="x"></i>
-                </button>
+    <div id="document-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b">
+                <h2 class="text-2xl font-bold">Request Document</h2>
+                <p class="text-gray-600 mt-2">Submit a request for official barangay documents</p>
             </div>
             
-            <form id="document-form" class="document-form">
-                <div class="form-group">
-                    <label for="document-type">Document Type *</label>
-                    <select id="document-type" name="documentType" required>
-                        <option value="">Select Document Type</option>
+            <form id="document-request-form" class="p-6 space-y-4">
+                <div>
+                    <label for="document-type" class="block text-sm font-medium text-gray-700 mb-1">Document Type *</label>
+                    <select id="document-type" required class="w-full p-3 border border-gray-300 rounded-md">
+                        <option value="">Select document type</option>
                         <option value="barangay-clearance">Barangay Clearance</option>
                         <option value="certificate-residency">Certificate of Residency</option>
                         <option value="certificate-indigency">Certificate of Indigency</option>
@@ -694,46 +854,46 @@
                     </select>
                 </div>
 
-                <div class="form-group">
-                    <label for="document-purpose">Purpose *</label>
-                    <input type="text" id="document-purpose" name="purpose" placeholder="e.g., Employment, Business, etc." required>
+                <div>
+                    <label for="document-purpose" class="block text-sm font-medium text-gray-700 mb-1">Purpose *</label>
+                    <input id="document-purpose" type="text" required class="w-full p-3 border border-gray-300 rounded-md" placeholder="e.g., Employment, Business Registration, etc.">
                 </div>
 
-                <div class="form-group">
-                    <label for="document-contact">Contact Number *</label>
-                    <input type="tel" id="document-contact" name="contactNumber" placeholder="Your contact number" required>
+                <div>
+                    <label for="document-contact" class="block text-sm font-medium text-gray-700 mb-1">Contact Number *</label>
+                    <input id="document-contact" type="tel" required class="w-full p-3 border border-gray-300 rounded-md" placeholder="e.g., +63 912 345 6789">
                 </div>
 
-                <div class="form-group">
-                    <label for="document-notes">Additional Notes</label>
-                    <textarea id="document-notes" name="additionalNotes" placeholder="Any additional information..." rows="3"></textarea>
+                <div>
+                    <label for="document-notes" class="block text-sm font-medium text-gray-700 mb-1">Additional Notes</label>
+                    <textarea id="document-notes" rows="3" class="w-full p-3 border border-gray-300 rounded-md" placeholder="Any additional information or special requests..."></textarea>
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-full" id="document-submit">
-                    <span class="btn-text">Submit Request</span>
-                    <span class="btn-loading">Submitting Request...</span>
-                </button>
+                <div class="flex space-x-3 pt-4">
+                    <button type="submit" class="flex-1 bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 transition-colors">
+                        Submit Request
+                    </button>
+                    <button type="button" id="close-document-modal" class="flex-1 bg-gray-500 text-white py-3 rounded-md hover:bg-gray-600 transition-colors">
+                        Cancel
+                    </button>
+                </div>
             </form>
         </div>
     </div>
 
     <!-- Concern Modal -->
-    <div id="concern-modal" class="modal">
-        <div class="modal-backdrop" onclick="closeConcernModal()"></div>
-        <div class="modal-content concern-modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Submit Concern</h2>
-                <p class="modal-description">Report community issues or submit feedback to barangay officials.</p>
-                <button class="modal-close" onclick="closeConcernModal()">
-                    <i data-feather="x"></i>
-                </button>
+    <div id="concern-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b">
+                <h2 class="text-2xl font-bold">Submit Concern</h2>
+                <p class="text-gray-600 mt-2">Report community issues or submit feedback to barangay officials</p>
             </div>
             
-            <form id="concern-form" class="concern-form">
-                <div class="form-group">
-                    <label for="concern-type">Concern Type *</label>
-                    <select id="concern-type" name="concernType" required>
-                        <option value="">Select Concern Type</option>
+            <form id="concern-form" class="p-6 space-y-4">
+                <div>
+                    <label for="concern-type" class="block text-sm font-medium text-gray-700 mb-1">Concern Type *</label>
+                    <select id="concern-type" required class="w-full p-3 border border-gray-300 rounded-md">
+                        <option value="">Select concern type</option>
                         <option value="infrastructure">Infrastructure</option>
                         <option value="public-safety">Public Safety</option>
                         <option value="sanitation">Sanitation</option>
@@ -743,49 +903,44 @@
                     </select>
                 </div>
 
-                <div class="form-group">
-                    <label for="concern-title">Title *</label>
-                    <input type="text" id="concern-title" name="concernTitle" placeholder="Brief title of your concern" required>
+                <div>
+                    <label for="concern-title" class="block text-sm font-medium text-gray-700 mb-1">Concern Title *</label>
+                    <input id="concern-title" type="text" required class="w-full p-3 border border-gray-300 rounded-md" placeholder="Brief title describing your concern">
                 </div>
 
-                <div class="form-group">
-                    <label for="concern-description">Description *</label>
-                    <textarea id="concern-description" name="concernDescription" placeholder="Please describe your concern in detail..." rows="4" required></textarea>
+                <div>
+                    <label for="concern-description" class="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+                    <textarea id="concern-description" rows="4" required class="w-full p-3 border border-gray-300 rounded-md" placeholder="Provide detailed description of your concern..."></textarea>
                 </div>
 
-                <div class="form-group">
-                    <label for="concern-location">Location</label>
-                    <input type="text" id="concern-location" name="concernLocation" placeholder="Specific location or address (optional)">
+                <div>
+                    <label for="concern-location" class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                    <input id="concern-location" type="text" class="w-full p-3 border border-gray-300 rounded-md" placeholder="Specific location or address (if applicable)">
                 </div>
 
-                <div class="form-group">
-                    <label for="concern-urgency">Urgency Level *</label>
-                    <select id="concern-urgency" name="urgencyLevel" required>
-                        <option value="low">Low</option>
-                        <option value="medium" selected>Medium</option>
-                        <option value="high">High</option>
-                        <option value="emergency">Emergency</option>
+                <div>
+                    <label for="concern-urgency" class="block text-sm font-medium text-gray-700 mb-1">Urgency Level *</label>
+                    <select id="concern-urgency" required class="w-full p-3 border border-gray-300 rounded-md">
+                        <option value="">Select urgency level</option>
+                        <option value="low">Low - General feedback or suggestion</option>
+                        <option value="medium">Medium - Issue that needs attention</option>
+                        <option value="high">High - Urgent issue requiring prompt action</option>
+                        <option value="emergency">Emergency - Immediate action required</option>
                     </select>
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-full" id="concern-submit">
-                    <span class="btn-text">Submit Concern</span>
-                    <span class="btn-loading">Submitting Concern...</span>
-                </button>
+                <div class="flex space-x-3 pt-4">
+                    <button type="submit" class="flex-1 bg-green-600 text-white py-3 rounded-md hover:bg-green-700 transition-colors">
+                        Submit Concern
+                    </button>
+                    <button type="button" id="close-concern-modal" class="flex-1 bg-gray-500 text-white py-3 rounded-md hover:bg-gray-600 transition-colors">
+                        Cancel
+                    </button>
+                </div>
             </form>
         </div>
     </div>
 
-    <!-- Toast Container -->
-    <div id="toast-container" class="toast-container"></div>
-
     <script src="script.js"></script>
-    <script>
-        // Initialize feather icons when DOM is loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            feather.replace();
-            initializeApp();
-        });
-    </script>
 </body>
 </html>
