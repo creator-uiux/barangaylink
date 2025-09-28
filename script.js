@@ -144,6 +144,12 @@ class BarangayApp {
         document.getElementById('admin-requests-search')?.addEventListener('input', (e) => this.searchRequests(e.target.value));
         document.getElementById('admin-concerns-search')?.addEventListener('input', (e) => this.searchConcerns(e.target.value));
         document.getElementById('admin-users-search')?.addEventListener('input', (e) => this.searchUsers(e.target.value));
+
+        // User management events
+        document.getElementById('add-user-btn')?.addEventListener('click', () => this.openAddUserModal());
+        document.getElementById('admin-users-role-filter')?.addEventListener('change', () => this.applyUserFilters());
+        document.getElementById('admin-users-status-filter')?.addEventListener('change', () => this.applyUserFilters());
+        document.getElementById('clear-filters-btn')?.addEventListener('click', () => this.clearUserFilters());
     }
 
     setupModalEvents() {
@@ -160,6 +166,36 @@ class BarangayApp {
             if (e.target.id === 'concern-modal') this.closeConcernModal();
         });
         document.getElementById('concern-form')?.addEventListener('submit', (e) => this.handleConcernSubmission(e));
+
+        // User record modal
+        document.getElementById('close-user-record-modal')?.addEventListener('click', () => this.closeUserRecordModal());
+        document.getElementById('user-record-modal')?.addEventListener('click', (e) => {
+            if (e.target.id === 'user-record-modal') this.closeUserRecordModal();
+        });
+
+        // User record tabs
+        document.getElementById('user-tab-info')?.addEventListener('click', () => this.switchUserRecordTab('info'));
+        document.getElementById('user-tab-activity')?.addEventListener('click', () => this.switchUserRecordTab('activity'));
+        document.getElementById('user-tab-permissions')?.addEventListener('click', () => this.switchUserRecordTab('permissions'));
+
+        // User record actions
+        document.getElementById('edit-user-record-btn')?.addEventListener('click', () => this.toggleUserRecordEdit());
+        document.getElementById('save-user-record-btn')?.addEventListener('click', () => this.saveUserRecord());
+        document.getElementById('cancel-user-record-btn')?.addEventListener('click', () => this.cancelUserRecordEdit());
+
+        // User actions dropdown
+        document.getElementById('user-actions-dropdown')?.addEventListener('click', () => this.toggleUserActionsMenu());
+        document.getElementById('activate-user-btn')?.addEventListener('click', () => this.updateUserStatus('active'));
+        document.getElementById('suspend-user-btn')?.addEventListener('click', () => this.updateUserStatus('suspended'));
+        document.getElementById('reset-password-btn')?.addEventListener('click', () => this.resetUserPassword());
+        document.getElementById('delete-user-btn')?.addEventListener('click', () => this.deleteUser());
+
+        // Add user modal
+        document.getElementById('close-add-user-modal')?.addEventListener('click', () => this.closeAddUserModal());
+        document.getElementById('add-user-modal')?.addEventListener('click', (e) => {
+            if (e.target.id === 'add-user-modal') this.closeAddUserModal();
+        });
+        document.getElementById('add-user-form')?.addEventListener('submit', (e) => this.handleAddUser(e));
     }
 
     // Authentication methods
@@ -853,29 +889,27 @@ class BarangayApp {
     }
 
     loadAdminUsers(searchTerm = '') {
-        const users = this.getUsers().filter(u => u.role === 'user');
-        const filteredUsers = this.filterUsers(users, searchTerm);
+        const allUsers = this.getUsers();
+        const filteredUsers = this.filterUsersWithFilters(allUsers, searchTerm);
         
-        const container = document.getElementById('admin-users-list');
-        container.innerHTML = '';
+        const tableBody = document.getElementById('admin-users-table-body');
+        const emptyState = document.getElementById('users-empty-state');
+        
+        tableBody.innerHTML = '';
 
         if (filteredUsers.length === 0) {
-            container.innerHTML = `
-                <div class="bg-white rounded-lg shadow-md text-center py-12 md:col-span-2 lg:col-span-3">
-                    <i data-lucide="users" class="w-16 h-16 mx-auto text-gray-400 mb-4"></i>
-                    <h3 class="text-lg font-semibold mb-2">No users registered</h3>
-                    <p class="text-gray-600">No users have registered yet.</p>
-                </div>
-            `;
+            emptyState.classList.remove('hidden');
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
             }
             return;
         }
 
+        emptyState.classList.add('hidden');
+
         filteredUsers.forEach(user => {
-            const userCard = this.createUserCard(user);
-            container.appendChild(userCard);
+            const userRow = this.createUserTableRow(user);
+            tableBody.appendChild(userRow);
         });
 
         // Re-initialize Lucide icons
@@ -884,43 +918,64 @@ class BarangayApp {
         }
     }
 
-    createUserCard(user) {
+    createUserTableRow(user) {
         const userRequests = this.getAllRequests().filter(req => req.userId === user.id);
         const userConcerns = this.getAllConcerns().filter(con => con.userId === user.id);
+        const status = user.status || 'active';
         
-        const card = document.createElement('div');
-        card.className = 'bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow';
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-gray-50 transition-colors';
         
-        card.innerHTML = `
-            <div class="p-6">
-                <div class="flex items-center space-x-3 mb-4">
-                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                        <i data-lucide="user-check" class="w-6 h-6 text-blue-600"></i>
+        row.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                        <i data-lucide="user" class="w-5 h-5 text-blue-600"></i>
                     </div>
                     <div>
-                        <h3 class="text-lg font-semibold">${user.fullName}</h3>
-                        <p class="text-sm text-gray-600">${user.email}</p>
+                        <div class="font-medium text-gray-900">${user.fullName}</div>
+                        <div class="text-sm text-gray-500">${user.email}</div>
                     </div>
                 </div>
-                
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div class="text-center p-3 bg-gray-50 rounded-lg">
-                        <div class="text-lg font-bold text-blue-600">${userRequests.length}</div>
-                        <div class="text-xs text-gray-600">Requests</div>
-                    </div>
-                    <div class="text-center p-3 bg-gray-50 rounded-lg">
-                        <div class="text-lg font-bold text-orange-600">${userConcerns.length}</div>
-                        <div class="text-xs text-gray-600">Concerns</div>
-                    </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs rounded-full ${this.getRoleBadgeColor(user.role)}">
+                    ${user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 text-xs rounded-full ${this.getUserStatusBadgeColor(status)}">
+                    ${status.charAt(0).toUpperCase() + status.slice(1)}
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <div class="flex space-x-4">
+                    <span class="text-blue-600">${userRequests.length} req</span>
+                    <span class="text-orange-600">${userConcerns.length} con</span>
                 </div>
-                
-                <div class="text-sm text-gray-500 text-center">
-                    Joined: ${this.formatDate(user.createdAt)}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${this.formatDateShort(user.createdAt)}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <div class="flex space-x-2">
+                    <button onclick="app.openUserRecord(${user.id})" class="text-blue-600 hover:text-blue-900 transition-colors">
+                        <i data-lucide="eye" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="app.openUserRecordEdit(${user.id})" class="text-green-600 hover:text-green-900 transition-colors">
+                        <i data-lucide="edit" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="app.toggleUserStatus(${user.id})" class="text-orange-600 hover:text-orange-900 transition-colors">
+                        <i data-lucide="${status === 'active' ? 'pause' : 'play'}" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="app.confirmDeleteUser(${user.id})" class="text-red-600 hover:text-red-900 transition-colors">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
                 </div>
-            </div>
+            </td>
         `;
         
-        return card;
+        return row;
     }
 
     // Search methods
@@ -1080,6 +1135,422 @@ class BarangayApp {
         this.showToast('Concern submitted successfully!', 'success');
     }
 
+    // User Management Methods
+    filterUsersWithFilters(users, searchTerm) {
+        let filtered = users;
+
+        // Apply search filter
+        if (searchTerm) {
+            filtered = filtered.filter(user => 
+                user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user.email.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+        }
+
+        // Apply role filter
+        const roleFilter = document.getElementById('admin-users-role-filter')?.value;
+        if (roleFilter) {
+            filtered = filtered.filter(user => user.role === roleFilter);
+        }
+
+        // Apply status filter
+        const statusFilter = document.getElementById('admin-users-status-filter')?.value;
+        if (statusFilter) {
+            const userStatus = user => user.status || 'active';
+            filtered = filtered.filter(user => userStatus(user) === statusFilter);
+        }
+
+        return filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }
+
+    applyUserFilters() {
+        const searchTerm = document.getElementById('admin-users-search')?.value || '';
+        this.loadAdminUsers(searchTerm);
+    }
+
+    clearUserFilters() {
+        document.getElementById('admin-users-search').value = '';
+        document.getElementById('admin-users-role-filter').value = '';
+        document.getElementById('admin-users-status-filter').value = '';
+        this.loadAdminUsers();
+    }
+
+    openAddUserModal() {
+        document.getElementById('add-user-modal').classList.remove('hidden');
+        document.getElementById('add-user-modal').classList.add('flex');
+    }
+
+    closeAddUserModal() {
+        document.getElementById('add-user-modal').classList.add('hidden');
+        document.getElementById('add-user-modal').classList.remove('flex');
+        document.getElementById('add-user-form').reset();
+    }
+
+    async handleAddUser(e) {
+        e.preventDefault();
+        
+        const fullName = document.getElementById('add-user-fullname').value;
+        const email = document.getElementById('add-user-email').value;
+        const phone = document.getElementById('add-user-phone').value;
+        const role = document.getElementById('add-user-role').value;
+        const address = document.getElementById('add-user-address').value;
+        const password = document.getElementById('add-user-password').value;
+        const status = document.getElementById('add-user-status').value;
+
+        if (!fullName || !email || !role || !password) {
+            this.showToast('Please fill in all required fields', 'error');
+            return;
+        }
+
+        const users = this.getUsers();
+        if (users.find(u => u.email === email)) {
+            this.showToast('A user with this email already exists', 'error');
+            return;
+        }
+
+        const newUser = {
+            id: Date.now(),
+            fullName,
+            email,
+            password,
+            role,
+            phone: phone || '',
+            address: address || '',
+            status: status || 'active',
+            createdAt: new Date().toISOString(),
+            createdByAdmin: true
+        };
+
+        users.push(newUser);
+        this.saveUsers(users);
+
+        this.closeAddUserModal();
+        this.showToast('User created successfully!', 'success');
+        this.loadAdminUsers();
+        this.updateAdminStatistics();
+    }
+
+    openUserRecord(userId) {
+        const user = this.getUserById(userId);
+        if (!user) return;
+
+        this.currentViewingUser = user;
+        
+        // Populate user record modal
+        this.populateUserRecord(user);
+        
+        // Show modal
+        document.getElementById('user-record-modal').classList.remove('hidden');
+        document.getElementById('user-record-modal').classList.add('flex');
+        
+        // Show info tab by default
+        this.switchUserRecordTab('info');
+    }
+
+    openUserRecordEdit(userId) {
+        this.openUserRecord(userId);
+        setTimeout(() => this.toggleUserRecordEdit(), 100);
+    }
+
+    closeUserRecordModal() {
+        document.getElementById('user-record-modal').classList.add('hidden');
+        document.getElementById('user-record-modal').classList.remove('flex');
+        this.currentViewingUser = null;
+    }
+
+    populateUserRecord(user) {
+        // Header information
+        document.getElementById('user-record-name').textContent = user.fullName;
+        document.getElementById('user-record-email').textContent = user.email;
+        document.getElementById('user-record-id').textContent = `ID: #${user.id}`;
+        
+        // Role and status badges
+        const roleBadge = document.getElementById('user-record-role-badge');
+        roleBadge.textContent = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+        roleBadge.className = `px-2 py-1 text-xs rounded-full ${this.getRoleBadgeColor(user.role)}`;
+        
+        const status = user.status || 'active';
+        const statusBadge = document.getElementById('user-record-status-badge');
+        statusBadge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+        statusBadge.className = `px-2 py-1 text-xs rounded-full ${this.getUserStatusBadgeColor(status)}`;
+
+        // Basic information
+        document.getElementById('user-record-fullname').value = user.fullName;
+        document.getElementById('user-record-email-input').value = user.email;
+        document.getElementById('user-record-phone').value = user.phone || '';
+        document.getElementById('user-record-address').value = user.address || '';
+        document.getElementById('user-record-role').value = user.role;
+        document.getElementById('user-record-status').value = status;
+        document.getElementById('user-record-created').value = this.formatDate(user.createdAt);
+
+        // Statistics
+        const userRequests = this.getAllRequests().filter(req => req.userId === user.id);
+        const userConcerns = this.getAllConcerns().filter(con => con.userId === user.id);
+        
+        document.getElementById('user-record-requests-count').textContent = userRequests.length;
+        document.getElementById('user-record-concerns-count').textContent = userConcerns.length;
+
+        // Load activity data
+        this.loadUserRecordActivity(user.id);
+    }
+
+    loadUserRecordActivity(userId) {
+        const userRequests = this.getAllRequests().filter(req => req.userId === userId);
+        const userConcerns = this.getAllConcerns().filter(con => con.userId === userId);
+
+        // Load requests
+        const requestsContainer = document.getElementById('user-record-requests');
+        requestsContainer.innerHTML = '';
+        
+        if (userRequests.length === 0) {
+            requestsContainer.innerHTML = '<p class="text-gray-500 text-center py-4">No document requests submitted</p>';
+        } else {
+            userRequests.forEach(request => {
+                const requestItem = document.createElement('div');
+                requestItem.className = 'p-3 border border-gray-200 rounded-md';
+                requestItem.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <h5 class="font-medium">${this.getDocumentTypeLabel(request.documentType)}</h5>
+                        <span class="px-2 py-1 text-xs rounded-full ${this.getStatusBadgeColor(request.status)}">
+                            ${request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                        </span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-1">Purpose: ${request.purpose}</p>
+                    <p class="text-xs text-gray-500">Submitted: ${this.formatDate(request.submittedAt)}</p>
+                `;
+                requestsContainer.appendChild(requestItem);
+            });
+        }
+
+        // Load concerns
+        const concernsContainer = document.getElementById('user-record-concerns');
+        concernsContainer.innerHTML = '';
+        
+        if (userConcerns.length === 0) {
+            concernsContainer.innerHTML = '<p class="text-gray-500 text-center py-4">No concerns submitted</p>';
+        } else {
+            userConcerns.forEach(concern => {
+                const concernItem = document.createElement('div');
+                concernItem.className = 'p-3 border border-gray-200 rounded-md';
+                concernItem.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <h5 class="font-medium">${concern.concernTitle}</h5>
+                        <span class="px-2 py-1 text-xs rounded-full ${this.getStatusBadgeColor(concern.status)}">
+                            ${concern.status.charAt(0).toUpperCase() + concern.status.slice(1)}
+                        </span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-1">${concern.concernDescription}</p>
+                    <p class="text-xs text-gray-500">Submitted: ${this.formatDate(concern.submittedAt)}</p>
+                `;
+                concernsContainer.appendChild(concernItem);
+            });
+        }
+
+        // Load activity timeline
+        const timeline = [...userRequests, ...userConcerns]
+            .sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime())
+            .slice(0, 10);
+
+        const timelineContainer = document.getElementById('user-record-timeline');
+        timelineContainer.innerHTML = '';
+
+        if (timeline.length === 0) {
+            timelineContainer.innerHTML = '<p class="text-gray-500 text-center py-4">No recent activity</p>';
+        } else {
+            timeline.forEach(item => {
+                const isRequest = 'documentType' in item;
+                const timelineItem = document.createElement('div');
+                timelineItem.className = 'flex items-start space-x-3 p-3 border border-gray-200 rounded-md';
+                timelineItem.innerHTML = `
+                    <div class="p-2 rounded-full ${isRequest ? 'bg-blue-100' : 'bg-orange-100'} mt-1">
+                        <i data-lucide="${isRequest ? 'file-text' : 'message-square'}" class="w-3 h-3 ${isRequest ? 'text-blue-600' : 'text-orange-600'}"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium">
+                            ${isRequest ? 
+                                `Requested ${this.getDocumentTypeLabel(item.documentType)}` :
+                                `Submitted concern: ${item.concernTitle}`
+                            }
+                        </p>
+                        <p class="text-xs text-gray-500">${this.formatDate(item.submittedAt)}</p>
+                    </div>
+                `;
+                timelineContainer.appendChild(timelineItem);
+            });
+        }
+
+        // Re-initialize icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    }
+
+    switchUserRecordTab(tab) {
+        // Update tab styles
+        document.querySelectorAll('#user-record-modal button[id^="user-tab-"]').forEach(btn => {
+            btn.classList.remove('border-blue-600', 'text-blue-600');
+            btn.classList.add('border-transparent', 'text-gray-500');
+        });
+        
+        document.getElementById(`user-tab-${tab}`).classList.add('border-blue-600', 'text-blue-600');
+        document.getElementById(`user-tab-${tab}`).classList.remove('border-transparent', 'text-gray-500');
+
+        // Show corresponding content
+        document.getElementById('user-info-tab-content').classList.add('hidden');
+        document.getElementById('user-activity-tab-content').classList.add('hidden');
+        document.getElementById('user-permissions-tab-content').classList.add('hidden');
+        document.getElementById(`user-${tab}-tab-content`).classList.remove('hidden');
+    }
+
+    toggleUserRecordEdit() {
+        const isEditing = !document.getElementById('user-record-phone').readOnly;
+        
+        if (!isEditing) {
+            // Enable editing
+            ['user-record-fullname', 'user-record-phone', 'user-record-address', 'user-record-role', 'user-record-status'].forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.readOnly = false;
+                    element.disabled = false;
+                    element.classList.remove('bg-gray-50');
+                }
+            });
+            document.getElementById('user-record-edit-actions').classList.remove('hidden');
+            document.getElementById('edit-user-record-btn').classList.add('hidden');
+        }
+    }
+
+    cancelUserRecordEdit() {
+        if (this.currentViewingUser) {
+            this.populateUserRecord(this.currentViewingUser);
+        }
+        
+        // Disable editing
+        ['user-record-fullname', 'user-record-phone', 'user-record-address', 'user-record-role', 'user-record-status'].forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.readOnly = true;
+                element.disabled = true;
+                element.classList.add('bg-gray-50');
+            }
+        });
+        document.getElementById('user-record-edit-actions').classList.add('hidden');
+        document.getElementById('edit-user-record-btn').classList.remove('hidden');
+    }
+
+    saveUserRecord() {
+        if (!this.currentViewingUser) return;
+
+        const fullName = document.getElementById('user-record-fullname').value;
+        const phone = document.getElementById('user-record-phone').value;
+        const address = document.getElementById('user-record-address').value;
+        const role = document.getElementById('user-record-role').value;
+        const status = document.getElementById('user-record-status').value;
+
+        // Update user
+        const users = this.getUsers();
+        const userIndex = users.findIndex(u => u.id === this.currentViewingUser.id);
+        if (userIndex !== -1) {
+            users[userIndex] = { 
+                ...users[userIndex], 
+                fullName, 
+                phone, 
+                address, 
+                role, 
+                status 
+            };
+            this.saveUsers(users);
+            this.currentViewingUser = users[userIndex];
+        }
+
+        this.cancelUserRecordEdit();
+        this.showToast('User record updated successfully', 'success');
+        this.loadAdminUsers();
+    }
+
+    toggleUserActionsMenu() {
+        const menu = document.getElementById('user-actions-menu');
+        menu.classList.toggle('hidden');
+    }
+
+    updateUserStatus(status) {
+        if (!this.currentViewingUser) return;
+
+        const users = this.getUsers();
+        const userIndex = users.findIndex(u => u.id === this.currentViewingUser.id);
+        if (userIndex !== -1) {
+            users[userIndex].status = status;
+            this.saveUsers(users);
+            this.currentViewingUser.status = status;
+            this.populateUserRecord(this.currentViewingUser);
+        }
+
+        this.toggleUserActionsMenu();
+        this.showToast(`User ${status === 'active' ? 'activated' : 'suspended'} successfully`, 'success');
+        this.loadAdminUsers();
+    }
+
+    resetUserPassword() {
+        if (!this.currentViewingUser) return;
+        
+        const confirmed = confirm(`Reset password for ${this.currentViewingUser.fullName}? They will need to use a temporary password to log in.`);
+        if (confirmed) {
+            // In a real app, this would generate a temporary password
+            this.showToast('Password reset instructions sent to user', 'success');
+            this.toggleUserActionsMenu();
+        }
+    }
+
+    deleteUser() {
+        if (!this.currentViewingUser) return;
+        
+        const confirmed = confirm(`Are you sure you want to delete ${this.currentViewingUser.fullName}? This action cannot be undone.`);
+        if (confirmed) {
+            const users = this.getUsers();
+            const filteredUsers = users.filter(u => u.id !== this.currentViewingUser.id);
+            this.saveUsers(filteredUsers);
+            
+            this.closeUserRecordModal();
+            this.showToast('User deleted successfully', 'success');
+            this.loadAdminUsers();
+            this.updateAdminStatistics();
+        }
+    }
+
+    toggleUserStatus(userId) {
+        const user = this.getUserById(userId);
+        if (!user) return;
+
+        const currentStatus = user.status || 'active';
+        const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+        
+        const users = this.getUsers();
+        const userIndex = users.findIndex(u => u.id === userId);
+        if (userIndex !== -1) {
+            users[userIndex].status = newStatus;
+            this.saveUsers(users);
+        }
+
+        this.showToast(`User ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully`, 'success');
+        this.loadAdminUsers();
+    }
+
+    confirmDeleteUser(userId) {
+        const user = this.getUserById(userId);
+        if (!user) return;
+        
+        const confirmed = confirm(`Are you sure you want to delete ${user.fullName}? This action cannot be undone.`);
+        if (confirmed) {
+            const users = this.getUsers();
+            const filteredUsers = users.filter(u => u.id !== userId);
+            this.saveUsers(filteredUsers);
+            
+            this.showToast('User deleted successfully', 'success');
+            this.loadAdminUsers();
+            this.updateAdminStatistics();
+        }
+    }
+
     // Global methods that need to be accessible
     showUserProfile() {
         this.showUserSection('profile');
@@ -1139,6 +1610,31 @@ class BarangayApp {
             hour: '2-digit',
             minute: '2-digit'
         });
+    }
+
+    formatDateShort(dateString) {
+        return new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    }
+
+    getRoleBadgeColor(role) {
+        switch (role) {
+            case 'admin': return 'bg-purple-100 text-purple-800';
+            case 'user': return 'bg-blue-100 text-blue-800';
+            default: return 'bg-gray-100 text-gray-800';
+        }
+    }
+
+    getUserStatusBadgeColor(status) {
+        switch (status) {
+            case 'active': return 'bg-green-100 text-green-800';
+            case 'inactive': return 'bg-gray-100 text-gray-800';
+            case 'suspended': return 'bg-red-100 text-red-800';
+            default: return 'bg-gray-100 text-gray-800';
+        }
     }
 
     getStatusBadgeColor(status) {
@@ -1227,6 +1723,23 @@ function openConcernModal() {
 
 function showUserProfile() {
     window.app.showUserProfile();
+}
+
+// User Management Global Functions
+function openUserRecord(userId) {
+    window.app.openUserRecord(userId);
+}
+
+function openUserRecordEdit(userId) {
+    window.app.openUserRecordEdit(userId);
+}
+
+function toggleUserStatus(userId) {
+    window.app.toggleUserStatus(userId);
+}
+
+function confirmDeleteUser(userId) {
+    window.app.confirmDeleteUser(userId);
 }
 
 // Initialize the application
