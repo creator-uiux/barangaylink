@@ -1,5 +1,20 @@
 {
-  "name": "my-php-app",
-  "description": "Simple PHP site for Render",
-  "require": {}
+  "name": "barangaylink/php-app",
+  "description": "BarangayLink PHP Application",
+  "type": "project",
+  "require": {
+    "php": "^8.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "BarangayLink\\": "src/"
+    }
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "preferred-install": "dist",
+    "sort-packages": true
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
 }
