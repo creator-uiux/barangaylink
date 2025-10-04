@@ -3,10 +3,28 @@ services:
     name: barangaylink-php
     env: php
     plan: free
-    buildCommand: composer install --no-dev --optimize-autoloader
-    startCommand: php -S 0.0.0.0:$PORT -t . index.php
+    buildCommand: |
+      # Make startup script executable
+      chmod +x startup.sh
+      # Create data directory and ensure permissions
+      mkdir -p data
+      chmod 755 data
+      # Initialize empty JSON files if they don't exist
+      echo '[]' > data/users.json
+      echo '[]' > data/requests.json
+      echo '[]' > data/concerns.json
+      echo '[]' > data/announcements.json
+      echo '[]' > data/notifications.json
+      echo '[]' > data/profiles.json
+      echo '[]' > data/file_uploads.json
+      chmod 666 data/*.json
+      # Run composer if composer.json exists
+      if [ -f composer.json ]; then composer install --no-dev --optimize-autoloader; fi
+    startCommand: ./startup.sh
     envVars:
       - key: PHP_VERSION
         value: "8.2"
       - key: DOCUMENT_ROOT
         value: "."
+      - key: APP_ENV
+        value: "production"
