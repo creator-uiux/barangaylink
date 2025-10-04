@@ -1,0 +1,38 @@
+[
+    {
+        "id": "con_001",
+        "subject": "Street Light Repair Needed",
+        "description": "The street light on Main Street corner has been broken for several days. It's causing safety concerns for residents walking at night.",
+        "category": "infrastructure",
+        "location": "Main Street Corner, Block 3",
+        "priority": "high",
+        "submittedBy": "John Doe",
+        "submittedByEmail": "user@email.com",
+        "status": "pending",
+        "createdAt": "2024-12-19T08:30:00Z"
+    },
+    {
+        "id": "con_002",
+        "subject": "Garbage Collection Issue",
+        "description": "Garbage has not been collected in our area for the past week. The accumulation is causing health and sanitation concerns.",
+        "category": "sanitation",
+        "location": "Block 5, Residential Area",
+        "priority": "urgent",
+        "submittedBy": "Maria Santos",
+        "submittedByEmail": "maria.santos@email.com",
+        "status": "in-progress",
+        "createdAt": "2024-12-18T11:45:00Z"
+    },
+    {
+        "id": "con_003",
+        "subject": "Pothole on Oak Avenue",
+        "description": "Large pothole has formed on Oak Avenue that could damage vehicles. Needs immediate attention.",
+        "category": "infrastructure",
+        "location": "Oak Avenue, near the school",
+        "priority": "medium",
+        "submittedBy": "John Doe",
+        "submittedByEmail": "user@email.com",
+        "status": "resolved",
+        "createdAt": "2024-12-17T16:20:00Z"
+    }
+]

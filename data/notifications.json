@@ -1,0 +1,29 @@
+[
+    {
+        "id": "not_001",
+        "type": "success",
+        "title": "Document Request Approved",
+        "message": "Your Barangay Clearance request has been approved and is ready for pickup.",
+        "userId": "user@email.com",
+        "timestamp": "2024-12-19T11:30:00Z",
+        "read": false
+    },
+    {
+        "id": "not_002",
+        "type": "info",
+        "title": "Concern Update",
+        "message": "Your concern about the street light has been assigned to the maintenance team.",
+        "userId": "user@email.com",
+        "timestamp": "2024-12-19T09:15:00Z",
+        "read": false
+    },
+    {
+        "id": "not_003",
+        "type": "warning",
+        "title": "Holiday Schedule",
+        "message": "Please note the modified office hours during the holiday season.",
+        "userId": null,
+        "timestamp": "2024-12-18T08:00:00Z",
+        "read": true
+    }
+]

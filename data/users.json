@@ -1,0 +1,38 @@
+[
+    {
+        "email": "user@email.com",
+        "password": "user@password.com",
+        "name": "John Doe",
+        "role": "user",
+        "address": "123 Main Street, Barangay Centro",
+        "phone": "+63 912 345 6789",
+        "createdAt": "2024-12-19T08:00:00Z"
+    },
+    {
+        "email": "maria.santos@email.com",
+        "password": "password123",
+        "name": "Maria Santos",
+        "role": "user",
+        "address": "456 Oak Avenue, Barangay Poblacion",
+        "phone": "+63 912 345 6788",
+        "createdAt": "2024-12-18T10:30:00Z"
+    },
+    {
+        "email": "test@gmail.com",
+        "password": "test123",
+        "name": "test test",
+        "role": "user",
+        "address": "",
+        "phone": "",
+        "createdAt": "2025-10-04T22:58:38+08:00"
+    },
+    {
+        "email": "abc@gmail.com",
+        "password": "abc123",
+        "name": "AB ABC",
+        "role": "user",
+        "address": "Sitio Atis A",
+        "phone": "09233569333",
+        "createdAt": "2025-10-05T02:50:35+08:00"
+    }
+]

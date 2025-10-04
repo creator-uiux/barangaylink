@@ -1,0 +1,35 @@
+[
+    {
+        "id": "req_001",
+        "documentType": "barangay_clearance",
+        "purpose": "Employment requirement",
+        "requestedBy": "John Doe",
+        "requestedByEmail": "user@email.com",
+        "status": "approved",
+        "estimatedFee": 50,
+        "createdAt": "2024-12-19T10:15:00Z",
+        "processingTime": "3-5 business days"
+    },
+    {
+        "id": "req_002",
+        "documentType": "certificate_of_residency", 
+        "purpose": "School enrollment",
+        "requestedBy": "Maria Santos",
+        "requestedByEmail": "maria.santos@email.com",
+        "status": "pending",
+        "estimatedFee": 30,
+        "createdAt": "2024-12-18T14:30:00Z",
+        "processingTime": "1-2 business days"
+    },
+    {
+        "id": "req_003",
+        "documentType": "certificate_of_indigency",
+        "purpose": "Medical assistance application",
+        "requestedBy": "John Doe",
+        "requestedByEmail": "user@email.com", 
+        "status": "processing",
+        "estimatedFee": 0,
+        "createdAt": "2024-12-17T09:45:00Z",
+        "processingTime": "3-5 business days"
+    }
+]
