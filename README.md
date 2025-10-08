@@ -12,3 +12,14 @@ Section B
 Section A
 - Luke Daniel Poliquit 
 - Aliah Juliana Monilar 
+
+
+Live Demo: [BarangayLink - Your Direct Link to Local Updates and Services](https://barangaylinkphp.onrender.com/)
+
+
+**Screenshots:** Landing/Home Page, Login Page, Signup Page, User Dashboard
+
+Admin Dashboard – This is private and cannot be accessed by any user unless permitted.
+
+**_The Live Demo can be accessed through the website link provided above._**
+
