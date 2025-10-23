@@ -164,9 +164,17 @@ function LiveNotifications($userEmail, $userRole) {
         <!-- Footer -->
         <?php if (!empty($userNotifications)): ?>
             <div class="p-3 border-t border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50">
-                <button class="w-full text-sm text-center text-blue-600 hover:text-blue-800 py-2 font-medium transition-colors rounded-lg hover:bg-blue-100">
-                    🔍 View all notifications
-                </button>
+                <div class="flex space-x-2">
+                    <button 
+                        onclick="markAllNotificationsRead()" 
+                        class="flex-1 text-sm text-center text-blue-600 hover:text-blue-800 py-2 font-medium transition-colors rounded-lg hover:bg-blue-100"
+                    >
+                        ✅ Mark all as read
+                    </button>
+                    <button class="flex-1 text-sm text-center text-blue-600 hover:text-blue-800 py-2 font-medium transition-colors rounded-lg hover:bg-blue-100">
+                        🔍 View all notifications
+                    </button>
+                </div>
             </div>
         <?php endif; ?>
     </div>
@@ -185,10 +193,18 @@ function markNotificationRead(notificationId) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Refresh the notifications UI
-            setTimeout(() => {
-                window.location.reload();
-            }, 500);
+            // Update the notification UI without reloading
+            const notificationElement = document.querySelector(`[onclick*="${notificationId}"]`);
+            if (notificationElement) {
+                // Remove unread styling
+                notificationElement.classList.remove('bg-blue-50/50', 'border-l-4', 'border-l-blue-500');
+                notificationElement.classList.add('bg-white');
+                
+                // Update the notification count
+                updateNotificationCount();
+            }
+        } else {
+            console.error('Failed to mark notification as read:', data.message);
         }
     })
     .catch(error => console.error('Error marking notification as read:', error));
@@ -197,6 +213,8 @@ function markNotificationRead(notificationId) {
 function markAllNotificationsRead() {
     const allNotificationIds = Array.from(document.querySelectorAll('[onclick*="markNotificationRead"]'))
         .map(el => el.getAttribute('onclick').match(/'([^']+)'/)[1]);
+    
+    if (allNotificationIds.length === 0) return;
     
     fetch('?ajax=true&action=mark_notifications_read', {
         method: 'POST',
@@ -208,13 +226,38 @@ function markAllNotificationsRead() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Refresh the notifications UI
-            setTimeout(() => {
-                window.location.reload();
-            }, 500);
+            // Update all notification elements
+            document.querySelectorAll('[onclick*="markNotificationRead"]').forEach(el => {
+                el.classList.remove('bg-blue-50/50', 'border-l-4', 'border-l-blue-500');
+                el.classList.add('bg-white');
+            });
+            
+            // Update notification count
+            updateNotificationCount();
+        } else {
+            console.error('Failed to mark all notifications as read:', data.message);
         }
     })
     .catch(error => console.error('Error marking all notifications as read:', error));
+}
+
+function updateNotificationCount() {
+    // Count remaining unread notifications
+    const unreadNotifications = document.querySelectorAll('.bg-blue-50\\/50, .border-l-blue-500');
+    const count = unreadNotifications.length;
+    
+    const badge = document.querySelector('.min-w-\\[20px\\]');
+    if (badge) {
+        const countSpan = badge.querySelector('span');
+        if (countSpan) {
+            if (count > 0) {
+                countSpan.textContent = count > 99 ? '99+' : count;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+    }
 }
 
 // Auto-refresh notifications every 30 seconds
@@ -222,13 +265,27 @@ setInterval(function() {
     fetch('?ajax=true&action=get_notifications')
         .then(response => response.json())
         .then(data => {
-            if (data.success && data.data.length > 0) {
-                // Update notification badge if there are new notifications
-                const currentCount = document.querySelector('.min-w-\\[20px\\]');
-                const newUnreadCount = data.data.filter(n => !n.read).length;
-                
-                if (currentCount && newUnreadCount > 0) {
-                    currentCount.querySelector('span').textContent = newUnreadCount > 99 ? '99+' : newUnreadCount;
+            if (data.success && data.html) {
+                // Update the notification dropdown with new HTML
+                const notificationContainer = document.querySelector('[x-data="{ open: false }"]');
+                if (notificationContainer) {
+                    // Update the notification count by parsing the new HTML
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(data.html, 'text/html');
+                    const newBadge = doc.querySelector('.min-w-\\[20px\\]');
+                    const currentBadge = notificationContainer.querySelector('.min-w-\\[20px\\]');
+                    
+                    if (newBadge && currentBadge) {
+                        const newCount = newBadge.querySelector('span').textContent;
+                        currentBadge.querySelector('span').textContent = newCount;
+                        
+                        // Show/hide badge based on count
+                        if (newCount === '0' || newCount === '') {
+                            currentBadge.style.display = 'none';
+                        } else {
+                            currentBadge.style.display = 'flex';
+                        }
+                    }
                 }
             }
         })

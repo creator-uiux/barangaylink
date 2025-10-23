@@ -58,6 +58,17 @@ function isAuthenticated() {
 }
 
 /**
+ * DEPRECATED: Use App.php handleLogin() instead
+ * This function is kept for backward compatibility but should not be used
+ * @deprecated Use BarangayLinkApp::handleLogin() instead
+ */
+function loginUser($email, $password) {
+    // Redirect to main App class for consistency
+    $app = new BarangayLinkApp();
+    return $app->handleLogin($email, $password);
+}
+
+/**
  * Get current authenticated user (matching App.tsx user state)
  * @return array|null
  */
@@ -76,89 +87,14 @@ function getCurrentUser() {
 }
 
 /**
- * Authenticate user with credentials (matching App.tsx handleLogin)
- * @param string $email
- * @param string $password
- * @return array
+ * DEPRECATED: Use App.php handleLogin() instead
+ * This function is kept for backward compatibility but should not be used
+ * @deprecated Use BarangayLinkApp::handleLogin() instead
  */
 function authenticateUser($email, $password) {
-    try {
-        // Sanitize inputs
-        $email = filter_var(trim($email), FILTER_SANITIZE_EMAIL);
-        $password = trim($password);
-        
-        if (!$email || !$password) {
-            return ['success' => false, 'message' => 'Email and password are required'];
-        }
-        
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return ['success' => false, 'message' => 'Invalid email format'];
-        }
-        
-        // Check admin credentials first (matching ADMIN_CREDENTIALS)
-        if ($email === ADMIN_CREDENTIALS['email'] && $password === ADMIN_CREDENTIALS['password']) {
-            $adminUser = [
-                'email' => ADMIN_CREDENTIALS['email'],
-                'name' => 'Admin User',
-                'role' => 'admin'
-            ];
-            
-            // Set auth state (matching App.tsx setAuthState)
-            $_SESSION['auth'] = [
-                'isAuthenticated' => true,
-                'user' => $adminUser
-            ];
-            $_SESSION['user'] = $adminUser; // Legacy compatibility
-            
-            return [
-                'success' => true, 
-                'message' => 'Admin login successful',
-                'user' => $adminUser,
-                'redirect' => 'index.php?view=admin-dashboard'
-            ];
-        }
-        
-        // Check regular users (matching App.tsx user lookup)
-        $users = loadJsonData('users');
-        $foundUser = null;
-        
-        foreach ($users as $user) {
-            if ($user['email'] === $email && $user['password'] === $password) {
-                $foundUser = $user;
-                break;
-            }
-        }
-        
-        if ($foundUser) {
-            $userSession = [
-                'email' => $foundUser['email'],
-                'name' => $foundUser['name'],
-                'role' => 'user',
-                'address' => $foundUser['address'] ?? '',
-                'phone' => $foundUser['phone'] ?? ''
-            ];
-            
-            // Set auth state (matching App.tsx setAuthState)
-            $_SESSION['auth'] = [
-                'isAuthenticated' => true,
-                'user' => $userSession
-            ];
-            $_SESSION['user'] = $userSession; // Legacy compatibility
-            
-            return [
-                'success' => true,
-                'message' => 'Login successful',
-                'user' => $userSession,
-                'redirect' => 'index.php?view=dashboard'
-            ];
-        }
-        
-        return ['success' => false, 'message' => 'Invalid email or password'];
-        
-    } catch (Exception $e) {
-        error_log('Authentication error: ' . $e->getMessage());
-        return ['success' => false, 'message' => 'Authentication error occurred'];
-    }
+    // Redirect to main App class for consistency
+    $app = new BarangayLinkApp();
+    return $app->handleLogin($email, $password);
 }
 
 /**
@@ -169,10 +105,10 @@ function authenticateUser($email, $password) {
 function registerUser($userData) {
     try {
         // Validate required fields
-        $requiredFields = ['name', 'email', 'password'];
+        $requiredFields = ['first_name', 'last_name', 'email', 'password', 'address', 'phone'];
         foreach ($requiredFields as $field) {
             if (empty($userData[$field])) {
-                return ['success' => false, 'message' => ucfirst($field) . ' is required'];
+                return ['success' => false, 'message' => ucfirst(str_replace('_', ' ', $field)) . ' is required'];
             }
         }
         
@@ -183,10 +119,18 @@ function registerUser($userData) {
         }
         
         // Check if user already exists (matching App.tsx user check)
-        $users = loadJsonData('users');
-        foreach ($users as $user) {
-            if ($user['email'] === $email) {
+        if (USE_DATABASE) {
+            require_once __DIR__ . '/db_utils.php';
+            $existingUser = getUserByEmail($email);
+            if ($existingUser) {
                 return ['success' => false, 'message' => 'User with this email already exists'];
+            }
+        } else {
+            $users = loadJsonData('users');
+            foreach ($users as $user) {
+                if ($user['email'] === $email) {
+                    return ['success' => false, 'message' => 'User with this email already exists'];
+                }
             }
         }
         
@@ -194,23 +138,35 @@ function registerUser($userData) {
         $newUser = [
             'email' => $email,
             'password' => trim($userData['password']), // In production, hash this!
-            'name' => trim($userData['name']),
+            'first_name' => trim($userData['first_name']),
+            'middle_name' => trim($userData['middle_name'] ?? ''),
+            'last_name' => trim($userData['last_name']),
             'role' => 'user',
+            'status' => 'active', // Set default status
             'address' => trim($userData['address'] ?? ''),
             'phone' => trim($userData['phone'] ?? ''),
             'createdAt' => date('c')
         ];
         
         // Save user
-        $users[] = $newUser;
-        if (!saveJsonData('users', $users)) {
-            return ['success' => false, 'message' => 'Failed to save user data'];
+        if (USE_DATABASE) {
+            if (!createUser($newUser)) {
+                return ['success' => false, 'message' => 'Failed to save user data'];
+            }
+        } else {
+            $users[] = $newUser;
+            if (!saveJsonData('users', $users)) {
+                return ['success' => false, 'message' => 'Failed to save user data'];
+            }
         }
         
         // Auto-login new user (matching App.tsx auto-login after signup)
         $userSession = [
             'email' => $newUser['email'],
-            'name' => $newUser['name'],
+            'first_name' => $newUser['first_name'],
+            'middle_name' => $newUser['middle_name'],
+            'last_name' => $newUser['last_name'],
+            'name' => trim($newUser['first_name'] . ' ' . $newUser['middle_name'] . ' ' . $newUser['last_name']), // For backward compatibility
             'role' => 'user',
             'address' => $newUser['address'],
             'phone' => $newUser['phone']
@@ -223,9 +179,16 @@ function registerUser($userData) {
         $_SESSION['user'] = $userSession; // Legacy compatibility
         
         // Create welcome notification
-        createNotification('success', 'Welcome to BarangayLink!', 
-            'Your account has been created successfully. Welcome to our digital governance platform.', 
-            $email);
+        if (USE_DATABASE) {
+            require_once __DIR__ . '/db_utils.php';
+            createDatabaseNotification('success', 'Welcome to BarangayLink!', 
+                'Your account has been created successfully. Welcome to our digital governance platform.', 
+                $email);
+        } else {
+            createNotification('success', 'Welcome to BarangayLink!', 
+                'Your account has been created successfully. Welcome to our digital governance platform.', 
+                $email);
+        }
         
         return [
             'success' => true,
@@ -320,17 +283,28 @@ function requireAdmin($redirectUrl = 'index.php?error=insufficient_permissions')
  */
 function getUserProfile($email) {
     try {
-        $users = loadJsonData('users');
-        
-        foreach ($users as $user) {
-            if ($user['email'] === $email) {
+        if (USE_DATABASE) {
+            require_once __DIR__ . '/db_utils.php';
+            $user = getUserByEmail($email);
+            if ($user) {
                 // Remove password from profile data
                 unset($user['password']);
                 return $user;
             }
+            return null;
+        } else {
+            $users = loadJsonData('users');
+            
+            foreach ($users as $user) {
+                if ($user['email'] === $email) {
+                    // Remove password from profile data
+                    unset($user['password']);
+                    return $user;
+                }
+            }
+            
+            return null;
         }
-        
-        return null;
     } catch (Exception $e) {
         error_log('Error getting user profile: ' . $e->getMessage());
         return null;
@@ -345,41 +319,55 @@ function getUserProfile($email) {
  */
 function updateUserProfile($email, $updates) {
     try {
-        $users = loadJsonData('users');
+        // Allowed fields for update
+        $allowedFields = ['name', 'address', 'phone'];
+        $cleanUpdates = [];
+        
+        foreach ($allowedFields as $field) {
+            if (isset($updates[$field])) {
+                $cleanUpdates[$field] = trim($updates[$field]);
+            }
+        }
+        
+        if (empty($cleanUpdates)) {
+            return false;
+        }
+        
         $updated = false;
         
-        foreach ($users as &$user) {
-            if ($user['email'] === $email) {
-                // Allowed fields for update
-                $allowedFields = ['name', 'address', 'phone'];
-                
-                foreach ($allowedFields as $field) {
-                    if (isset($updates[$field])) {
-                        $user[$field] = trim($updates[$field]);
-                        $updated = true;
+        if (USE_DATABASE) {
+            require_once __DIR__ . '/db_utils.php';
+            $updated = updateUser($email, $cleanUpdates);
+        } else {
+            $users = loadJsonData('users');
+            
+            foreach ($users as &$user) {
+                if ($user['email'] === $email) {
+                    foreach ($cleanUpdates as $field => $value) {
+                        $user[$field] = $value;
                     }
-                }
-                
-                if ($updated) {
                     $user['updatedAt'] = date('c');
-                    
-                    // Update session data
-                    $currentUser = getCurrentUser();
-                    if ($currentUser && $currentUser['email'] === $email) {
-                        $currentUser = array_merge($currentUser, array_intersect_key($updates, array_flip($allowedFields)));
-                        $_SESSION['auth']['user'] = $currentUser;
-                        $_SESSION['user'] = $currentUser; // Legacy compatibility
-                    }
+                    $updated = true;
+                    break;
                 }
-                break;
+            }
+            
+            if ($updated) {
+                $updated = saveJsonData('users', $users);
             }
         }
         
         if ($updated) {
-            return saveJsonData('users', $users);
+            // Update session data
+            $currentUser = getCurrentUser();
+            if ($currentUser && $currentUser['email'] === $email) {
+                $currentUser = array_merge($currentUser, $cleanUpdates);
+                $_SESSION['auth']['user'] = $currentUser;
+                $_SESSION['user'] = $currentUser; // Legacy compatibility
+            }
         }
         
-        return false;
+        return $updated;
     } catch (Exception $e) {
         error_log('Error updating user profile: ' . $e->getMessage());
         return false;

@@ -56,36 +56,21 @@ if (isset($_GET['view'])) {
 
 // Handle Profile Update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_profile') {
-    $usersFile = __DIR__ . '/data/users.json';
-    $users = json_decode(file_get_contents($usersFile), true) ?: [];
+    require_once 'functions/profile.php';
     
-    // Update user data - improved logic
-    $userUpdated = false;
-    for ($i = 0; $i < count($users); $i++) {
-        if ($users[$i]['email'] === $authState['user']['email']) {
-            $users[$i]['name'] = $_POST['name'];
-            $users[$i]['phone'] = $_POST['phone'] ?? '';
-            $users[$i]['address'] = $_POST['address'] ?? '';
-            $userUpdated = true;
-            break;
-        }
+    $result = handleUpdateProfile($_POST, $authState['user']);
+    
+    if ($result['success']) {
+        $_SESSION['profile_saved'] = true;
+        // Update the auth state with new data
+        $_SESSION['authState']['user'] = $_SESSION['auth']['user'];
+        $authState = $_SESSION['authState'];
+    } else {
+        $_SESSION['profile_error'] = $result['message'];
     }
     
-    // Only proceed if user was found and updated
-    if ($userUpdated) {
-        // Save updated users back to file
-        file_put_contents($usersFile, json_encode($users, JSON_PRETTY_PRINT));
-        
-        // Update session auth state with the new data
-        $authState['user']['name'] = $_POST['name'];
-        $authState['user']['phone'] = $_POST['phone'] ?? '';
-        $authState['user']['address'] = $_POST['address'] ?? '';
-        $_SESSION['authState'] = $authState;
-    }
-    
-    // Set success message and redirect
-    $_SESSION['profile_saved'] = true;
-    header('Location: ' . $_SERVER['REQUEST_URI']);
+    // Redirect to prevent form resubmission
+    header('Location: index.php?view=profile');
     exit;
 }
 
@@ -170,6 +155,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
     exit;
 }
 
+// Handle Admin Document Status Updates
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_document_status'])) {
+    $requestsFile = __DIR__ . '/data/requests.json';
+    $requests = json_decode(file_get_contents($requestsFile), true) ?: [];
+    
+    foreach ($requests as &$request) {
+        if ($request['id'] === $_POST['document_id']) {
+            $request['status'] = $_POST['new_status'];
+            $request['updatedAt'] = date('c');
+            if ($_POST['new_status'] === 'approved') {
+                $request['approvedAt'] = date('c');
+            }
+            break;
+        }
+    }
+    
+    file_put_contents($requestsFile, json_encode($requests, JSON_PRETTY_PRINT));
+    header('Location: ' . $_SERVER['REQUEST_URI']);
+    exit;
+}
+
 // Handle Admin Concern Status Updates
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_concern_status'])) {
     $concernsFile = __DIR__ . '/data/concerns.json';
@@ -188,83 +194,229 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_concern_status
     exit;
 }
 
-// Handle Admin User Management
+// Handle Admin User Management - CRUD Operations with Database Support
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_user'])) {
-    $usersFile = __DIR__ . '/data/users.json';
-    $users = json_decode(file_get_contents($usersFile), true) ?: [];
-    
     $isEdit = !empty($_POST['original_email']);
+    $operationSuccess = false;
     
-    $userData = [
-        'name' => $_POST['name'],
-        'email' => $_POST['email'],
-        'role' => $_POST['role'],
-        'address' => $_POST['address'] ?? '',
-        'phone' => $_POST['phone'] ?? ''
-    ];
-    
-    if (!$isEdit) {
-        // Add password for new users
-        $userData['password'] = $_POST['password'];
-        $userData['createdAt'] = date('c');
-        $users[] = $userData;
-    } else {
-        // Update existing user
-        $originalEmail = $_POST['original_email'];
-        foreach ($users as &$user) {
-            if ($user['email'] === $originalEmail) {
-                $user = array_merge($user, $userData);
-                break;
+    try {
+        if (USE_DATABASE) {
+            // Use database for CRUD operations
+            require_once __DIR__ . '/functions/db_utils.php';
+            
+            if (!$isEdit) {
+                // Create new user
+                $userData = [
+                    'email' => $_POST['email'],
+                    'password' => $_POST['password'],
+                    'first_name' => explode(' ', $_POST['name'])[0] ?? '',
+                    'middle_name' => '',
+                    'last_name' => explode(' ', $_POST['name'])[1] ?? '',
+                    'role' => $_POST['role'],
+                    'address' => $_POST['address'] ?? '',
+                    'phone' => $_POST['phone'] ?? ''
+                ];
+                $operationSuccess = createUser($userData);
+                
+                if ($operationSuccess) {
+                    error_log("User created in database: " . $_POST['email']);
+                }
+            } else {
+                // Update existing user
+                $originalEmail = $_POST['original_email'];
+                $updates = [
+                    'first_name' => explode(' ', $_POST['name'])[0] ?? '',
+                    'middle_name' => '',
+                    'last_name' => explode(' ', $_POST['name'])[1] ?? '',
+                    'address' => $_POST['address'] ?? '',
+                    'phone' => $_POST['phone'] ?? ''
+                ];
+                
+                // Only update password if provided
+                if (!empty($_POST['password'])) {
+                    $updates['password'] = $_POST['password'];
+                }
+                
+                $operationSuccess = updateUser($originalEmail, $updates);
+                
+                if ($operationSuccess) {
+                    error_log("User updated in database: " . $originalEmail);
+                }
+            }
+        } else {
+            // Fallback to JSON file operations
+            $usersFile = __DIR__ . '/data/users.json';
+            $users = json_decode(file_get_contents($usersFile), true) ?: [];
+            
+            $userData = [
+                'name' => $_POST['name'],
+                'email' => $_POST['email'],
+                'role' => $_POST['role'],
+                'address' => $_POST['address'] ?? '',
+                'phone' => $_POST['phone'] ?? ''
+            ];
+            
+            if (!$isEdit) {
+                // Add password for new users
+                $userData['password'] = $_POST['password'];
+                $userData['createdAt'] = date('c');
+                $users[] = $userData;
+            } else {
+                // Update existing user
+                $originalEmail = $_POST['original_email'];
+                foreach ($users as &$user) {
+                    if ($user['email'] === $originalEmail) {
+                        $user = array_merge($user, $userData);
+                        break;
+                    }
+                }
+            }
+            
+            $operationSuccess = file_put_contents($usersFile, json_encode($users, JSON_PRETTY_PRINT)) !== false;
+        }
+        
+        if ($operationSuccess) {
+            // Create notification about user operation
+            if (function_exists('createNotification')) {
+                $action = $isEdit ? 'updated' : 'created';
+                createNotification(
+                    'success',
+                    'User ' . ucfirst($action),
+                    "User {$_POST['email']} has been {$action} successfully.",
+                    null // Admin notification
+                );
             }
         }
+        
+    } catch (Exception $e) {
+        error_log("Error during user save operation: " . $e->getMessage());
     }
     
-    file_put_contents($usersFile, json_encode($users, JSON_PRETTY_PRINT));
-    header('Location: ?view=manage-users&selected=' . urlencode($userData['email']));
+    // Redirect to prevent form resubmission
+    header('Location: ?view=manage-users&selected=' . urlencode($_POST['email']));
     exit;
 }
 
-// Handle User Deletion
+// Handle User Deletion - CRUD Operation with Database Support
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user'])) {
-    $usersFile = __DIR__ . '/data/users.json';
-    $users = json_decode(file_get_contents($usersFile), true) ?: [];
-    
     $emailToDelete = $_POST['user_email'];
-    $users = array_filter($users, fn($u) => $u['email'] !== $emailToDelete);
-    $users = array_values($users); // Re-index array
+    $deletionSuccess = false;
     
-    file_put_contents($usersFile, json_encode($users, JSON_PRETTY_PRINT));
+    try {
+        if (USE_DATABASE) {
+            // Use database for permanent deletion (CRUD operation)
+            require_once __DIR__ . '/functions/db_utils.php';
+            $deletionSuccess = deleteUser($emailToDelete);
+            
+            if ($deletionSuccess) {
+                error_log("User permanently deleted from database: " . $emailToDelete);
+            } else {
+                error_log("Failed to delete user from database: " . $emailToDelete);
+            }
+        } else {
+            // Fallback to JSON file - mark as deleted instead of permanent deletion
+            $usersFile = __DIR__ . '/data/users.json';
+            $users = json_decode(file_get_contents($usersFile), true) ?: [];
+            
+            $userFound = false;
+            foreach ($users as &$user) {
+                if ($user['email'] === $emailToDelete) {
+                    $user['status'] = 'deleted';
+                    $user['deletedAt'] = date('c');
+                    $userFound = true;
+                    break;
+                }
+            }
+            
+            if ($userFound) {
+                $deletionSuccess = file_put_contents($usersFile, json_encode($users, JSON_PRETTY_PRINT)) !== false;
+                error_log("User marked as deleted in JSON file: " . $emailToDelete);
+            }
+        }
+        
+        if ($deletionSuccess) {
+            // Create notification about user deletion
+            if (function_exists('createNotification')) {
+                createNotification(
+                    'info',
+                    'User Deleted',
+                    "User {$emailToDelete} has been marked as deleted and cannot log in. The user can be restored if needed.",
+                    null // Admin notification
+                );
+            }
+        }
+        
+    } catch (Exception $e) {
+        error_log("Error during user deletion: " . $e->getMessage());
+    }
+    
+    // Redirect regardless of success/failure to prevent form resubmission
+    header('Location: ?view=manage-users');
+    exit;
+}
+
+// Handle User Restoration - Restore deleted users
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['restore_user'])) {
+    $emailToRestore = $_POST['user_email'];
+    $restoreSuccess = false;
+    
+    try {
+        if (USE_DATABASE) {
+            // Use database for restoration
+            require_once __DIR__ . '/functions/db_utils.php';
+            $restoreSuccess = restoreUser($emailToRestore);
+            
+            if ($restoreSuccess) {
+                error_log("User restored in database: " . $emailToRestore);
+            } else {
+                error_log("Failed to restore user in database: " . $emailToRestore);
+            }
+        } else {
+            // Fallback to JSON file restoration
+            $usersFile = __DIR__ . '/data/users.json';
+            $users = json_decode(file_get_contents($usersFile), true) ?: [];
+            
+            $userFound = false;
+            foreach ($users as &$user) {
+                if ($user['email'] === $emailToRestore && ($user['status'] ?? 'active') === 'deleted') {
+                    $user['status'] = 'active';
+                    $user['restoredAt'] = date('c');
+                    unset($user['deletedAt']); // Remove deletion timestamp
+                    $userFound = true;
+                    break;
+                }
+            }
+            
+            if ($userFound) {
+                $restoreSuccess = file_put_contents($usersFile, json_encode($users, JSON_PRETTY_PRINT)) !== false;
+                error_log("User restored in JSON file: " . $emailToRestore);
+            }
+        }
+        
+        if ($restoreSuccess) {
+            // Create notification about user restoration
+            if (function_exists('createNotification')) {
+                createNotification(
+                    'success',
+                    'User Restored',
+                    "User {$emailToRestore} has been restored and can now log in again.",
+                    null // Admin notification
+                );
+            }
+        }
+        
+    } catch (Exception $e) {
+        error_log("Error during user restoration: " . $e->getMessage());
+    }
+    
+    // Redirect regardless of success/failure to prevent form resubmission
     header('Location: ?view=manage-users');
     exit;
 }
 
 // ===== END FORM PROCESSING =====
 
-// EXACT same localStorage helpers as App.tsx
-function getStorageItem($key, $defaultValue = null) {
-    // In PHP, we use session instead of localStorage
-    return $_SESSION[$key] ?? $defaultValue;
-}
-
-function setStorageItem($key, $value) {
-    try {
-        $_SESSION[$key] = $value;
-        return true;
-    } catch (Exception $e) {
-        error_log("Error setting session key \"$key\": " . $e->getMessage());
-        return false;
-    }
-}
-
-function removeStorageItem($key) {
-    try {
-        unset($_SESSION[$key]);
-        return true;
-    } catch (Exception $e) {
-        error_log("Error removing session key \"$key\": " . $e->getMessage());
-        return false;
-    }
-}
+// Storage helper functions are now defined in functions/utils.php
 
 // Initialize app state (matching App.tsx useEffect)
 try {
@@ -286,6 +438,69 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
     removeStorageItem(STORAGE_KEYS['auth']);
     header('Location: index.php');
     exit;
+}
+
+// Handle real-time alerts request
+if (isset($_GET['action']) && $_GET['action'] === 'get_realtime_alerts') {
+    require_once 'functions/realtime_service.php';
+    require_once 'components/EmergencyAlerts.php';
+    
+    $alerts = getRealtimeAlerts();
+    
+    $html = '';
+    foreach ($alerts as $alert) {
+        $html .= AlertCard($alert);
+    }
+    
+    header('Content-Type: application/json');
+    echo json_encode(['success' => true, 'html' => $html]);
+    exit;
+}
+
+// Handle notification AJAX requests
+if (isset($_GET['ajax']) && $_GET['ajax'] === 'true') {
+    $action = $_GET['action'] ?? '';
+    
+    switch ($action) {
+        case 'mark_notifications_read':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $ids = json_decode($_POST['ids'] ?? '[]', true);
+                if (is_array($ids) && !empty($ids)) {
+                    $success = markNotificationsRead($ids);
+                    header('Content-Type: application/json');
+                    echo json_encode(['success' => $success]);
+                    exit;
+                }
+            }
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Invalid request']);
+            exit;
+            
+        case 'get_notifications':
+            if ($authState['isAuthenticated']) {
+                $userEmail = $authState['user']['email'] ?? '';
+                $userRole = $authState['user']['role'] ?? 'user';
+                
+                require_once 'components/LiveNotifications.php';
+                
+                // Get notifications HTML
+                ob_start();
+                echo LiveNotifications($userEmail, $userRole);
+                $notificationsHtml = ob_get_clean();
+                
+                header('Content-Type: application/json');
+                echo json_encode(['success' => true, 'html' => $notificationsHtml]);
+                exit;
+            }
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Not authenticated']);
+            exit;
+            
+        default:
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Unknown action']);
+            exit;
+    }
 }
 
 // Handle form submissions (matching handleLogin, handleSignup, handlePasswordReset)
@@ -330,21 +545,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                     
                     if ($foundUser) {
-                        $authState = [
-                            'isAuthenticated' => true,
-                            'user' => [
-                                'email' => $foundUser['email'],
-                                'name' => $foundUser['name'],
-                                'role' => 'user',
-                                'address' => $foundUser['address'] ?? '',
-                                'phone' => $foundUser['phone'] ?? ''
-                            ]
-                        ];
-                        $_SESSION['authState'] = $authState;
-                        setStorageItem(STORAGE_KEYS['auth'], $authState);
-                        $currentView = 'dashboard';
-                        $_SESSION['currentView'] = $currentView;
-                        $response = ['success' => true, 'redirect' => 'index.php'];
+                        // Check user status
+                        $userStatus = $foundUser['status'] ?? 'active';
+                        if ($userStatus === 'deleted') {
+                            $response = ['success' => false, 'message' => 'Your account has been deleted. Please contact the administrator for assistance.'];
+                        } elseif ($userStatus === 'suspended') {
+                            $response = ['success' => false, 'message' => 'Your account has been suspended. Please contact the administrator for assistance.'];
+                        } elseif ($userStatus === 'inactive') {
+                            $response = ['success' => false, 'message' => 'Your account is inactive. Please contact the administrator to reactivate your account.'];
+                        } else {
+                            $authState = [
+                                'isAuthenticated' => true,
+                                'user' => [
+                                    'email' => $foundUser['email'],
+                                    'name' => $foundUser['name'],
+                                    'role' => 'user',
+                                    'address' => $foundUser['address'] ?? '',
+                                    'phone' => $foundUser['phone'] ?? ''
+                                ]
+                            ];
+                            $_SESSION['authState'] = $authState;
+                            setStorageItem(STORAGE_KEYS['auth'], $authState);
+                            $currentView = 'dashboard';
+                            $_SESSION['currentView'] = $currentView;
+                            $response = ['success' => true, 'redirect' => 'index.php'];
+                        }
                     } else {
                         $response = ['success' => false, 'message' => 'Invalid email or password'];
                     }
@@ -352,14 +577,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
                 
             case 'signup':
-                $name = $_POST['name'] ?? '';
+                $first_name = $_POST['first_name'] ?? '';
+                $middle_name = $_POST['middle_name'] ?? '';
+                $last_name = $_POST['last_name'] ?? '';
                 $email = $_POST['email'] ?? '';
                 $password = $_POST['password'] ?? '';
                 $address = $_POST['address'] ?? '';
                 $phone = $_POST['phone'] ?? '';
                 
-                if (empty($name) || empty($email) || empty($password)) {
-                    $response = ['success' => false, 'message' => 'Please fill in all required fields'];
+                if (empty($first_name) || empty($last_name) || empty($email) || empty($password) || empty($address) || empty($phone)) {
+                    $response = ['success' => false, 'message' => 'Please fill in all required fields including address and phone number'];
                     break;
                 }
                 
@@ -383,8 +610,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $newUser = [
                         'email' => $email,
                         'password' => $password,
-                        'name' => $name,
+                        'first_name' => $first_name,
+                        'middle_name' => $middle_name,
+                        'last_name' => $last_name,
+                        'name' => trim($first_name . ' ' . $middle_name . ' ' . $last_name), // For backward compatibility
                         'role' => 'user',
+                        'status' => 'active', // Set default status
                         'address' => $address,
                         'phone' => $phone,
                         'createdAt' => date('c')
@@ -398,6 +629,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'isAuthenticated' => true,
                         'user' => [
                             'email' => $newUser['email'],
+                            'first_name' => $newUser['first_name'],
+                            'middle_name' => $newUser['middle_name'],
+                            'last_name' => $newUser['last_name'],
                             'name' => $newUser['name'],
                             'role' => 'user',
                             'address' => $newUser['address'],
@@ -445,14 +679,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         if (function_exists('handleUpdateProfile')) {
                             $response = handleUpdateProfile($_POST, $authState['user']);
                             if ($response['success']) {
-                                // Update session with new user data
-                                $authState['user'] = array_merge($authState['user'], [
-                                    'name' => $_POST['name'] ?? $authState['user']['name'],
-                                    'phone' => $_POST['phone'] ?? $authState['user']['phone'],
-                                    'address' => $_POST['address'] ?? $authState['user']['address']
-                                ]);
-                                $_SESSION['authState'] = $authState;
-                                setStorageItem(STORAGE_KEYS['auth'], $authState);
+                                // Reload user data from storage to get updated information
+                                $users = loadJsonData('users');
+                                $updatedUser = null;
+                                foreach ($users as $u) {
+                                    if ($u['email'] === $authState['user']['email']) {
+                                        $updatedUser = $u;
+                                        break;
+                                    }
+                                }
+                                
+                                if ($updatedUser) {
+                                    $authState['user'] = $updatedUser;
+                                    $_SESSION['authState'] = $authState;
+                                    setStorageItem(STORAGE_KEYS['auth'], $authState);
+                                }
                             }
                         }
                         break;

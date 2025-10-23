@@ -46,7 +46,7 @@ function SubmitConcernForm($user) {
         <?php else: ?>
         <form method="POST" action="" class="space-y-6">
             <input type="hidden" name="action" value="submit_concern">
-            <input type="hidden" name="submittedBy" value="<?php echo htmlspecialchars($user['name']); ?>">
+            <input type="hidden" name="submittedBy" value="<?php echo htmlspecialchars(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? '') ?: $user['name'] ?? 'User'); ?>">
             <input type="hidden" name="submittedByEmail" value="<?php echo htmlspecialchars($user['email']); ?>">
             
             <div>

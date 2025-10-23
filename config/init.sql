@@ -9,9 +9,11 @@ CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    full_name VARCHAR(255) NOT NULL,
+    first_name VARCHAR(255) NOT NULL,
+    middle_name VARCHAR(255),
+    last_name VARCHAR(255) NOT NULL,
     role ENUM('admin', 'user') NOT NULL DEFAULT 'user',
-    status ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
+    status ENUM('active', 'inactive', 'deleted', 'suspended') NOT NULL DEFAULT 'active',
     address TEXT,
     phone VARCHAR(20),
     birth_date DATE,
@@ -88,12 +90,34 @@ CREATE TABLE sessions (
 );
 
 -- Insert default admin user
-INSERT INTO users (email, password, full_name, role, status) VALUES 
-('admin@barangaylink.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'System Administrator', 'admin', 'active');
+INSERT INTO users (email, password, first_name, middle_name, last_name, role, status) VALUES 
+('admin@barangaylink.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'System', '', 'Administrator', 'admin', 'active');
 -- Default password is 'password'
+
+-- Emergency alerts table
+CREATE TABLE emergency_alerts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    type ENUM('emergency', 'warning', 'info', 'resolved') NOT NULL DEFAULT 'info',
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    source ENUM('weather', 'news', 'emergency', 'community') NOT NULL DEFAULT 'community',
+    priority ENUM('low', 'medium', 'high') NOT NULL DEFAULT 'medium',
+    status ENUM('active', 'inactive', 'resolved') NOT NULL DEFAULT 'active',
+    url VARCHAR(500),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP NULL
+);
 
 -- Insert sample announcements
 INSERT INTO announcements (title, content, type, priority, status, created_by, published_at) VALUES 
 ('Welcome to BarangayLink', 'Welcome to our new digital governance platform. You can now submit document requests and report concerns online.', 'general', 'high', 'published', 1, NOW()),
 ('Community Meeting', 'Monthly community meeting scheduled for this Saturday at 2 PM at the Barangay Hall.', 'event', 'medium', 'published', 1, NOW()),
 ('Road Maintenance Notice', 'Road maintenance work will be conducted on Main Street from March 15-20. Please use alternative routes.', 'maintenance', 'medium', 'published', 1, NOW());
+
+-- Insert sample emergency alerts
+INSERT INTO emergency_alerts (type, title, message, source, priority, status) VALUES 
+('emergency', 'Typhoon Warning', 'Signal No. 2 has been raised. Residents are advised to stay indoors and prepare emergency kits.', 'weather', 'high', 'active'),
+('warning', 'Water Interruption', 'Scheduled water interruption on October 3, 2025 from 9:00 AM to 3:00 PM for maintenance work.', 'community', 'medium', 'active'),
+('info', 'Community Assembly', 'Monthly community assembly scheduled for October 5, 2025 at 6:00 PM at the Multi-Purpose Hall.', 'community', 'low', 'active'),
+('resolved', 'Road Repair Completed', 'The road repair on Main Street has been completed. Normal traffic flow has resumed.', 'community', 'low', 'resolved');

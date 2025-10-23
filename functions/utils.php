@@ -148,45 +148,50 @@ function timeAgo($dateString) {
  */
 function getDashboardStats() {
     try {
-        $users = loadJsonData('users');
-        $requests = loadJsonData('requests');
-        $concerns = loadJsonData('concerns');
-        $notifications = loadJsonData('notifications');
-        
-        // Calculate stats matching React patterns
-        $totalUsers = count($users);
-        $totalRequests = count($requests);
-        $totalConcerns = count($concerns);
-        $unreadNotifications = count(array_filter($notifications, function($n) {
-            return !isset($n['read']) || !$n['read'];
-        }));
-        
-        // Pending requests
-        $pendingRequests = count(array_filter($requests, function($r) {
-            return $r['status'] === 'pending';
-        }));
-        
-        // Active concerns
-        $activeConcerns = count(array_filter($concerns, function($c) {
-            return in_array($c['status'], ['pending', 'in-progress']);
-        }));
-        
-        // Recent activity (last 7 days)
-        $weekAgo = date('Y-m-d', strtotime('-7 days'));
-        $recentRequests = count(array_filter($requests, function($r) use ($weekAgo) {
-            return $r['createdAt'] >= $weekAgo;
-        }));
-        
-        return [
-            'totalUsers' => $totalUsers,
-            'totalRequests' => $totalRequests,
-            'totalConcerns' => $totalConcerns,
-            'pendingRequests' => $pendingRequests,
-            'activeConcerns' => $activeConcerns,
-            'unreadNotifications' => $unreadNotifications,
-            'recentRequests' => $recentRequests,
-            'lastUpdated' => date('c')
-        ];
+        if (USE_DATABASE) {
+            require_once __DIR__ . '/db_utils.php';
+            return getDatabaseDashboardStats();
+        } else {
+            $users = loadJsonData('users');
+            $requests = loadJsonData('requests');
+            $concerns = loadJsonData('concerns');
+            $notifications = loadJsonData('notifications');
+            
+            // Calculate stats matching React patterns
+            $totalUsers = count($users);
+            $totalRequests = count($requests);
+            $totalConcerns = count($concerns);
+            $unreadNotifications = count(array_filter($notifications, function($n) {
+                return !isset($n['read']) || !$n['read'];
+            }));
+            
+            // Pending requests
+            $pendingRequests = count(array_filter($requests, function($r) {
+                return $r['status'] === 'pending';
+            }));
+            
+            // Active concerns
+            $activeConcerns = count(array_filter($concerns, function($c) {
+                return in_array($c['status'], ['pending', 'in-progress']);
+            }));
+            
+            // Recent activity (last 7 days)
+            $weekAgo = date('Y-m-d', strtotime('-7 days'));
+            $recentRequests = count(array_filter($requests, function($r) use ($weekAgo) {
+                return $r['createdAt'] >= $weekAgo;
+            }));
+            
+            return [
+                'totalUsers' => $totalUsers,
+                'totalRequests' => $totalRequests,
+                'totalConcerns' => $totalConcerns,
+                'pendingRequests' => $pendingRequests,
+                'activeConcerns' => $activeConcerns,
+                'unreadNotifications' => $unreadNotifications,
+                'recentRequests' => $recentRequests,
+                'lastUpdated' => date('c')
+            ];
+        }
     } catch (Exception $e) {
         error_log("Error getting dashboard stats: " . $e->getMessage());
         return [
@@ -212,21 +217,26 @@ function getDashboardStats() {
  */
 function createNotification($type, $title, $message, $userId = null) {
     try {
-        $notifications = loadJsonData('notifications');
-        
-        $notification = [
-            'id' => generateId(),
-            'type' => $type,
-            'title' => $title,
-            'message' => $message,
-            'userId' => $userId,
-            'read' => false,
-            'timestamp' => date('c'),
-            'createdAt' => date('c')
-        ];
-        
-        $notifications[] = $notification;
-        return saveJsonData('notifications', $notifications);
+        if (USE_DATABASE) {
+            require_once __DIR__ . '/db_utils.php';
+            return createDatabaseNotification($type, $title, $message, $userId);
+        } else {
+            $notifications = loadJsonData('notifications');
+            
+            $notification = [
+                'id' => generateId(),
+                'type' => $type,
+                'title' => $title,
+                'message' => $message,
+                'userId' => $userId,
+                'read' => false,
+                'timestamp' => date('c'),
+                'createdAt' => date('c')
+            ];
+            
+            $notifications[] = $notification;
+            return saveJsonData('notifications', $notifications);
+        }
     } catch (Exception $e) {
         error_log("Error creating notification: " . $e->getMessage());
         return false;
@@ -240,16 +250,21 @@ function createNotification($type, $title, $message, $userId = null) {
  */
 function markNotificationsRead($notificationIds) {
     try {
-        $notifications = loadJsonData('notifications');
-        
-        foreach ($notifications as &$notification) {
-            if (in_array($notification['id'], $notificationIds)) {
-                $notification['read'] = true;
-                $notification['readAt'] = date('c');
+        if (USE_DATABASE) {
+            require_once __DIR__ . '/db_utils.php';
+            return markNotificationsAsRead($notificationIds);
+        } else {
+            $notifications = loadJsonData('notifications');
+            
+            foreach ($notifications as &$notification) {
+                if (in_array($notification['id'], $notificationIds)) {
+                    $notification['read'] = true;
+                    $notification['readAt'] = date('c');
+                }
             }
+            
+            return saveJsonData('notifications', $notifications);
         }
-        
-        return saveJsonData('notifications', $notifications);
     } catch (Exception $e) {
         error_log("Error marking notifications as read: " . $e->getMessage());
         return false;
@@ -404,5 +419,47 @@ function backupData() {
 if (!defined('DATA_INITIALIZED')) {
     initializeDefaultData();
     define('DATA_INITIALIZED', true);
+}
+
+/**
+ * Storage helper functions (matching App.tsx localStorage)
+ * @param string $key
+ * @param mixed $defaultValue
+ * @return mixed
+ */
+function getStorageItem($key, $defaultValue = null) {
+    // In PHP, we use session instead of localStorage
+    return $_SESSION[$key] ?? $defaultValue;
+}
+
+/**
+ * Set storage item
+ * @param string $key
+ * @param mixed $value
+ * @return bool
+ */
+function setStorageItem($key, $value) {
+    try {
+        $_SESSION[$key] = $value;
+        return true;
+    } catch (Exception $e) {
+        error_log("Error setting session key \"$key\": " . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Remove storage item
+ * @param string $key
+ * @return bool
+ */
+function removeStorageItem($key) {
+    try {
+        unset($_SESSION[$key]);
+        return true;
+    } catch (Exception $e) {
+        error_log("Error removing session key \"$key\": " . $e->getMessage());
+        return false;
+    }
 }
 ?>

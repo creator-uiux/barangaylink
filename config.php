@@ -4,6 +4,11 @@
  * EXACT conversion from config.ts preserving ALL configuration values
  */
 
+// Define ABSPATH constant
+if (!defined('ABSPATH')) {
+    define('ABSPATH', __DIR__ . '/');
+}
+
 // Application Configuration
 define('APP_CONFIG', [
     'name' => 'BarangayLink',
@@ -198,5 +203,13 @@ if (DEBUG_MODE) {
 } else {
     error_reporting(0);
     ini_set('display_errors', 0);
+}
+
+// Database configuration
+define('USE_DATABASE', true); // Set to true to use MySQL, false to use JSON files
+
+// Include database configuration if using MySQL
+if (USE_DATABASE) {
+    require_once __DIR__ . '/config/database.php';
 }
 ?>

@@ -28,3 +28,8 @@ services:
         value: "."
       - key: APP_ENV
         value: "production"
+      - key: RENDER
+        value: "true"
+      # DATABASE_URL will be automatically provided by Render MySQL
+      # Format: mysql://user:password@host:port/database
+      # Add this manually in Render dashboard when you create MySQL database

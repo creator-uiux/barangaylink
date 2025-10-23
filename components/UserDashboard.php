@@ -36,12 +36,16 @@ function UserDashboard($user) {
                     <div class="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-4">
                         <div class="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-white/20 rounded-xl sm:rounded-2xl flex items-center justify-center backdrop-blur-lg">
                             <span class="text-lg sm:text-xl lg:text-2xl font-bold text-white">
-                                <?php echo strtoupper(substr($user['name'], 0, 1)); ?>
+                                <?php echo strtoupper(substr($user['first_name'] ?? $user['name'] ?? 'U', 0, 1)); ?>
                             </span>
                         </div>
                         <div>
                             <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-1">
-                                Welcome back, <?php echo explode(' ', $user['name'])[0]; ?>!
+                                Welcome back, <?php 
+                                    $nameParts = explode(' ', $user['name'] ?? 'User');
+                                    $firstName = !empty($nameParts) ? $nameParts[0] : 'User';
+                                    echo $user['first_name'] ?? $firstName; 
+                                ?>!
                             </h2>
                             <p class="text-sm sm:text-base text-blue-100">Let's make today productive</p>
                         </div>

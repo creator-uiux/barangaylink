@@ -34,5 +34,61 @@
         "address": "Sitio Atis A",
         "phone": "09233569333",
         "createdAt": "2025-10-05T02:50:35+08:00"
+    },
+    {
+        "email": "noel.barte23@gmail.com",
+        "password": "test123",
+        "name": "Noel Barte",
+        "role": "user",
+        "address": "Cebu City",
+        "phone": "",
+        "createdAt": "2025-10-13T17:11:15+08:00"
+    },
+    {
+        "email": "noel@gmail.com",
+        "password": "test123",
+        "name": "Noel Barte",
+        "role": "user",
+        "address": "Sitio Atis",
+        "phone": "09233569434",
+        "createdAt": "2025-10-13T17:40:42+08:00"
+    },
+    {
+        "email": "blubo@gmail.com",
+        "password": "123456",
+        "first_name": "Baby",
+        "middle_name": "E",
+        "last_name": "Blubo",
+        "name": "Baby E Blubo",
+        "role": "user",
+        "address": "",
+        "phone": "",
+        "createdAt": "2025-10-23T22:46:29+08:00"
+    },
+    {
+        "email": "test1@gmail.com",
+        "password": "test123",
+        "first_name": "test",
+        "middle_name": "test1",
+        "last_name": "test2",
+        "name": "test test1 test2",
+        "role": "user",
+        "address": "",
+        "phone": "",
+        "createdAt": "2025-10-24T01:14:09+08:00"
+    },
+    {
+        "email": "noel1@gmail.com",
+        "password": "Noel993150",
+        "first_name": "Baby",
+        "middle_name": "B",
+        "last_name": "Blubo",
+        "name": "Baby B Blubo",
+        "role": "user",
+        "status": "active",
+        "address": "Sitio Atis",
+        "phone": "0923356555",
+        "createdAt": "2025-10-24T02:38:04+08:00",
+        "updatedAt": "2025-10-24T02:39:50+08:00"
     }
 ]

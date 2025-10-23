@@ -39,22 +39,19 @@ function AdminLayout($user, $currentView, $children = '') {
                 <div class="flex items-center space-x-4">
                     <div class="hidden md:flex items-center space-x-4">
                         <div class="text-right">
-                            <p class="text-sm font-medium text-gray-900"><?php echo htmlspecialchars($user['name']); ?></p>
+                            <p class="text-sm font-medium text-gray-900"><?php echo htmlspecialchars(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? '') ?: $user['name'] ?? 'Admin'); ?></p>
                             <p class="text-xs text-gray-500">System Administrator</p>
                         </div>
                     </div>
 
-                    <div class="relative">
-                        <button class="p-2 text-gray-400 hover:text-gray-600 relative">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5-5-5 5h5z"/>
-                            </svg>
-                            <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
-                        </button>
-                    </div>
+                    <?php
+                    // Load LiveNotifications component
+                    require_once __DIR__ . '/../LiveNotifications.php';
+                    echo LiveNotifications($user['email'] ?? '', $user['role'] ?? 'admin');
+                    ?>
 
                     <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                        <span class="text-white text-sm font-medium"><?php echo strtoupper(substr($user['name'], 0, 1)); ?></span>
+                        <span class="text-white text-sm font-medium"><?php echo strtoupper(substr($user['first_name'] ?? $user['name'] ?? 'A', 0, 1)); ?></span>
                     </div>
                     
                     <button

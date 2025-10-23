@@ -11,8 +11,8 @@ function ProfileManagement($user) {
     $concernsData = json_decode(file_get_contents(__DIR__ . '/../data/concerns.json'), true) ?: [];
     $documentsData = json_decode(file_get_contents(__DIR__ . '/../data/requests.json'), true) ?: [];
     
-    $concerns = array_filter($concernsData, fn($c) => $c['submittedByEmail'] === $user['email']);
-    $documents = array_filter($documentsData, fn($d) => $d['requestedByEmail'] === $user['email']);
+    $concerns = array_filter($concernsData, fn($c) => $c['submittedByEmail'] === ($user['email'] ?? ''));
+    $documents = array_filter($documentsData, fn($d) => $d['requestedByEmail'] === ($user['email'] ?? ''));
     
     $stats = [
         'totalConcerns' => count($concerns),
@@ -77,21 +77,79 @@ function ProfileManagement($user) {
         <form id="profile-form" method="POST" action="">
             <input type="hidden" name="action" value="update_profile">
             <div class="grid md:grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-blue-700 mb-2">
-                        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                        Full Name
-                    </label>
-                    <input
-                        type="text"
-                        name="name"
-                        id="name-input"
-                        value="<?php echo htmlspecialchars($user['name']); ?>"
-                        class="w-full px-4 py-2 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 hidden"
-                    />
-                    <p id="name-display" class="text-blue-900 px-4 py-2 bg-blue-50 rounded-lg"><?php echo htmlspecialchars($user['name']); ?></p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-blue-700 mb-2">
+                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            First Name
+                        </label>
+                        <input
+                            type="text"
+                            name="first_name"
+                            id="first_name-input"
+                            value="<?php 
+                                $nameParts = explode(' ', $user['name'] ?? '');
+                                $firstName = !empty($nameParts) ? $nameParts[0] : '';
+                                echo htmlspecialchars($user['first_name'] ?? $firstName); 
+                            ?>"
+                            class="w-full px-4 py-2 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 hidden"
+                        />
+                        <p id="first_name-display" class="text-blue-900 px-4 py-2 bg-blue-50 rounded-lg"><?php 
+                            $nameParts = explode(' ', $user['name'] ?? '');
+                            $firstName = !empty($nameParts) ? $nameParts[0] : '';
+                            echo htmlspecialchars($user['first_name'] ?? $firstName); 
+                        ?></p>
+                    </div>
+                    <div>
+                        <label class="block text-blue-700 mb-2">
+                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            Middle Name
+                        </label>
+                        <input
+                            type="text"
+                            name="middle_name"
+                            id="middle_name-input"
+                            value="<?php 
+                                $nameParts = explode(' ', $user['name'] ?? '');
+                                $middleName = count($nameParts) > 2 ? $nameParts[1] : '';
+                                echo htmlspecialchars($user['middle_name'] ?? $middleName); 
+                            ?>"
+                            class="w-full px-4 py-2 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 hidden"
+                        />
+                        <p id="middle_name-display" class="text-blue-900 px-4 py-2 bg-blue-50 rounded-lg"><?php 
+                            $nameParts = explode(' ', $user['name'] ?? '');
+                            $middleName = count($nameParts) > 2 ? $nameParts[1] : '';
+                            echo htmlspecialchars($user['middle_name'] ?? $middleName); 
+                        ?></p>
+                    </div>
+                    <div>
+                        <label class="block text-blue-700 mb-2">
+                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            Last Name
+                        </label>
+                        <input
+                            type="text"
+                            name="last_name"
+                            id="last_name-input"
+                            value="<?php 
+                                $nameParts = explode(' ', $user['name'] ?? '');
+                                $lastName = count($nameParts) > 1 ? end($nameParts) : '';
+                                echo htmlspecialchars($user['last_name'] ?? $lastName); 
+                            ?>"
+                            class="w-full px-4 py-2 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 hidden"
+                        />
+                        <p id="last_name-display" class="text-blue-900 px-4 py-2 bg-blue-50 rounded-lg"><?php 
+                            $nameParts = explode(' ', $user['name'] ?? '');
+                            $lastName = count($nameParts) > 1 ? end($nameParts) : '';
+                            echo htmlspecialchars($user['last_name'] ?? $lastName); 
+                        ?></p>
+                    </div>
                 </div>
 
                 <div>
@@ -101,7 +159,7 @@ function ProfileManagement($user) {
                         </svg>
                         Email Address
                     </label>
-                    <p class="text-blue-900 px-4 py-2 bg-blue-50 rounded-lg"><?php echo htmlspecialchars($user['email']); ?></p>
+                    <p class="text-blue-900 px-4 py-2 bg-blue-50 rounded-lg"><?php echo htmlspecialchars($user['email'] ?? 'No email'); ?></p>
                     <p id="email-notice" class="text-xs text-blue-600 mt-1 hidden">Email cannot be changed</p>
                 </div>
 
@@ -171,7 +229,7 @@ function ProfileManagement($user) {
             <!-- Account Role -->
             <div class="bg-purple-50 border-purple-100 rounded-lg p-4 border">
                 <h4 class="text-blue-700 mb-2">Account Role</h4>
-                <p class="text-3xl text-blue-900 mb-1"><?php echo strtoupper($user['role']); ?></p>
+                <p class="text-3xl text-blue-900 mb-1"><?php echo strtoupper($user['role'] ?? 'user'); ?></p>
                 <p class="text-sm text-blue-600">User account</p>
             </div>
         </div>
@@ -215,9 +273,13 @@ function toggleEdit() {
     document.getElementById('save-cancel-btns').classList.remove('hidden');
     document.getElementById('save-cancel-btns').classList.add('flex');
     
-    // Show inputs, hide displays
-    document.getElementById('name-input').classList.remove('hidden');
-    document.getElementById('name-display').classList.add('hidden');
+    // Show inputs, hide displays for all name fields
+    document.getElementById('first_name-input').classList.remove('hidden');
+    document.getElementById('first_name-display').classList.add('hidden');
+    document.getElementById('middle_name-input').classList.remove('hidden');
+    document.getElementById('middle_name-display').classList.add('hidden');
+    document.getElementById('last_name-input').classList.remove('hidden');
+    document.getElementById('last_name-display').classList.add('hidden');
     document.getElementById('phone-input').classList.remove('hidden');
     document.getElementById('phone-display').classList.add('hidden');
     document.getElementById('address-input').classList.remove('hidden');
@@ -231,9 +293,13 @@ function cancelEdit() {
     document.getElementById('save-cancel-btns').classList.add('hidden');
     document.getElementById('save-cancel-btns').classList.remove('flex');
     
-    // Hide inputs, show displays
-    document.getElementById('name-input').classList.add('hidden');
-    document.getElementById('name-display').classList.remove('hidden');
+    // Hide inputs, show displays for all name fields
+    document.getElementById('first_name-input').classList.add('hidden');
+    document.getElementById('first_name-display').classList.remove('hidden');
+    document.getElementById('middle_name-input').classList.add('hidden');
+    document.getElementById('middle_name-display').classList.remove('hidden');
+    document.getElementById('last_name-input').classList.add('hidden');
+    document.getElementById('last_name-display').classList.remove('hidden');
     document.getElementById('phone-input').classList.add('hidden');
     document.getElementById('phone-display').classList.remove('hidden');
     document.getElementById('address-input').classList.add('hidden');
@@ -260,7 +326,7 @@ function downloadData() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'barangaylink-data-<?php echo $user['email']; ?>.json';
+    a.download = 'barangaylink-data-<?php echo $user['email'] ?? 'user'; ?>.json';
     a.click();
     URL.revokeObjectURL(url);
 }

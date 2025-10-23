@@ -148,14 +148,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
                 
             case 'signup':
-                $name = $_POST['name'] ?? '';
+                $first_name = $_POST['first_name'] ?? '';
+                $middle_name = $_POST['middle_name'] ?? '';
+                $last_name = $_POST['last_name'] ?? '';
                 $email = $_POST['email'] ?? '';
                 $password = $_POST['password'] ?? '';
                 $address = $_POST['address'] ?? '';
                 $phone = $_POST['phone'] ?? '';
                 
-                if (empty($name) || empty($email) || empty($password)) {
-                    $response = ['success' => false, 'message' => 'All fields are required'];
+                if (empty($first_name) || empty($last_name) || empty($email) || empty($password) || empty($address) || empty($phone)) {
+                    $response = ['success' => false, 'message' => 'All fields are required including address and phone number'];
                     break;
                 }
                 
@@ -172,7 +174,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $newUser = [
                         'email' => $email,
                         'password' => $password,
-                        'name' => $name,
+                        'first_name' => $first_name,
+                        'middle_name' => $middle_name,
+                        'last_name' => $last_name,
+                        'name' => trim($first_name . ' ' . $middle_name . ' ' . $last_name), // For backward compatibility
                         'role' => 'user',
                         'address' => $address,
                         'phone' => $phone,
@@ -184,6 +189,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     $_SESSION['user'] = [
                         'email' => $newUser['email'],
+                        'first_name' => $newUser['first_name'],
+                        'middle_name' => $newUser['middle_name'],
+                        'last_name' => $newUser['last_name'],
                         'name' => $newUser['name'],
                         'role' => 'user',
                         'address' => $newUser['address'],

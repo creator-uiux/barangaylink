@@ -46,7 +46,7 @@ function DocumentRequestForm($user) {
         <?php else: ?>
         <form method="POST" action="" id="doc-request-form" class="space-y-6">
             <input type="hidden" name="action" value="submit_document_request">
-            <input type="hidden" name="requestedBy" value="<?php echo htmlspecialchars($user['name']); ?>">
+            <input type="hidden" name="requestedBy" value="<?php echo htmlspecialchars(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? '') ?: $user['name'] ?? 'User'); ?>">
             <input type="hidden" name="requestedByEmail" value="<?php echo htmlspecialchars($user['email']); ?>">
             
             <div>

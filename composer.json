@@ -5,11 +5,10 @@
   "require": {
     "php": "^8.1"
   },
-  "scripts": {
-    "post-install-cmd": [
-      "mkdir -p data",
-      "chmod 755 data"
-    ]
+  "autoload": {
+    "psr-4": {
+      "BarangayLink\\": "src/"
+    }
   },
   "config": {
     "optimize-autoloader": true,

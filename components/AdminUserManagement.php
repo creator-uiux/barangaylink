@@ -5,8 +5,20 @@
  */
 
 function AdminUserManagement() {
-    // Load users from JSON
-    $users = json_decode(file_get_contents(__DIR__ . '/../data/users.json'), true) ?: [];
+    // Load users from database or JSON based on configuration
+    if (USE_DATABASE) {
+        require_once __DIR__ . '/../functions/db_utils.php';
+        $users = getAllUsersWithDeleted(); // Include deleted users for admin management
+        
+        // Convert database format to expected format for compatibility
+        foreach ($users as &$user) {
+            $user['name'] = trim(($user['first_name'] ?? '') . ' ' . ($user['middle_name'] ?? '') . ' ' . ($user['last_name'] ?? ''));
+            $user['createdAt'] = $user['created_at'];
+        }
+    } else {
+        // Fallback to JSON files - include deleted users for admin management
+        $users = json_decode(file_get_contents(__DIR__ . '/../data/users.json'), true) ?: [];
+    }
     
     // Form processing is now handled in index.php to prevent header errors
     
@@ -16,7 +28,7 @@ function AdminUserManagement() {
     
     $filteredUsers = array_filter($users, function($user) use ($searchTerm) {
         if (empty($searchTerm)) return true;
-        return stripos($user['name'], $searchTerm) !== false ||
+        return stripos(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? '') ?: $user['name'] ?? '', $searchTerm) !== false ||
                stripos($user['email'], $searchTerm) !== false ||
                stripos($user['address'] ?? '', $searchTerm) !== false;
     });
@@ -121,12 +133,27 @@ function AdminUserManagement() {
                        class="block bg-white rounded-lg p-4 border cursor-pointer transition-all <?php echo $selectedUser && $selectedUser['email'] === $user['email'] ? 'border-blue-500 shadow-lg' : 'border-blue-100 hover:border-blue-300'; ?>">
                         <div class="flex items-start justify-between mb-2">
                             <div class="flex-1">
-                                <h4 class="text-blue-900"><?php echo htmlspecialchars($user['name']); ?></h4>
+                                <h4 class="text-blue-900"><?php echo htmlspecialchars(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? '') ?: $user['name'] ?? 'User'); ?></h4>
                                 <p class="text-sm text-blue-600"><?php echo htmlspecialchars($user['email']); ?></p>
                             </div>
-                            <span class="px-2 py-1 rounded-full text-xs <?php echo $user['role'] === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'; ?>">
-                                <?php echo htmlspecialchars($user['role']); ?>
-                            </span>
+                            <div class="flex items-center space-x-2">
+                                <span class="px-2 py-1 rounded-full text-xs <?php echo $user['role'] === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'; ?>">
+                                    <?php echo htmlspecialchars($user['role']); ?>
+                                </span>
+                                <?php 
+                                $status = $user['status'] ?? 'active';
+                                $statusColors = [
+                                    'active' => 'bg-green-100 text-green-700',
+                                    'inactive' => 'bg-yellow-100 text-yellow-700',
+                                    'deleted' => 'bg-red-100 text-red-700',
+                                    'suspended' => 'bg-orange-100 text-orange-700'
+                                ];
+                                $statusColor = $statusColors[$status] ?? 'bg-gray-100 text-gray-700';
+                                ?>
+                                <span class="px-2 py-1 rounded-full text-xs <?php echo $statusColor; ?>">
+                                    <?php echo htmlspecialchars($status); ?>
+                                </span>
+                            </div>
                         </div>
                         <?php if (!empty($user['address'])): ?>
                         <p class="text-sm text-blue-600">📍 <?php echo htmlspecialchars($user['address']); ?></p>
@@ -154,6 +181,7 @@ function AdminUserManagement() {
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-blue-900">User Details</h3>
                     <div class="flex items-center space-x-2">
+                        <?php if (($selectedUser['status'] ?? 'active') !== 'deleted'): ?>
                         <button
                             onclick='showEditUserModal(<?php echo json_encode($selectedUser); ?>)'
                             class="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
@@ -163,6 +191,23 @@ function AdminUserManagement() {
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
                         </button>
+                        <?php endif; ?>
+                        
+                        <?php if (($selectedUser['status'] ?? 'active') === 'deleted'): ?>
+                        <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to restore this user?');">
+                            <input type="hidden" name="restore_user" value="1">
+                            <input type="hidden" name="user_email" value="<?php echo htmlspecialchars($selectedUser['email']); ?>">
+                            <button
+                                type="submit"
+                                class="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors"
+                                title="Restore User"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                            </button>
+                        </form>
+                        <?php else: ?>
                         <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this user?');">
                             <input type="hidden" name="delete_user" value="1">
                             <input type="hidden" name="user_email" value="<?php echo htmlspecialchars($selectedUser['email']); ?>">
@@ -176,6 +221,7 @@ function AdminUserManagement() {
                                 </svg>
                             </button>
                         </form>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -187,7 +233,7 @@ function AdminUserManagement() {
                             </svg>
                             <span>Full Name</span>
                         </label>
-                        <p class="text-blue-900"><?php echo htmlspecialchars($selectedUser['name']); ?></p>
+                        <p class="text-blue-900"><?php echo htmlspecialchars(($selectedUser['first_name'] ?? '') . ' ' . ($selectedUser['last_name'] ?? '') ?: $selectedUser['name'] ?? 'User'); ?></p>
                     </div>
 
                     <div>
@@ -236,6 +282,29 @@ function AdminUserManagement() {
                     <div>
                         <label class="text-sm text-blue-600 mb-1">Account Role</label>
                         <p class="text-blue-900 capitalize"><?php echo htmlspecialchars($selectedUser['role']); ?></p>
+                    </div>
+
+                    <div>
+                        <label class="text-sm text-blue-600 mb-1">Account Status</label>
+                        <?php 
+                        $status = $selectedUser['status'] ?? 'active';
+                        $statusColors = [
+                            'active' => 'text-green-700 bg-green-100',
+                            'inactive' => 'text-yellow-700 bg-yellow-100',
+                            'deleted' => 'text-red-700 bg-red-100',
+                            'suspended' => 'text-orange-700 bg-orange-100'
+                        ];
+                        $statusColor = $statusColors[$status] ?? 'text-gray-700 bg-gray-100';
+                        ?>
+                        <span class="inline-block px-3 py-1 rounded-full text-sm font-medium <?php echo $statusColor; ?>">
+                            <?php echo htmlspecialchars(ucfirst($status)); ?>
+                        </span>
+                        <?php if ($status === 'deleted' && !empty($selectedUser['deletedAt'])): ?>
+                        <p class="text-xs text-gray-500 mt-1">Deleted on: <?php echo date('M d, Y H:i', strtotime($selectedUser['deletedAt'])); ?></p>
+                        <?php endif; ?>
+                        <?php if ($status === 'active' && !empty($selectedUser['restoredAt'])): ?>
+                        <p class="text-xs text-green-600 mt-1">Restored on: <?php echo date('M d, Y H:i', strtotime($selectedUser['restoredAt'])); ?></p>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>

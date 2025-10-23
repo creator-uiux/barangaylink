@@ -41,16 +41,39 @@ function AuthModal($mode = 'login', $error = null) {
                 <input type="hidden" name="authMode" value="<?php echo $mode; ?>">
                 
                 <?php if ($mode === 'signup'): ?>
-                <div>
-                    <label class="block text-gray-700 font-medium mb-2">Full Name *</label>
-                    <input
-                        type="text"
-                        name="name"
-                        value=""
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Enter your full name"
-                        required
-                    />
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">First Name *</label>
+                        <input
+                            type="text"
+                            name="first_name"
+                            value=""
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter your first name"
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">Middle Name</label>
+                        <input
+                            type="text"
+                            name="middle_name"
+                            value=""
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter your middle name"
+                        />
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">Last Name *</label>
+                        <input
+                            type="text"
+                            name="last_name"
+                            value=""
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter your last name"
+                            required
+                        />
+                    </div>
                 </div>
                 <?php endif; ?>
 
@@ -98,24 +121,26 @@ function AuthModal($mode = 'login', $error = null) {
 
                 <?php if ($mode === 'signup'): ?>
                 <div>
-                    <label class="block text-gray-700 font-medium mb-2">Address</label>
+                    <label class="block text-gray-700 font-medium mb-2">Address *</label>
                     <input
                         type="text"
                         name="address"
                         value=""
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Enter your address"
+                        required
                     />
                 </div>
 
                 <div>
-                    <label class="block text-gray-700 font-medium mb-2">Phone Number</label>
+                    <label class="block text-gray-700 font-medium mb-2">Phone Number *</label>
                     <input
                         type="tel"
                         name="phone"
                         value=""
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Enter your phone number"
+                        required
                     />
                 </div>
                 <?php endif; ?>

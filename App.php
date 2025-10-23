@@ -1,4 +1,4 @@
-<?php
+    <?php
 /**
  * BarangayLink Core Application Class
  * Enhanced version matching React App.tsx functionality
@@ -17,7 +17,7 @@ class BarangayLinkApp {
             'user' => null
         ];
         $this->currentView = 'dashboard';
-        $this->config = require_once __DIR__ . '/config.php';
+        $this->config = require __DIR__ . '/config.php';
         
         $this->initializeApp();
     }
@@ -94,14 +94,25 @@ class BarangayLinkApp {
                 return ['success' => true, 'redirect' => 'admin-dashboard'];
             }
             
-            // Regular user authentication
-            $users = $this->loadUsers();
+            // Regular user authentication - load all users to check status
+            $users = $this->loadUsers(true); // Include deleted users for status checking
             $user = array_filter($users, function($u) use ($email, $password) {
                 return $u['email'] === $email && $u['password'] === $password;
             });
             
             if ($user) {
                 $user = reset($user); // Get first match
+                
+                // Check user status
+                $userStatus = $user['status'] ?? 'active';
+                if ($userStatus === 'deleted') {
+                    return ['success' => false, 'message' => 'Your account has been deleted. Please contact the administrator for assistance.'];
+                } elseif ($userStatus === 'suspended') {
+                    return ['success' => false, 'message' => 'Your account has been suspended. Please contact the administrator for assistance.'];
+                } elseif ($userStatus === 'inactive') {
+                    return ['success' => false, 'message' => 'Your account is inactive. Please contact the administrator to reactivate your account.'];
+                }
+                
                 $this->authState = [
                     'isAuthenticated' => true,
                     'user' => [
@@ -129,8 +140,13 @@ class BarangayLinkApp {
     /**
      * Handle signup requests with enhanced validation
      */
-    public function handleSignup($name, $email, $password, $address = '', $phone = '') {
+    public function handleSignup($first_name, $last_name, $email, $password, $address = '', $phone = '', $middle_name = '') {
         try {
+            // Validate required fields
+            if (empty($first_name) || empty($last_name) || empty($email) || empty($password) || empty($address) || empty($phone)) {
+                return ['success' => false, 'message' => 'All fields are required including address and phone number'];
+            }
+            
             $users = $this->loadUsers();
             
             // Check for existing user
@@ -144,8 +160,12 @@ class BarangayLinkApp {
             $newUser = [
                 'email' => $email,
                 'password' => $password, // In production, hash this!
-                'name' => $name,
+                'first_name' => $first_name,
+                'middle_name' => $middle_name,
+                'last_name' => $last_name,
+                'name' => trim($first_name . ' ' . $middle_name . ' ' . $last_name), // For backward compatibility
                 'role' => 'user',
+                'status' => 'active', // Set default status
                 'address' => $address,
                 'phone' => $phone,
                 'createdAt' => date('c')
@@ -159,6 +179,9 @@ class BarangayLinkApp {
                 'isAuthenticated' => true,
                 'user' => [
                     'email' => $newUser['email'],
+                    'first_name' => $newUser['first_name'],
+                    'middle_name' => $newUser['middle_name'],
+                    'last_name' => $newUser['last_name'],
                     'name' => $newUser['name'],
                     'role' => 'user',
                     'address' => $newUser['address'],
@@ -344,11 +367,20 @@ class BarangayLinkApp {
     /**
      * Load users from JSON file
      */
-    private function loadUsers() {
+    private function loadUsers($includeDeleted = false) {
         $usersFile = __DIR__ . '/data/users.json';
         if (file_exists($usersFile)) {
             $content = file_get_contents($usersFile);
-            return json_decode($content, true) ?? [];
+            $users = json_decode($content, true) ?? [];
+            
+            // Filter out deleted users by default unless specifically requested
+            if (!$includeDeleted) {
+                return array_filter($users, function($user) {
+                    $status = $user['status'] ?? 'active';
+                    return $status !== 'deleted';
+                });
+            }
+            return $users;
         }
         return [];
     }

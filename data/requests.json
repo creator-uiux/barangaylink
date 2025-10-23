@@ -12,24 +12,39 @@
     },
     {
         "id": "req_002",
-        "documentType": "certificate_of_residency", 
+        "documentType": "certificate_of_residency",
         "purpose": "School enrollment",
         "requestedBy": "Maria Santos",
         "requestedByEmail": "maria.santos@email.com",
-        "status": "pending",
+        "status": "processing",
         "estimatedFee": 30,
         "createdAt": "2024-12-18T14:30:00Z",
-        "processingTime": "1-2 business days"
+        "processingTime": "1-2 business days",
+        "updatedAt": "2025-10-13T17:42:35+08:00"
     },
     {
         "id": "req_003",
         "documentType": "certificate_of_indigency",
         "purpose": "Medical assistance application",
         "requestedBy": "John Doe",
-        "requestedByEmail": "user@email.com", 
+        "requestedByEmail": "user@email.com",
         "status": "processing",
         "estimatedFee": 0,
         "createdAt": "2024-12-17T09:45:00Z",
         "processingTime": "3-5 business days"
+    },
+    {
+        "id": "req_1760348506_871",
+        "documentType": "Barangay Clearance",
+        "purpose": "Business Test",
+        "quantity": 2,
+        "notes": "Test",
+        "requestedBy": "Noel Barte",
+        "requestedByEmail": "noel@gmail.com",
+        "status": "approved",
+        "createdAt": "2025-10-13T17:41:46+08:00",
+        "estimatedFee": 0,
+        "processingTime": "1-2 business days",
+        "updatedAt": "2025-10-13T17:42:39+08:00"
     }
 ]
