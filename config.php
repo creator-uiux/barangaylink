@@ -1,40 +1,46 @@
 <?php
 /**
  * BarangayLink Configuration - PHP Version
- * EXACT conversion from config.ts preserving ALL configuration values
+ * Main configuration settings for the PHP application
+ * SYNCHRONIZED with config.ts
  */
 
-// Define ABSPATH constant
-if (!defined('ABSPATH')) {
-    define('ABSPATH', __DIR__ . '/');
+// Prevent direct access
+if (!defined('BARANGAYLINK_ROOT')) {
+    define('BARANGAYLINK_ROOT', dirname(__FILE__));
 }
 
 // Application Configuration
-define('APP_CONFIG', [
-    'name' => 'BarangayLink',
-    'version' => '1.0.0',
-    'environment' => 'development',
-    'defaultTimezone' => 'Asia/Manila'
-]);
+define('APP_NAME', 'BarangayLink');
+define('APP_VERSION', '1.0.0');
+define('APP_ENVIRONMENT', getenv('APP_ENVIRONMENT') ?: 'development');
+define('DEFAULT_TIMEZONE', getenv('DEFAULT_TIMEZONE') ?: 'Asia/Manila');
 
-// Admin Credentials (hardcoded for demo - same as React version)
-define('ADMIN_CREDENTIALS', [
-    'email' => 'admin@email.com',
-    'password' => 'admin@password.com'
-]);
+// Set timezone
+date_default_timezone_set(DEFAULT_TIMEZONE);
+
+// Database Configuration
+define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
+define('DB_NAME', getenv('DB_NAME') ?: 'barangaylink_db');
+define('DB_USER', getenv('DB_USER') ?: 'root');
+define('DB_PASS', getenv('DB_PASS') ?: '');
+define('DB_CHARSET', 'utf8mb4');
+
+// Admin Credentials (hardcoded for demo - SAME as config.ts)
+define('ADMIN_EMAIL', getenv('ADMIN_EMAIL') ?: 'admin@barangaylink.gov.ph');
+define('ADMIN_PASSWORD', getenv('ADMIN_PASSWORD') ?: 'Admin@123456');
 
 // Application Settings
-define('APP_SETTINGS', [
-    'enableRegistration' => true,
-    'enableFileUploads' => true,
-    'maxFileSize' => 5 * 1024 * 1024, // 5MB
-    'allowedFileTypes' => ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'doc', 'docx'],
-    'autoRefreshInterval' => 30000, // 30 seconds
-    'notificationTimeout' => 5000 // 5 seconds
-]);
+define('ENABLE_REGISTRATION', true);
+define('ENABLE_FILE_UPLOADS', true);
+define('MAX_FILE_SIZE', 5 * 1024 * 1024); // 5MB
+define('AUTO_REFRESH_INTERVAL', 30000); // 30 seconds
+define('NOTIFICATION_TIMEOUT', 5000); // 5 seconds
 
-// Document Types Configuration - EXACT match from React version
-define('DOCUMENT_TYPES', [
+$ALLOWED_FILE_TYPES = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'doc', 'docx'];
+
+// Document Types Configuration - EXACT MATCH with config.ts
+$DOCUMENT_TYPES = [
     'barangay_clearance' => [
         'name' => 'Barangay Clearance',
         'description' => 'Certificate of good moral standing in the community',
@@ -70,10 +76,10 @@ define('DOCUMENT_TYPES', [
         'fee' => 100,
         'processingTime' => '2-3 business days'
     ]
-]);
+];
 
-// Concern Categories Configuration - EXACT match from React version
-define('CONCERN_CATEGORIES', [
+// Concern Categories Configuration - EXACT MATCH with config.ts
+$CONCERN_CATEGORIES = [
     'infrastructure' => [
         'name' => 'Infrastructure',
         'description' => 'Roads, bridges, street lights, and public facilities',
@@ -109,10 +115,10 @@ define('CONCERN_CATEGORIES', [
         'description' => 'General concerns and inquiries',
         'priorityLevels' => ['low', 'medium', 'high']
     ]
-]);
+];
 
-// User Roles Configuration - EXACT match from React version
-define('USER_ROLES', [
+// User Roles Configuration - EXACT MATCH with config.ts
+$USER_ROLES = [
     'admin' => [
         'name' => 'Administrator',
         'permissions' => ['all'],
@@ -122,11 +128,16 @@ define('USER_ROLES', [
         'name' => 'Resident',
         'permissions' => ['view_own_data', 'submit_requests', 'submit_concerns'],
         'dashboard' => 'user-dashboard'
+    ],
+    'resident' => [
+        'name' => 'Resident',
+        'permissions' => ['view_own_data', 'submit_requests', 'submit_concerns'],
+        'dashboard' => 'user-dashboard'
     ]
-]);
+];
 
-// Emergency Contact Numbers - EXACT match from React version
-define('EMERGENCY_CONTACTS', [
+// Emergency Contact Numbers - EXACT MATCH with config.ts
+$EMERGENCY_CONTACTS = [
     'barangay_hall' => [
         'name' => 'Barangay Hall',
         'number' => '(02) 123-4567',
@@ -152,52 +163,26 @@ define('EMERGENCY_CONTACTS', [
         'number' => '(02) 234-5678',
         'description' => 'Medical assistance and health services'
     ]
-]);
+];
 
-// Storage Keys (PHP equivalent of localStorage keys)
-define('STORAGE_KEYS', [
-    'auth' => 'barangaylink_auth',
-    'users' => 'barangaylink_users',
-    'documentRequests' => 'barangaylink_document_requests',
-    'concerns' => 'barangaylink_concerns',
-    'notifications' => 'barangaylink_notifications',
-    'announcements' => 'barangaylink_announcements'
-]);
+// API Configuration - EXACT MATCH with config.ts
+$API_CONFIG = [
+    'weather' => [
+        'baseUrl' => 'https://api.open-meteo.com/v1/forecast',
+        'latitude' => 14.5995,
+        'longitude' => 120.9842,
+        'params' => [
+            'current' => ['temperature_2m', 'relative_humidity_2m', 'wind_speed_10m', 'weather_code'],
+            'timezone' => 'Asia/Singapore'
+        ]
+    ]
+];
 
-// Helper function to get config values
-function getConfig($key) {
-    switch ($key) {
-        case 'APP_CONFIG':
-            return APP_CONFIG;
-        case 'ADMIN_CREDENTIALS':
-            return ADMIN_CREDENTIALS;
-        case 'APP_SETTINGS':
-            return APP_SETTINGS;
-        case 'DOCUMENT_TYPES':
-            return DOCUMENT_TYPES;
-        case 'CONCERN_CATEGORIES':
-            return CONCERN_CATEGORIES;
-        case 'USER_ROLES':
-            return USER_ROLES;
-        case 'EMERGENCY_CONTACTS':
-            return EMERGENCY_CONTACTS;
-        case 'STORAGE_KEYS':
-            return STORAGE_KEYS;
-        default:
-            return null;
-    }
-}
+// Session Configuration - MUST BE CALLED BEFORE session_start()
+// These will be set in index.php BEFORE session_start()
 
-// Set timezone
-date_default_timezone_set(APP_CONFIG['defaultTimezone']);
-
-// Debug mode (set to false in production)
-if (!defined('DEBUG_MODE')) {
-    define('DEBUG_MODE', true);
-}
-
-// Error handling in development
-if (DEBUG_MODE) {
+// Error Reporting (disable in production)
+if (APP_ENVIRONMENT === 'development') {
     error_reporting(E_ALL);
     ini_set('display_errors', 1);
 } else {
@@ -205,11 +190,28 @@ if (DEBUG_MODE) {
     ini_set('display_errors', 0);
 }
 
-// Database configuration
-define('USE_DATABASE', true); // Set to true to use MySQL, false to use JSON files
-
-// Include database configuration if using MySQL
-if (USE_DATABASE) {
-    require_once __DIR__ . '/config/database.php';
+// Helper Functions
+function getDocumentTypes() {
+    global $DOCUMENT_TYPES;
+    return $DOCUMENT_TYPES;
 }
-?>
+
+function getConcernCategories() {
+    global $CONCERN_CATEGORIES;
+    return $CONCERN_CATEGORIES;
+}
+
+function getUserRoles() {
+    global $USER_ROLES;
+    return $USER_ROLES;
+}
+
+function getEmergencyContacts() {
+    global $EMERGENCY_CONTACTS;
+    return $EMERGENCY_CONTACTS;
+}
+
+function getApiConfig() {
+    global $API_CONFIG;
+    return $API_CONFIG;
+}

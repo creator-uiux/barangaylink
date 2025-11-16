@@ -1,19 +1,46 @@
 {
   "name": "barangaylink/php-app",
-  "description": "BarangayLink PHP Application",
+  "description": "BarangayLink - Digital Barangay Governance Platform",
   "type": "project",
+  "version": "1.0.0",
+  "license": "MIT",
   "require": {
+    "php": "^8.1",
+    "ext-mysqli": "*",
+    "ext-pdo": "*",
+    "ext-pdo_mysql": "*",
+    "ext-mbstring": "*",
+    "ext-json": "*"
+  },
+  "require-dev": {
     "php": "^8.1"
   },
-  "autoload": {
-    "psr-4": {
-      "BarangayLink\\": "src/"
-    }
+  "scripts": {
+    "post-install-cmd": [
+      "@php -r \"echo 'BarangayLink installation complete!\\n';\""
+    ],
+    "post-update-cmd": [
+      "@php -r \"echo 'BarangayLink update complete!\\n';\""
+    ],
+    "check-db": [
+      "@php -r \"echo 'Checking database connection...\\n';\"",
+      "@php -f check-db.php"
+    ]
   },
   "config": {
     "optimize-autoloader": true,
     "preferred-install": "dist",
-    "sort-packages": true
+    "sort-packages": true,
+    "platform": {
+      "php": "8.1"
+    }
+  },
+  "autoload": {
+    "files": [
+      "config.php",
+      "db.php",
+      "init.php"
+    ]
   },
   "minimum-stability": "stable",
   "prefer-stable": true
