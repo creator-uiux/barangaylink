@@ -1,7 +1,7 @@
 services:
   # BarangayLink PHP Application
   - type: web
-    name: barangaylink-app
+    name: barangaylinkphp
     runtime: php
     env: php
     region: singapore
@@ -59,12 +59,11 @@ services:
       mountPath: /opt/render/project/src/uploads
       sizeGB: 1
 
-  # MySQL Database (Optional - only if you want Render-hosted database)
-  # Uncomment if you want to use Render's MySQL service
-  # - type: mysql
-  #   name: barangaylink-db
-  #   plan: free
-  #   databaseName: barangaylink_db
-  #   databaseUser: barangaylink_user
-  #   region: singapore
-  #   ipAllowList: []  # Empty means accessible from all Render services
+  # MySQL Database
+  - type: mysql
+    name: barangaylink-db
+    plan: free
+    databaseName: barangaylink_db
+    databaseUser: barangaylink_user
+    region: singapore
+    ipAllowList: []  # Empty means accessible from all Render services
