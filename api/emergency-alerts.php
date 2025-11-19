@@ -8,8 +8,7 @@ require_once '../init.php';
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $conn = getDBConnection();
-    $alerts = $conn->query("SELECT * FROM emergency_alerts ORDER BY created_at DESC")->fetch_all(MYSQLI_ASSOC);
+    $alerts = fetchAll("SELECT * FROM emergency_alerts ORDER BY created_at DESC");
     echo json_encode($alerts);
     exit;
 }
@@ -32,12 +31,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
     
-    $conn = getDBConnection();
-    $stmt = $conn->prepare("INSERT INTO emergency_alerts (title, message, severity, is_active, created_at) VALUES (?, ?, ?, ?, NOW())");
-    $stmt->bind_param("sssi", $title, $message, $severity, $isActive);
-    
-    if ($stmt->execute()) {
-        echo json_encode(['success' => true, 'id' => $conn->insert_id]);
+    $db = getDB();
+    $stmt = $db->prepare("INSERT INTO emergency_alerts (title, message, severity, is_active, created_at) VALUES (?, ?, ?, ?, datetime('now'))");
+    $stmt->execute([$title, $message, $severity, $isActive]);
+
+    if ($stmt->rowCount() > 0) {
+        echo json_encode(['success' => true, 'id' => $db->lastInsertId()]);
     } else {
         http_response_code(500);
         echo json_encode(['error' => 'Failed to create alert']);

@@ -6,7 +6,6 @@
   "license": "MIT",
   "require": {
     "php": "^8.1",
-    "ext-mysqli": "*",
     "ext-pdo": "*",
     "ext-pdo_mysql": "*",
     "ext-mbstring": "*",

@@ -107,36 +107,42 @@ function createDocument() {
         }
         
         // Connect to database
-        $conn = getDBConnection();
-        
-        if (!$conn) {
-            error_log("Database connection failed");
-            echo json_encode(['success' => false, 'error' => 'Database connection failed']);
-            exit;
-        }
-        
+        $db = getDB();
+
         // Prepare statement
-        $stmt = $conn->prepare("INSERT INTO documents (user_id, document_type, purpose, quantity, notes, status, created_at) VALUES (?, ?, ?, ?, ?, 'pending', NOW())");
-        
-        if (!$stmt) {
-            error_log("Prepare failed: " . $conn->error);
-            echo json_encode(['success' => false, 'error' => 'Database prepare error: ' . $conn->error]);
-            exit;
-        }
-        
-        $stmt->bind_param("issis", $userId, $documentType, $purpose, $quantity, $notes);
-        
-        if ($stmt->execute()) {
-            $insertId = $conn->insert_id;
+        $stmt = $db->prepare("INSERT INTO documents (user_id, document_type, purpose, quantity, notes, status, created_at) VALUES (?, ?, ?, ?, ?, 'pending', datetime('now'))");
+        $stmt->execute([$userId, $documentType, $purpose, $quantity, $notes]);
+
+        if ($stmt->rowCount() > 0) {
+            $insertId = $db->lastInsertId();
             error_log("Document created successfully with ID: $insertId");
+
+            // Create notifications for all admins
+            try {
+                // Get the user's full name
+                $userStmt = $db->prepare("SELECT first_name, last_name FROM users WHERE id = ?");
+                $userStmt->execute([$userId]);
+                $user = $userStmt->fetch(PDO::FETCH_ASSOC);
+                $fullName = $user['first_name'] . ' ' . $user['last_name'];
+
+                $adminStmt = $db->prepare("SELECT id FROM users WHERE role = 'admin'");
+                $adminStmt->execute();
+                $admins = $adminStmt->fetchAll(PDO::FETCH_ASSOC);
+
+                foreach ($admins as $admin) {
+                    $notifStmt = $db->prepare("INSERT INTO notifications (user_id, type, title, message, related_type, related_id, created_at) VALUES (?, 'info', 'Document Request', ? , 'document', ?, datetime('now'))");
+                    $notifStmt->execute([$admin['id'], "$fullName has requested a document.", $insertId]);
+                }
+                error_log("Notifications created for " . count($admins) . " admins");
+            } catch (Exception $e) {
+                error_log("Failed to create admin notifications: " . $e->getMessage());
+            }
+
             echo json_encode(['success' => true, 'id' => $insertId]);
         } else {
-            error_log("Execute failed: " . $stmt->error);
-            echo json_encode(['success' => false, 'error' => 'Database execute error: ' . $stmt->error]);
+            error_log("Execute failed");
+            echo json_encode(['success' => false, 'error' => 'Failed to create document']);
         }
-        
-        $stmt->close();
-        $conn->close();
     } catch (Exception $e) {
         error_log("Exception in createDocument: " . $e->getMessage());
         echo json_encode(['success' => false, 'error' => 'Exception: ' . $e->getMessage()]);
@@ -155,27 +161,19 @@ function deleteDocument() {
             exit;
         }
         
-        $conn = getDBConnection();
-        
+        $db = getDB();
+
         // Only allow deletion of pending documents
-        $stmt = $conn->prepare("DELETE FROM documents WHERE id = ? AND status = 'pending'");
-        $stmt->bind_param("i", $id);
-        
-        if ($stmt->execute()) {
-            if ($stmt->affected_rows > 0) {
-                error_log("Document deleted successfully");
-                echo json_encode(['success' => true]);
-            } else {
-                error_log("Document not found or not pending");
-                echo json_encode(['success' => false, 'error' => 'Document not found or cannot be deleted']);
-            }
+        $stmt = $db->prepare("DELETE FROM documents WHERE id = ? AND status = 'pending'");
+        $stmt->execute([$id]);
+
+        if ($stmt->rowCount() > 0) {
+            error_log("Document deleted successfully");
+            echo json_encode(['success' => true]);
         } else {
-            error_log("Delete failed: " . $stmt->error);
-            echo json_encode(['success' => false, 'error' => 'Database error: ' . $stmt->error]);
+            error_log("Document not found or not pending");
+            echo json_encode(['success' => false, 'error' => 'Document not found or cannot be deleted']);
         }
-        
-        $stmt->close();
-        $conn->close();
     } catch (Exception $e) {
         error_log("Exception in deleteDocument: " . $e->getMessage());
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
@@ -196,20 +194,17 @@ function updateDocumentStatus() {
             exit;
         }
         
-        $conn = getDBConnection();
-        $stmt = $conn->prepare("UPDATE documents SET status = ?, admin_notes = ?, updated_at = NOW() WHERE id = ?");
-        $stmt->bind_param("ssi", $status, $adminNotes, $id);
-        
-        if ($stmt->execute()) {
+        $db = getDB();
+        $stmt = $db->prepare("UPDATE documents SET status = ?, admin_notes = ?, updated_at = datetime('now') WHERE id = ?");
+        $stmt->execute([$status, $adminNotes, $id]);
+
+        if ($stmt->rowCount() > 0) {
             error_log("Document status updated successfully");
             echo json_encode(['success' => true]);
         } else {
-            error_log("Update failed: " . $stmt->error);
-            echo json_encode(['success' => false, 'error' => 'Database error: ' . $stmt->error]);
+            error_log("Document not found");
+            echo json_encode(['success' => false, 'error' => 'Document not found']);
         }
-        
-        $stmt->close();
-        $conn->close();
     } catch (Exception $e) {
         error_log("Exception in updateDocumentStatus: " . $e->getMessage());
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
@@ -229,19 +224,16 @@ function approveDocument() {
             exit;
         }
         
-        $conn = getDBConnection();
-        $stmt = $conn->prepare("UPDATE documents SET status = 'approved', admin_notes = ?, updated_at = NOW() WHERE id = ?");
-        $stmt->bind_param("si", $adminNotes, $id);
-        
-        if ($stmt->execute()) {
+        $db = getDB();
+        $stmt = $db->prepare("UPDATE documents SET status = 'approved', admin_notes = ?, updated_at = datetime('now') WHERE id = ?");
+        $stmt->execute([$adminNotes, $id]);
+
+        if ($stmt->rowCount() > 0) {
             error_log("Document approved successfully");
             echo json_encode(['success' => true, 'message' => 'Document approved successfully']);
         } else {
-            echo json_encode(['success' => false, 'error' => 'Database error: ' . $stmt->error]);
+            echo json_encode(['success' => false, 'error' => 'Document not found']);
         }
-        
-        $stmt->close();
-        $conn->close();
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
@@ -260,19 +252,16 @@ function rejectDocument() {
             exit;
         }
         
-        $conn = getDBConnection();
-        $stmt = $conn->prepare("UPDATE documents SET status = 'rejected', admin_notes = ?, updated_at = NOW() WHERE id = ?");
-        $stmt->bind_param("si", $adminNotes, $id);
-        
-        if ($stmt->execute()) {
+        $db = getDB();
+        $stmt = $db->prepare("UPDATE documents SET status = 'rejected', admin_notes = ?, updated_at = datetime('now') WHERE id = ?");
+        $stmt->execute([$adminNotes, $id]);
+
+        if ($stmt->rowCount() > 0) {
             error_log("Document rejected successfully");
             echo json_encode(['success' => true, 'message' => 'Document rejected successfully']);
         } else {
-            echo json_encode(['success' => false, 'error' => 'Database error: ' . $stmt->error]);
+            echo json_encode(['success' => false, 'error' => 'Document not found']);
         }
-        
-        $stmt->close();
-        $conn->close();
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
@@ -282,27 +271,16 @@ function rejectDocument() {
 function listDocuments() {
     try {
         $userEmail = $_GET['userEmail'] ?? '';
-        
-        $conn = getDBConnection();
-        
+
         if ($userEmail) {
             // Get documents for specific user
-            $stmt = $conn->prepare("SELECT d.*, u.first_name, u.last_name, u.email, CONCAT(u.first_name, ' ', u.last_name) as requestedBy FROM documents d JOIN users u ON d.user_id = u.id WHERE u.email = ? ORDER BY d.created_at DESC");
-            $stmt->bind_param("s", $userEmail);
-            $stmt->execute();
-            $result = $stmt->get_result();
+            $documents = fetchAll("SELECT d.*, u.first_name, u.last_name, u.email, (u.first_name || ' ' || u.last_name) as requestedBy FROM documents d JOIN users u ON d.user_id = u.id WHERE u.email = ? ORDER BY d.created_at DESC", [$userEmail]);
         } else {
             // Get all documents with user info
-            $result = $conn->query("SELECT d.*, u.first_name, u.last_name, u.email, CONCAT(u.first_name, ' ', u.last_name) as requestedBy FROM documents d JOIN users u ON d.user_id = u.id ORDER BY d.created_at DESC");
+            $documents = fetchAll("SELECT d.*, u.first_name, u.last_name, u.email, (u.first_name || ' ' || u.last_name) as requestedBy FROM documents d JOIN users u ON d.user_id = u.id ORDER BY d.created_at DESC");
         }
-        
-        $documents = [];
-        while ($row = $result->fetch_assoc()) {
-            $documents[] = $row;
-        }
-        
+
         echo json_encode(['success' => true, 'data' => $documents]);
-        $conn->close();
     } catch (Exception $e) {
         error_log("Exception in listDocuments: " . $e->getMessage());
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);

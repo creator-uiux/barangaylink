@@ -70,7 +70,7 @@ function handleLogin($data) {
     
     // Check regular user credentials
     try {
-        $sql = "SELECT * FROM users WHERE email = :email AND status = 'active' LIMIT 1";
+        $sql = "SELECT * FROM users WHERE email = :email AND is_active = 1 LIMIT 1";
         $user = fetchOne($sql, [':email' => $email]);
         
         if ($user && $user['password'] === $password) {

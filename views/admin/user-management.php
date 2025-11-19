@@ -3,70 +3,101 @@
  * User Management - SYNCHRONIZED with components/AdminUserManagement.tsx
  */
 
-$conn = getDBConnection();
-$users = $conn->query("SELECT * FROM users ORDER BY created_at DESC")->fetch_all(MYSQLI_ASSOC);
+$db = getDB();
+$users = fetchAll("SELECT * FROM users ORDER BY created_at DESC");
 
 // Calculate stats
 $thisMonth = date('Y-m');
-$stats = [
-    'total' => count($users),
-    'active' => count(array_filter($users, fn($u) => $u['role'] === 'resident' || $u['role'] === 'user')),
-    'admins' => count(array_filter($users, fn($u) => $u['role'] === 'admin')),
-    'thisMonth' => count(array_filter($users, fn($u) => strpos($u['created_at'], $thisMonth) === 0))
-];
+    $stats = [
+        'total' => count($users),
+        'active' => count(array_filter($users, fn($u) => $u['role'] === 'resident')),
+        'admins' => count(array_filter($users, fn($u) => $u['role'] === 'admin')),
+        'thisMonth' => count(array_filter($users, fn($u) => strpos($u['created_at'], $thisMonth) === 0))
+    ];
 ?>
 
 <div class="space-y-6">
     <!-- Header -->
-    <div class="flex items-center justify-between">
-        <div>
-            <h2 class="text-blue-900 mb-2">Resident Registry</h2>
-            <p class="text-blue-600">Manage registered users and residents</p>
+    <div class="bg-white rounded-lg p-6 border border-gray-200">
+        <div class="flex items-center justify-between">
+            <div>
+                    <h2 class="text-gray-900 text-xl font-semibold">Resident Registry</h2>
+                    <p class="text-gray-600">Manage registered users and residents</p>
+            </div>
+            <button
+                onclick="showAddUserModal()"
+                class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+                <!-- UserPlus Icon -->
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                </svg>
+                <span>Add New User</span>
+            </button>
         </div>
-        <button
-            onclick="showAddUserModal()"
-            class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-            <!-- UserPlus Icon -->
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
-            </svg>
-            <span>Add New User</span>
-        </button>
     </div>
 
     <!-- Stats -->
-    <div class="grid md:grid-cols-4 gap-4">
-        <div class="bg-blue-50 text-blue-700 rounded-lg p-4">
-            <p class="text-sm mb-1">Total Users</p>
-            <p class="text-2xl"><?php echo $stats['total']; ?></p>
+        <div class="grid md:grid-cols-4 gap-4">
+        <div class="bg-white rounded-lg p-6 border border-gray-200">
+            <div class="flex items-center justify-between mb-3">
+                <h4 class="text-sm font-semibold text-gray-600">Total Users</h4>
+                <div class="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                </div>
+            </div>
+            <p class="text-3xl font-bold text-gray-900"><?php echo $stats['total']; ?></p>
         </div>
-        <div class="bg-green-50 text-green-700 rounded-lg p-4">
-            <p class="text-sm mb-1">Active Residents</p>
-            <p class="text-2xl"><?php echo $stats['active']; ?></p>
+        <div class="bg-white rounded-lg p-6 border border-gray-200">
+            <div class="flex items-center justify-between mb-3">
+                <h4 class="text-sm font-semibold text-gray-600">Active Residents</h4>
+                <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+            </div>
+            <p class="text-3xl font-bold text-gray-900"><?php echo $stats['active']; ?></p>
         </div>
-        <div class="bg-purple-50 text-purple-700 rounded-lg p-4">
-            <p class="text-sm mb-1">Administrators</p>
-            <p class="text-2xl"><?php echo $stats['admins']; ?></p>
+        <div class="bg-white rounded-lg p-6 border border-gray-200">
+            <div class="flex items-center justify-between mb-3">
+                <h4 class="text-sm font-semibold text-gray-600">Administrators</h4>
+                <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                </div>
+            </div>
+            <p class="text-3xl font-bold text-gray-900"><?php echo $stats['admins']; ?></p>
         </div>
-        <div class="bg-orange-50 text-orange-700 rounded-lg p-4">
-            <p class="text-sm mb-1">Registered This Month</p>
-            <p class="text-2xl"><?php echo $stats['thisMonth']; ?></p>
+        <div class="bg-white rounded-lg p-6 border border-gray-200">
+            <div class="flex items-center justify-between mb-3">
+                <h4 class="text-sm font-semibold text-gray-600">Registered This Month</h4>
+                <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+            </div>
+            <p class="text-3xl font-bold text-gray-900"><?php echo $stats['thisMonth']; ?></p>
         </div>
     </div>
 
     <!-- Search -->
-    <div class="bg-white rounded-lg p-4 border border-blue-100">
+    <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
         <div class="relative">
             <!-- Search Icon -->
-            <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
             <input
                 type="text"
                 id="searchInput"
                 placeholder="Search by name, email, or address..."
-                class="w-full pl-10 pr-4 py-2 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 placeholder-gray-400"
                 onkeyup="filterUsers()"
             />
         </div>
@@ -76,45 +107,56 @@ $stats = [
     <div class="grid lg:grid-cols-2 gap-6">
         <!-- Users List -->
         <div class="space-y-3">
-            <h3 class="text-blue-900">Registered Users (<?php echo count($users); ?>)</h3>
+            <h3 class="text-slate-800">Registered Users (<?php echo count($users); ?>)</h3>
             <div class="space-y-3 max-h-[600px] overflow-y-auto">
                 <?php if (count($users) > 0): ?>
-                    <?php foreach ($users as $user): 
-                        $fullName = !empty($user['first_name']) && !empty($user['last_name']) 
+                    <?php foreach ($users as $user):
+                        $fullName = !empty($user['first_name']) && !empty($user['last_name'])
                             ? trim($user['first_name'] . ' ' . ($user['middle_name'] ?? '') . ' ' . $user['last_name'])
                             : ($user['name'] ?? 'Unknown User');
                         $roleColor = $user['role'] === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700';
                     ?>
                         <div
-                            class="user-card bg-white rounded-lg p-4 border border-blue-100 hover:border-blue-300 cursor-pointer transition-all"
+                            class="user-card bg-white rounded-lg p-6 border border-gray-200 hover:border-gray-300 cursor-pointer transition-all duration-200"
                             data-user-email="<?php echo htmlspecialchars($user['email']); ?>"
                             data-search="<?php echo strtolower($fullName . ' ' . $user['email'] . ' ' . ($user['address'] ?? '')); ?>"
                             onclick="selectUser(<?php echo htmlspecialchars(json_encode($user)); ?>)"
                         >
-                            <div class="flex items-start justify-between mb-2">
+                            <div class="flex items-start justify-between mb-3">
                                 <div class="flex-1">
-                                    <h4 class="text-blue-900"><?php echo htmlspecialchars($fullName); ?></h4>
-                                    <p class="text-sm text-blue-600"><?php echo htmlspecialchars($user['email']); ?></p>
+                                    <h4 class="text-gray-900 font-semibold"><?php echo htmlspecialchars($fullName); ?></h4>
+                                    <p class="text-sm text-gray-600"><?php echo htmlspecialchars($user['email']); ?></p>
                                 </div>
-                                <span class="px-2 py-1 rounded-full text-xs <?php echo $roleColor; ?>">
+                                <span class="px-3 py-1 rounded-full text-xs font-medium <?php echo $roleColor; ?>">
                                     <?php echo htmlspecialchars($user['role']); ?>
                                 </span>
                             </div>
                             <?php if (!empty($user['address'])): ?>
-                                <p class="text-sm text-blue-600">📍 <?php echo htmlspecialchars($user['address']); ?></p>
+                                <p class="text-sm text-slate-600 flex items-center space-x-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                    <span><?php echo htmlspecialchars($user['address']); ?></span>
+                                </p>
                             <?php endif; ?>
                             <?php if (!empty($user['phone'])): ?>
-                                <p class="text-sm text-blue-600">📞 <?php echo htmlspecialchars($user['phone']); ?></p>
+                                <p class="text-sm text-slate-600 flex items-center space-x-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                                    </svg>
+                                    <span><?php echo htmlspecialchars($user['phone']); ?></span>
+                                </p>
                             <?php endif; ?>
                         </div>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <div class="bg-white rounded-lg p-12 text-center border border-blue-100">
+                    <div class="professional-glass rounded-lg p-12 text-center border border-blue-200/30 shadow-sm">
                         <!-- Users Icon -->
-                        <svg class="w-12 h-12 text-blue-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-12 h-12 text-slate-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                         </svg>
-                        <p class="text-blue-600">No users found</p>
+                        <p class="text-slate-600">No users found</p>
                     </div>
                 <?php endif; ?>
             </div>
@@ -122,12 +164,15 @@ $stats = [
 
         <!-- User Details -->
         <div class="lg:sticky lg:top-6">
-            <div id="userDetails" class="bg-white rounded-lg p-12 text-center border border-blue-100">
-                <!-- Users Icon -->
-                <svg class="w-12 h-12 text-blue-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                </svg>
-                <p class="text-blue-600">Select a user to view details</p>
+            <div id="userDetails" class="bg-white rounded-lg p-6 border border-gray-200">
+                <div class="text-center py-6">
+                    <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-400 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                    </div>
+                    <p class="text-gray-600">Select a user to view details</p>
+                </div>
             </div>
         </div>
     </div>
@@ -135,10 +180,10 @@ $stats = [
 
 <!-- Add/Edit User Modal -->
 <div id="userModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6 border border-gray-200">
         <div class="flex items-center justify-between mb-6">
-            <h2 class="text-blue-900" id="modalTitle">Add New User</h2>
-            <button onclick="closeUserModal()" class="text-gray-400 hover:text-gray-600">
+            <h2 class="text-gray-900" id="modalTitle">Add New User</h2>
+            <button onclick="closeUserModal()" class="text-slate-400 hover:text-slate-300">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
@@ -150,21 +195,21 @@ $stats = [
             
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-gray-700 mb-2">First Name *</label>
+            <label class="block text-gray-700 mb-2">First Name *</label>
                     <input
                         type="text"
                         id="firstName"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 placeholder-gray-400"
                         placeholder="Juan"
                         required
                     />
                 </div>
                 <div>
-                    <label class="block text-gray-700 mb-2">Last Name *</label>
+            <label class="block text-gray-700 mb-2">Last Name *</label>
                     <input
                         type="text"
                         id="lastName"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 placeholder-gray-400"
                         placeholder="Dela Cruz"
                         required
                     />
@@ -172,62 +217,61 @@ $stats = [
             </div>
 
             <div>
-                <label class="block text-gray-700 mb-2">Middle Name (Optional)</label>
+            <label class="block text-gray-700 mb-2">Middle Name (Optional)</label>
                 <input
                     type="text"
                     id="middleName"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 placeholder-gray-400"
                     placeholder="Santos"
                 />
             </div>
 
             <div>
-                <label class="block text-gray-700 mb-2">Email *</label>
+            <label class="block text-gray-700 mb-2">Email *</label>
                 <input
                     type="email"
                     id="email"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 placeholder-gray-400"
                     required
                 />
                 <p class="text-xs text-gray-500 mt-1" id="emailNote"></p>
             </div>
 
             <div id="passwordField">
-                <label class="block text-gray-700 mb-2">Password *</label>
+            <label class="block text-gray-700 mb-2">Password *</label>
                 <input
                     type="password"
                     id="password"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 placeholder-gray-400"
                 />
             </div>
 
             <div>
-                <label class="block text-gray-700 mb-2">Role</label>
+            <label class="block text-gray-700 mb-2">Role</label>
                 <select
                     id="role"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
                 >
-                    <option value="user">User</option>
                     <option value="resident">Resident</option>
                     <option value="admin">Admin</option>
                 </select>
             </div>
 
             <div>
-                <label class="block text-gray-700 mb-2">Phone Number</label>
+            <label class="block text-gray-700 mb-2">Phone Number</label>
                 <input
                     type="tel"
                     id="phone"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 placeholder-gray-400"
                 />
             </div>
 
             <div>
-                <label class="block text-gray-700 mb-2">Address</label>
+            <label class="block text-gray-700 mb-2">Address</label>
                 <input
                     type="text"
                     id="address"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 placeholder-gray-400"
                 />
             </div>
 
@@ -237,7 +281,7 @@ $stats = [
                 <button
                     type="button"
                     onclick="closeUserModal()"
-                    class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                    class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
                 >
                     Cancel
                 </button>
@@ -288,13 +332,13 @@ function selectUser(user) {
         : (user.name || 'Unknown User');
     
     const detailsHTML = `
-        <div class="bg-white rounded-lg p-6 border border-blue-100">
+        <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="text-blue-900">User Details</h3>
+                <h3 class="text-lg font-semibold text-gray-900">User Details</h3>
                 <div class="flex items-center space-x-2">
                     <button
                         onclick='editUser(${JSON.stringify(user)})'
-                        class="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+                        class="p-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors"
                         title="Edit User"
                     >
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -315,59 +359,59 @@ function selectUser(user) {
 
             <div class="space-y-4">
                 <div>
-                    <label class="text-sm text-blue-600 flex items-center space-x-2 mb-1">
+                    <label class="text-sm text-gray-600 flex items-center space-x-2 mb-1">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                         </svg>
                         <span>Full Name</span>
                     </label>
-                    <p class="text-blue-900">${fullName}</p>
+                    <p class="text-gray-900">${fullName}</p>
                 </div>
 
                 <div>
-                    <label class="text-sm text-blue-600 flex items-center space-x-2 mb-1">
+                    <label class="text-sm text-gray-600 flex items-center space-x-2 mb-1">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                         </svg>
                         <span>Email Address</span>
                     </label>
-                    <p class="text-blue-900">${user.email}</p>
+                    <p class="text-gray-900">${user.email}</p>
                 </div>
 
                 <div>
-                    <label class="text-sm text-blue-600 flex items-center space-x-2 mb-1">
+                    <label class="text-sm text-gray-600 flex items-center space-x-2 mb-1">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
                         </svg>
                         <span>Phone Number</span>
                     </label>
-                    <p class="text-blue-900">${user.phone || 'Not provided'}</p>
+                    <p class="text-gray-900">${user.phone || 'Not provided'}</p>
                 </div>
 
                 <div>
-                    <label class="text-sm text-blue-600 flex items-center space-x-2 mb-1">
+                    <label class="text-sm text-gray-600 flex items-center space-x-2 mb-1">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                         </svg>
                         <span>Address</span>
                     </label>
-                    <p class="text-blue-900">${user.address || 'Not provided'}</p>
+                    <p class="text-gray-900">${user.address || 'Not provided'}</p>
                 </div>
 
                 <div>
-                    <label class="text-sm text-blue-600 flex items-center space-x-2 mb-1">
+                    <label class="text-sm text-gray-600 flex items-center space-x-2 mb-1">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                         </svg>
                         <span>Registered Date</span>
                     </label>
-                    <p class="text-blue-900">${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown'}</p>
+                    <p class="text-gray-900">${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown'}</p>
                 </div>
 
                 <div>
-                    <label class="text-sm text-blue-600 mb-1">Account Role</label>
-                    <p class="text-blue-900 capitalize">${user.role}</p>
+                    <label class="text-sm text-gray-600 mb-1">Account Role</label>
+                    <p class="text-gray-900 capitalize">${user.role}</p>
                 </div>
             </div>
         </div>
@@ -441,14 +485,14 @@ function deleteUser(email) {
                     userCard.remove();
                     updateUserStats();
                     
-                    // If this was the selected user, clear the details
+                        // If this was the selected user, clear the details
                     if (selectedUserEmail === email) {
                         document.getElementById('userDetails').innerHTML = `
-                            <div class="bg-white rounded-lg p-12 text-center border border-blue-100">
-                                <svg class="w-12 h-12 text-blue-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="bg-white rounded-lg p-12 text-center border border-gray-200 shadow-sm">
+                                <svg class="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                                 </svg>
-                                <p class="text-blue-600">Select a user to view details</p>
+                                <p class="text-gray-600">Select a user to view details</p>
                             </div>
                         `;
                         selectedUserEmail = null;
@@ -503,11 +547,17 @@ document.getElementById('userForm').addEventListener('submit', function(e) {
         return;
     }
     
+    // Validate role - only allow 'resident' or 'admin'
+    if (role !== 'resident' && role !== 'admin') {
+        showError('Invalid role. Only "Resident" and "Admin" roles are allowed.');
+        return;
+    }
+
     if (!editingEmail && password.length < 8) {
         showError('Password must be at least 8 characters long');
         return;
     }
-    
+
     // Submit form
     const formData = new URLSearchParams({
         action: editingEmail ? 'update' : 'create',
@@ -519,15 +569,15 @@ document.getElementById('userForm').addEventListener('submit', function(e) {
         phone: phone,
         address: address
     });
-    
+
     if (!editingEmail) {
         formData.append('password', password);
     }
-    
+
     if (editingEmail) {
         formData.append('original_email', editingEmail);
     }
-    
+
     fetch('/api/users.php', {
         method: 'POST',
         headers: {
@@ -540,7 +590,7 @@ document.getElementById('userForm').addEventListener('submit', function(e) {
         if (data.success) {
             showToast('success', editingEmail ? 'User updated' : 'User created', 'The user has been saved successfully.');
             closeUserModal();
-            
+
             // Update UI without reload - SYNCHRONIZED with TSX
             if (editingEmail) {
                 // Update existing user card
@@ -548,24 +598,35 @@ document.getElementById('userForm').addEventListener('submit', function(e) {
                 if (userCard) {
                     const fullName = (firstName + ' ' + (middleName || '') + ' ' + lastName).trim();
                     const roleColor = role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700';
-                    
-                    userCard.innerHTML = `
-                        <div class="flex items-start justify-between mb-2">
+
+                        userCard.innerHTML = `
+                        <div class="flex items-start justify-between mb-3">
                             <div class="flex-1">
-                                <h4 class="text-blue-900">${fullName}</h4>
-                                <p class="text-sm text-blue-600">${email}</p>
+                                <h4 class="text-gray-900 font-semibold">${fullName}</h4>
+                                <p class="text-sm text-gray-600">${email}</p>
                             </div>
-                            <span class="px-2 py-1 rounded-full text-xs ${roleColor}">
+                            <span class="px-3 py-1 rounded-full text-xs font-medium ${roleColor}">
                                 ${role}
                             </span>
                         </div>
-                        ${address ? `<p class="text-sm text-blue-600">📍 ${address}</p>` : ''}
-                        ${phone ? `<p class="text-sm text-blue-600">📞 ${phone}</p>` : ''}
+                        ${address ? `<p class="text-sm text-gray-600 flex items-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            <span>${address}</span>
+                        </p>` : ''}
+                        ${phone ? `<p class="text-sm text-gray-600 flex items-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                            </svg>
+                            <span>${phone}</span>
+                        </p>` : ''}
                     `;
-                    
+
                     // Update search data attribute
                     userCard.setAttribute('data-search', (fullName + ' ' + email + ' ' + (address || '')).toLowerCase());
-                    
+
                     // If this user is selected, update the details view
                     if (selectedUserEmail === editingEmail) {
                         selectUser({
@@ -581,8 +642,61 @@ document.getElementById('userForm').addEventListener('submit', function(e) {
                     }
                 }
             } else {
-                // Reload for new users to get them from database with proper IDs
-                setTimeout(() => location.reload(), 1000);
+                // Add new user card without page reload
+                const newUser = {
+                    first_name: firstName,
+                    middle_name: middleName,
+                    last_name: lastName,
+                    email: email,
+                    role: role,
+                    phone: phone,
+                    address: address,
+                    created_at: new Date().toISOString()
+                };
+
+                // Create new user card HTML
+                const fullName = (firstName + ' ' + (middleName || '') + ' ' + lastName).trim();
+                const roleColor = role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700';
+
+                const newCardHTML = `
+                    <div
+                        class="user-card bg-white rounded-lg p-6 border border-gray-200 hover:border-gray-300 cursor-pointer transition-colors hover:shadow-md shadow-sm"
+                        data-user-email="${email}"
+                        data-search="${(fullName + ' ' + email + ' ' + (address || '')).toLowerCase()}"
+                        onclick="selectUser(${JSON.stringify(newUser)})"
+                    >
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex-1">
+                                <h4 class="text-gray-900 font-semibold">${fullName}</h4>
+                                <p class="text-sm text-gray-600">${email}</p>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-xs font-medium ${roleColor}">
+                                ${role}
+                            </span>
+                        </div>
+                        ${address ? `<p class="text-sm text-gray-600 flex items-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            <span>${address}</span>
+                        </p>` : ''}
+                        ${phone ? `<p class="text-sm text-gray-600 flex items-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                            </svg>
+                            <span>${phone}</span>
+                        </p>` : ''}
+                    </div>
+                `;
+
+                // Add to the users list
+                const usersList = document.querySelector('.space-y-3');
+                if (usersList) {
+                    usersList.insertAdjacentHTML('afterbegin', newCardHTML);
+                    // Update stats
+                    updateUserStats();
+                }
             }
         } else {
             showError(data.error || 'Failed to save user. Please try again.');
@@ -600,43 +714,7 @@ function showError(message) {
     errorDiv.classList.remove('hidden');
 }
 
-// Toast notification function
-function showToast(type, title, message) {
-    const toast = document.createElement('div');
-    toast.className = `fixed bottom-4 right-4 max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden z-50 transform transition-all duration-300 ease-in-out ${type === 'success' ? 'border-l-4 border-green-500' : 'border-l-4 border-red-500'}`;
-    
-    toast.innerHTML = `
-        <div class="p-4">
-            <div class="flex items-start">
-                <div class="flex-shrink-0">
-                    ${type === 'success' 
-                        ? '<svg class="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'
-                        : '<svg class="h-6 w-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'
-                    }
-                </div>
-                <div class="ml-3 w-0 flex-1">
-                    <p class="font-medium text-gray-900">${title}</p>
-                    <p class="mt-1 text-sm text-gray-500">${message}</p>
-                </div>
-                <div class="ml-4 flex-shrink-0 flex">
-                    <button onclick="this.closest('.fixed').remove()" class="inline-flex text-gray-400 hover:text-gray-500">
-                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(toast);
-    
-    // Auto dismiss after 5 seconds
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        setTimeout(() => toast.remove(), 300);
-    }, 5000);
-}
+
 
 function updateUserStats() {
     const totalUsers = document.querySelectorAll('.user-card').length;

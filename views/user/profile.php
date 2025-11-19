@@ -4,39 +4,16 @@
  * EXACT MATCH - Every feature, every field, every style
  */
 
-$conn = getDBConnection();
+$db = getDB();
 $userId = $user['id'];
 
 // Get user statistics
-$stmt = $conn->prepare("SELECT COUNT(*) as total FROM concerns WHERE user_id = ?");
-$stmt->bind_param("i", $userId);
-$stmt->execute();
-$totalConcerns = $stmt->get_result()->fetch_assoc()['total'];
-
-$stmt = $conn->prepare("SELECT COUNT(*) as total FROM concerns WHERE user_id = ? AND status = 'pending'");
-$stmt->bind_param("i", $userId);
-$stmt->execute();
-$pendingConcerns = $stmt->get_result()->fetch_assoc()['total'];
-
-$stmt = $conn->prepare("SELECT COUNT(*) as total FROM concerns WHERE user_id = ? AND status = 'resolved'");
-$stmt->bind_param("i", $userId);
-$stmt->execute();
-$resolvedConcerns = $stmt->get_result()->fetch_assoc()['total'];
-
-$stmt = $conn->prepare("SELECT COUNT(*) as total FROM documents WHERE user_id = ?");
-$stmt->bind_param("i", $userId);
-$stmt->execute();
-$totalDocuments = $stmt->get_result()->fetch_assoc()['total'];
-
-$stmt = $conn->prepare("SELECT COUNT(*) as total FROM documents WHERE user_id = ? AND status = 'pending'");
-$stmt->bind_param("i", $userId);
-$stmt->execute();
-$pendingDocuments = $stmt->get_result()->fetch_assoc()['total'];
-
-$stmt = $conn->prepare("SELECT COUNT(*) as total FROM documents WHERE user_id = ? AND status = 'approved'");
-$stmt->bind_param("i", $userId);
-$stmt->execute();
-$approvedDocuments = $stmt->get_result()->fetch_assoc()['total'];
+$totalConcerns = fetchOne("SELECT COUNT(*) as total FROM concerns WHERE user_id = ?", [$userId])['total'];
+$pendingConcerns = fetchOne("SELECT COUNT(*) as total FROM concerns WHERE user_id = ? AND status = 'pending'", [$userId])['total'];
+$resolvedConcerns = fetchOne("SELECT COUNT(*) as total FROM concerns WHERE user_id = ? AND status = 'resolved'", [$userId])['total'];
+$totalDocuments = fetchOne("SELECT COUNT(*) as total FROM documents WHERE user_id = ?", [$userId])['total'];
+$pendingDocuments = fetchOne("SELECT COUNT(*) as total FROM documents WHERE user_id = ? AND status = 'pending'", [$userId])['total'];
+$approvedDocuments = fetchOne("SELECT COUNT(*) as total FROM documents WHERE user_id = ? AND status = 'approved'", [$userId])['total'];
 
 // Generate initials
 $firstName = $user['firstName'] ?? '';

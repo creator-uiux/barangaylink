@@ -97,12 +97,10 @@ function handleLogin() {
     }
     
     // Check for regular user login
-    $conn = getDBConnection();
-    $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $user = $result->fetch_assoc();
+    $db = getDB();
+    $stmt = $db->prepare("SELECT * FROM users WHERE email = ?");
+    $stmt->execute([$email]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if ($user && password_verify($password, $user['password'])) {
         $_SESSION['auth'] = [
@@ -175,30 +173,28 @@ function handleSignup() {
     }
     
     // Check if user already exists
-    $conn = getDBConnection();
-    $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    if ($result->num_rows > 0) {
+    $db = getDB();
+    $stmt = $db->prepare("SELECT id FROM users WHERE email = ?");
+    $stmt->execute([$email]);
+    $existingUser = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($existingUser) {
         $_SESSION['error'] = 'User with this email already exists';
         header('Location: index.php');
         exit;
     }
-    
+
     // Create new user
     $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
-    $stmt = $conn->prepare("INSERT INTO users (first_name, middle_name, last_name, email, password, address, phone, role, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'resident', NOW())");
-    $stmt->bind_param("sssssss", $firstName, $middleName, $lastName, $email, $hashedPassword, $address, $phone);
-    
-    if ($stmt->execute()) {
-        $userId = $conn->insert_id;
-        
+    $stmt = $db->prepare("INSERT INTO users (first_name, middle_name, last_name, email, password, address, phone, role, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'resident', datetime('now'))");
+    $stmt->execute([$firstName, $middleName, $lastName, $email, $hashedPassword, $address, $phone]);
+
+    if ($stmt->rowCount() > 0) {
+        $userId = $db->lastInsertId();
+
         // Create welcome notification
-        $notificationStmt = $conn->prepare("INSERT INTO notifications (user_id, type, title, message, created_at) VALUES (?, 'success', 'Welcome to BarangayLink!', 'Your account has been created successfully. Welcome to our digital governance platform.', NOW())");
-        $notificationStmt->bind_param("i", $userId);
-        $notificationStmt->execute();
+        $notificationStmt = $db->prepare("INSERT INTO notifications (user_id, type, title, message, created_at) VALUES (?, 'success', 'Welcome to BarangayLink!', 'Your account has been created successfully. Welcome to our digital governance platform.', datetime('now'))");
+        $notificationStmt->execute([$userId]);
         
         // Log user in
         $_SESSION['auth'] = [

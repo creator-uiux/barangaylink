@@ -4,20 +4,19 @@
  * EVERY FEATURE, EVERY FIELD, EVERY STYLE MATCHED EXACTLY
  */
 
-$conn = getDBConnection();
+$db = getDB();
 $userId = $user['id'];
 
 // Get user's concerns
-$stmt = $conn->prepare("SELECT * FROM concerns WHERE user_id = ? ORDER BY created_at DESC LIMIT 5");
-$stmt->bind_param("i", $userId);
-$stmt->execute();
-$concerns = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt = $db->prepare("SELECT * FROM concerns WHERE user_id = ? ORDER BY created_at DESC LIMIT 5");
+$stmt->execute([$userId]);
+$concerns = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Handle form submission success
+// Handle form submission success max-w-6xl
 $submitted = isset($_GET['success']) && $_GET['success'] === '1';
 ?>
 
-<div class="max-w-3xl">
+<div class="space-y-6"> 
     <div class="bg-white rounded-lg p-6 border border-gray-200">
         <!-- Header with Icon - EXACT MATCH TSX Lines 71-79 -->
         <div class="flex items-center space-x-3 mb-6">
@@ -108,6 +107,18 @@ $submitted = isset($_GET['success']) && $_GET['success'] === '1';
                         required
                     ></textarea>
                 </div>
+
+
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+    <h4 class="text-yellow-900 mb-2">Important Reminders:</h4>
+    <ul class="text-sm text-yellow-800 space-y-1 list-disc list-inside">
+        <li>Select the most appropriate category so your concern is routed to the correct department</li>
+        <li>Provide a clear and specific subject to help identify the issue quickly</li>
+        <li>Indicate the exact location or nearest landmark for accurate assessment</li>
+        <li>Describe the concern in detail so the team can understand the situation properly</li>
+        <li>Double-check your information before submitting to avoid delays in processing</li>
+    </ul>
+</div>
 
                 <!-- Submit Button - EXACT MATCH TSX Lines 138-144 (BLACK, not yellow!) -->
                 <button

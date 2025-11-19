@@ -15,18 +15,22 @@ services:
       - key: APP_ENVIRONMENT
         value: production
       
-      # Database Configuration (use Render MySQL or external DB)
+      # Database Configuration (use Render MySQL)
       - key: DB_HOST
-        value: your-database-host.render.com
-      
+        fromDatabase: barangaylink-db
+        property: host
+
       - key: DB_NAME
-        value: barangaylink_db
-      
+        fromDatabase: barangaylink-db
+        property: database
+
       - key: DB_USER
-        value: barangaylink_user
-      
+        fromDatabase: barangaylink-db
+        property: username
+
       - key: DB_PASS
-        sync: false  # This should be set in Render Dashboard as a secret
+        fromDatabase: barangaylink-db
+        property: password
       
       - key: DB_CHARSET
         value: utf8mb4

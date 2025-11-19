@@ -103,36 +103,42 @@ function createConcern() {
         }
         
         // Connect to database
-        $conn = getDBConnection();
-        
-        if (!$conn) {
-            error_log("Database connection failed");
-            echo json_encode(['success' => false, 'error' => 'Database connection failed']);
-            exit;
-        }
-        
+        $db = getDB();
+
         // Prepare statement
-        $stmt = $conn->prepare("INSERT INTO concerns (user_id, category, subject, description, location, status, created_at) VALUES (?, ?, ?, ?, ?, 'pending', NOW())");
-        
-        if (!$stmt) {
-            error_log("Prepare failed: " . $conn->error);
-            echo json_encode(['success' => false, 'error' => 'Database prepare error: ' . $conn->error]);
-            exit;
-        }
-        
-        $stmt->bind_param("issss", $userId, $category, $subject, $description, $location);
-        
-        if ($stmt->execute()) {
-            $insertId = $conn->insert_id;
+        $stmt = $db->prepare("INSERT INTO concerns (user_id, category, subject, description, location, status, created_at) VALUES (?, ?, ?, ?, ?, 'pending', datetime('now'))");
+        $stmt->execute([$userId, $category, $subject, $description, $location]);
+
+        if ($stmt->rowCount() > 0) {
+            $insertId = $db->lastInsertId();
             error_log("Concern created successfully with ID: $insertId");
+
+            // Create notifications for all admins
+            try {
+                // Get the user's full name
+                $userStmt = $db->prepare("SELECT first_name, last_name FROM users WHERE id = ?");
+                $userStmt->execute([$userId]);
+                $user = $userStmt->fetch(PDO::FETCH_ASSOC);
+                $fullName = $user['first_name'] . ' ' . $user['last_name'];
+
+                $adminStmt = $db->prepare("SELECT id FROM users WHERE role = 'admin'");
+                $adminStmt->execute();
+                $admins = $adminStmt->fetchAll(PDO::FETCH_ASSOC);
+
+                foreach ($admins as $admin) {
+                    $notifStmt = $db->prepare("INSERT INTO notifications (user_id, type, title, message, related_type, related_id, created_at) VALUES (?, 'info', 'Concern Submitted', ?, 'concern', ?, datetime('now'))");
+                    $notifStmt->execute([$admin['id'], "$fullName has submitted a concern.", $insertId]);
+                }
+                error_log("Notifications created for " . count($admins) . " admins");
+            } catch (Exception $e) {
+                error_log("Failed to create admin notifications: " . $e->getMessage());
+            }
+
             echo json_encode(['success' => true, 'id' => $insertId]);
         } else {
-            error_log("Execute failed: " . $stmt->error);
-            echo json_encode(['success' => false, 'error' => 'Database execute error: ' . $stmt->error]);
+            error_log("Execute failed");
+            echo json_encode(['success' => false, 'error' => 'Failed to create concern']);
         }
-        
-        $stmt->close();
-        $conn->close();
     } catch (Exception $e) {
         error_log("Exception in createConcern: " . $e->getMessage());
         echo json_encode(['success' => false, 'error' => 'Exception: ' . $e->getMessage()]);
@@ -151,27 +157,19 @@ function deleteConcern() {
             exit;
         }
         
-        $conn = getDBConnection();
-        
+        $db = getDB();
+
         // Only allow deletion of pending concerns
-        $stmt = $conn->prepare("DELETE FROM concerns WHERE id = ? AND status = 'pending'");
-        $stmt->bind_param("i", $id);
-        
-        if ($stmt->execute()) {
-            if ($stmt->affected_rows > 0) {
-                error_log("Concern deleted successfully");
-                echo json_encode(['success' => true]);
-            } else {
-                error_log("Concern not found or not pending");
-                echo json_encode(['success' => false, 'error' => 'Concern not found or cannot be deleted']);
-            }
+        $stmt = $db->prepare("DELETE FROM concerns WHERE id = ? AND status = 'pending'");
+        $stmt->execute([$id]);
+
+        if ($stmt->rowCount() > 0) {
+            error_log("Concern deleted successfully");
+            echo json_encode(['success' => true]);
         } else {
-            error_log("Delete failed: " . $stmt->error);
-            echo json_encode(['success' => false, 'error' => 'Database error: ' . $stmt->error]);
+            error_log("Concern not found or not pending");
+            echo json_encode(['success' => false, 'error' => 'Concern not found or cannot be deleted']);
         }
-        
-        $stmt->close();
-        $conn->close();
     } catch (Exception $e) {
         error_log("Exception in deleteConcern: " . $e->getMessage());
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
@@ -192,23 +190,21 @@ function updateConcernStatus() {
             exit;
         }
         
-        // Normalize status to database format
-        $dbStatus = str_replace('-', '_', $status);
-        
-        $conn = getDBConnection();
-        $stmt = $conn->prepare("UPDATE concerns SET status = ?, admin_response = ?, updated_at = NOW() WHERE id = ?");
-        $stmt->bind_param("ssi", $dbStatus, $response, $id);
-        
-        if ($stmt->execute()) {
+        // Status is already in correct format (with dashes)
+        $dbStatus = $status;
+        error_log("Using status: '$dbStatus'");
+
+        $db = getDB();
+        $stmt = $db->prepare("UPDATE concerns SET status = ?, admin_response = ?, updated_at = datetime('now') WHERE id = ?");
+        $stmt->execute([$dbStatus, $response, $id]);
+
+        if ($stmt->rowCount() > 0) {
             error_log("Concern status updated successfully");
             echo json_encode(['success' => true]);
         } else {
-            error_log("Update failed: " . $stmt->error);
-            echo json_encode(['success' => false, 'error' => 'Database error: ' . $stmt->error]);
+            error_log("Concern not found");
+            echo json_encode(['success' => false, 'error' => 'Concern not found']);
         }
-        
-        $stmt->close();
-        $conn->close();
     } catch (Exception $e) {
         error_log("Exception in updateConcernStatus: " . $e->getMessage());
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
@@ -221,43 +217,40 @@ function respondToConcern() {
         $id = $_POST['concern_id'] ?? $_POST['id'] ?? 0;
         $response = $_POST['response'] ?? '';
         $status = $_POST['status'] ?? '';
-        
+
         error_log("Responding to concern ID: $id with response: $response, status: $status");
-        
+
         if (!$id) {
             echo json_encode(['success' => false, 'error' => 'Missing concern ID']);
             exit;
         }
-        
+
         if (empty($response)) {
             echo json_encode(['success' => false, 'error' => 'Please enter a response']);
             exit;
         }
-        
-        $conn = getDBConnection();
-        
-        // Normalize status to database format
-        $dbStatus = str_replace('-', '_', $status);
-        
+
+        $db = getDB();
+
+        // Status is already in correct format (with dashes)
+        $dbStatus = $status;
+
         // Update both response and status if status is provided
         if (!empty($status)) {
-            $stmt = $conn->prepare("UPDATE concerns SET status = ?, admin_response = ?, updated_at = NOW() WHERE id = ?");
-            $stmt->bind_param("ssi", $dbStatus, $response, $id);
+            $stmt = $db->prepare("UPDATE concerns SET status = ?, admin_response = ?, updated_at = datetime('now') WHERE id = ?");
+            $stmt->execute([$dbStatus, $response, $id]);
         } else {
-            $stmt = $conn->prepare("UPDATE concerns SET admin_response = ?, updated_at = NOW() WHERE id = ?");
-            $stmt->bind_param("si", $response, $id);
+            $stmt = $db->prepare("UPDATE concerns SET admin_response = ?, updated_at = datetime('now') WHERE id = ?");
+            $stmt->execute([$response, $id]);
         }
-        
-        if ($stmt->execute()) {
+
+        if ($stmt->rowCount() > 0) {
             error_log("Concern response submitted successfully");
             echo json_encode(['success' => true, 'message' => 'Response submitted successfully']);
         } else {
-            error_log("Update failed: " . $stmt->error);
-            echo json_encode(['success' => false, 'error' => 'Database error: ' . $stmt->error]);
+            error_log("Concern not found");
+            echo json_encode(['success' => false, 'error' => 'Concern not found']);
         }
-        
-        $stmt->close();
-        $conn->close();
     } catch (Exception $e) {
         error_log("Exception in respondToConcern: " . $e->getMessage());
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
@@ -268,27 +261,16 @@ function respondToConcern() {
 function listConcerns() {
     try {
         $userEmail = $_GET['userEmail'] ?? '';
-        
-        $conn = getDBConnection();
-        
+
         if ($userEmail) {
             // Get concerns for specific user with user info
-            $stmt = $conn->prepare("SELECT c.*, u.first_name, u.last_name, u.email, CONCAT(u.first_name, ' ', u.last_name) as submittedBy FROM concerns c JOIN users u ON c.user_id = u.id WHERE u.email = ? ORDER BY c.created_at DESC");
-            $stmt->bind_param("s", $userEmail);
-            $stmt->execute();
-            $result = $stmt->get_result();
+            $concerns = fetchAll("SELECT c.*, u.first_name, u.last_name, u.email, (u.first_name || ' ' || u.last_name) as submittedBy FROM concerns c JOIN users u ON c.user_id = u.id WHERE u.email = ? ORDER BY c.created_at DESC", [$userEmail]);
         } else {
             // Get all concerns with user info
-            $result = $conn->query("SELECT c.*, u.first_name, u.last_name, u.email, CONCAT(u.first_name, ' ', u.last_name) as submittedBy, u.email as submittedByEmail FROM concerns c JOIN users u ON c.user_id = u.id ORDER BY c.created_at DESC");
+            $concerns = fetchAll("SELECT c.*, u.first_name, u.last_name, u.email, (u.first_name || ' ' || u.last_name) as submittedBy, u.email as submittedByEmail FROM concerns c JOIN users u ON c.user_id = u.id ORDER BY c.created_at DESC");
         }
-        
-        $concerns = [];
-        while ($row = $result->fetch_assoc()) {
-            $concerns[] = $row;
-        }
-        
+
         echo json_encode(['success' => true, 'data' => $concerns]);
-        $conn->close();
     } catch (Exception $e) {
         error_log("Exception in listConcerns: " . $e->getMessage());
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);

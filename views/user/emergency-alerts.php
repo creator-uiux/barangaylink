@@ -4,11 +4,10 @@
  * EXACT MATCH in design, layout, and functionality
  */
 
-$conn = getDBConnection();
+$db = getDB();
 
 // Get all active alerts
-$alertsQuery = $conn->query("SELECT * FROM emergency_alerts WHERE is_active = 1 ORDER BY created_at DESC");
-$alerts = $alertsQuery ? $alertsQuery->fetch_all(MYSQLI_ASSOC) : [];
+$alerts = fetchAll("SELECT * FROM emergency_alerts WHERE is_active = 1 ORDER BY created_at DESC");
 ?>
 
 <div class="space-y-6">

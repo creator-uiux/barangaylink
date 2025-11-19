@@ -8,8 +8,7 @@ require_once '../init.php';
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $conn = getDBConnection();
-    $events = $conn->query("SELECT * FROM events WHERE event_date >= CURDATE() ORDER BY event_date ASC")->fetch_all(MYSQLI_ASSOC);
+    $events = fetchAll("SELECT * FROM events WHERE event_date >= date('now') ORDER BY event_date ASC");
     echo json_encode($events);
     exit;
 }
@@ -32,12 +31,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
     
-    $conn = getDBConnection();
-    $stmt = $conn->prepare("INSERT INTO events (title, description, location, event_date, created_at) VALUES (?, ?, ?, ?, NOW())");
-    $stmt->bind_param("ssss", $title, $description, $location, $eventDate);
-    
-    if ($stmt->execute()) {
-        echo json_encode(['success' => true, 'id' => $conn->insert_id]);
+    $db = getDB();
+    $stmt = $db->prepare("INSERT INTO events (title, description, location, event_date, created_at) VALUES (?, ?, ?, ?, datetime('now'))");
+    $stmt->execute([$title, $description, $location, $eventDate]);
+
+    if ($stmt->rowCount() > 0) {
+        echo json_encode(['success' => true, 'id' => $db->lastInsertId()]);
     } else {
         http_response_code(500);
         echo json_encode(['error' => 'Failed to create event']);

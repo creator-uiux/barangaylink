@@ -8,8 +8,7 @@ require_once '../init.php';
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $conn = getDBConnection();
-    $announcements = $conn->query("SELECT * FROM announcements ORDER BY created_at DESC")->fetch_all(MYSQLI_ASSOC);
+    $announcements = fetchAll("SELECT * FROM announcements ORDER BY created_at DESC");
     echo json_encode($announcements);
     exit;
 }
@@ -30,12 +29,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
     
-    $conn = getDBConnection();
-    $stmt = $conn->prepare("INSERT INTO announcements (title, content, created_at) VALUES (?, ?, NOW())");
-    $stmt->bind_param("ss", $title, $content);
-    
-    if ($stmt->execute()) {
-        echo json_encode(['success' => true, 'id' => $conn->insert_id]);
+    $db = getDB();
+    $stmt = $db->prepare("INSERT INTO announcements (title, content, created_at) VALUES (?, ?, datetime('now'))");
+    $stmt->execute([$title, $content]);
+
+    if ($stmt->rowCount() > 0) {
+        echo json_encode(['success' => true, 'id' => $db->lastInsertId()]);
     } else {
         http_response_code(500);
         echo json_encode(['error' => 'Failed to create announcement']);

@@ -4,20 +4,19 @@
  * COMPLETELY FIXED - WORKING NOW!
  */
 
-$conn = getDBConnection();
+$db = getDB();
 $userId = $user['id'];
 
 // Get user's document requests
-$stmt = $conn->prepare("SELECT * FROM documents WHERE user_id = ? ORDER BY created_at DESC LIMIT 5");
-$stmt->bind_param("i", $userId);
-$stmt->execute();
-$documents = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt = $db->prepare("SELECT * FROM documents WHERE user_id = ? ORDER BY created_at DESC LIMIT 5");
+$stmt->execute([$userId]);
+$documents = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Handle form submission success
 $submitted = isset($_GET['success']) && $_GET['success'] === '1';
 ?>
 
-<div class="max-w-4xl">
+<div class="space-y-6">
     <div class="bg-white rounded-lg p-6 border border-gray-200">
         <!-- Header with Icon - EXACT MATCH TSX Lines 73-81 -->
         <div class="flex items-center space-x-3 mb-6">

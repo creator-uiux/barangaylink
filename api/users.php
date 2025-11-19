@@ -53,7 +53,7 @@ function createUser() {
         $lastName = trim($_POST['last_name'] ?? '');
         $email = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
-        $role = $_POST['role'] ?? 'user';
+        $role = $_POST['role'] ?? 'resident';
         $address = trim($_POST['address'] ?? '');
         $phone = trim($_POST['phone'] ?? '');
         
@@ -68,32 +68,28 @@ function createUser() {
             exit;
         }
         
-        $conn = getDBConnection();
-        
+        $db = getDB();
+
         // Check if email already exists
-        $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        if ($stmt->get_result()->num_rows > 0) {
+        $stmt = $db->prepare("SELECT id FROM users WHERE email = ?");
+        $stmt->execute([$email]);
+        if ($stmt->fetch(PDO::FETCH_ASSOC)) {
             echo json_encode(['success' => false, 'error' => 'A user with this email already exists']);
             exit;
         }
-        
+
         // Hash password
         $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
-        
+
         // Insert user
-        $stmt = $conn->prepare("INSERT INTO users (first_name, middle_name, last_name, email, password, role, address, phone, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())");
-        $stmt->bind_param("ssssssss", $firstName, $middleName, $lastName, $email, $hashedPassword, $role, $address, $phone);
-        
-        if ($stmt->execute()) {
-            echo json_encode(['success' => true, 'id' => $conn->insert_id]);
+        $stmt = $db->prepare("INSERT INTO users (first_name, middle_name, last_name, email, password, role, address, phone, is_active, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, datetime('now'))");
+        $stmt->execute([$firstName, $middleName, $lastName, $email, $hashedPassword, $role, $address, $phone]);
+
+        if ($stmt->rowCount() > 0) {
+            echo json_encode(['success' => true, 'id' => $db->lastInsertId()]);
         } else {
             echo json_encode(['success' => false, 'error' => 'Failed to create user']);
         }
-        
-        $stmt->close();
-        $conn->close();
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
@@ -106,7 +102,7 @@ function updateUser() {
         $firstName = trim($_POST['first_name'] ?? '');
         $middleName = trim($_POST['middle_name'] ?? '');
         $lastName = trim($_POST['last_name'] ?? '');
-        $role = $_POST['role'] ?? 'user';
+        $role = $_POST['role'] ?? 'resident';
         $address = trim($_POST['address'] ?? '');
         $phone = trim($_POST['phone'] ?? '');
         
@@ -116,24 +112,17 @@ function updateUser() {
             exit;
         }
         
-        $conn = getDBConnection();
-        
+        $db = getDB();
+
         // Update user
-        $stmt = $conn->prepare("UPDATE users SET first_name = ?, middle_name = ?, last_name = ?, role = ?, address = ?, phone = ?, updated_at = NOW() WHERE email = ?");
-        $stmt->bind_param("sssssss", $firstName, $middleName, $lastName, $role, $address, $phone, $originalEmail);
-        
-        if ($stmt->execute()) {
-            if ($stmt->affected_rows > 0 || $stmt->errno === 0) {
-                echo json_encode(['success' => true]);
-            } else {
-                echo json_encode(['success' => false, 'error' => 'User not found']);
-            }
+        $stmt = $db->prepare("UPDATE users SET first_name = ?, middle_name = ?, last_name = ?, role = ?, address = ?, phone = ?, updated_at = datetime('now') WHERE email = ?");
+        $stmt->execute([$firstName, $middleName, $lastName, $role, $address, $phone, $originalEmail]);
+
+        if ($stmt->rowCount() > 0) {
+            echo json_encode(['success' => true]);
         } else {
-            echo json_encode(['success' => false, 'error' => 'Failed to update user']);
+            echo json_encode(['success' => false, 'error' => 'User not found or no changes made']);
         }
-        
-        $stmt->close();
-        $conn->close();
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
@@ -169,26 +158,23 @@ function updateProfile() {
             }
         }
         
-        $conn = getDBConnection();
-        $stmt = $conn->prepare("UPDATE users SET address = ?, phone = ?, updated_at = NOW() WHERE id = ?");
-        $stmt->bind_param("ssi", $address, $phone, $userId);
-        
-        if ($stmt->execute()) {
+        $db = getDB();
+        $stmt = $db->prepare("UPDATE users SET address = ?, phone = ?, updated_at = datetime('now') WHERE id = ?");
+        $stmt->execute([$address, $phone, $userId]);
+
+        if ($stmt->rowCount() > 0) {
             // Update session data
             if (isset($_SESSION['auth']['user'])) {
                 $_SESSION['auth']['user']['address'] = $address;
                 $_SESSION['auth']['user']['phone'] = $phone;
             }
-            
+
             $_SESSION['success'] = 'Profile updated successfully!';
             header('Location: ../index.php?view=profile&saved=1');
         } else {
             $_SESSION['error'] = 'Failed to update profile';
             header('Location: ../index.php?view=profile');
         }
-        
-        $stmt->close();
-        $conn->close();
     } catch (Exception $e) {
         $_SESSION['error'] = 'An error occurred: ' . $e->getMessage();
         header('Location: ../index.php?view=profile');
@@ -212,33 +198,28 @@ function changePassword() {
             exit;
         }
         
-        $conn = getDBConnection();
-        
+        $db = getDB();
+
         // Verify current password
-        $stmt = $conn->prepare("SELECT password FROM users WHERE id = ?");
-        $stmt->bind_param("i", $userId);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $user = $result->fetch_assoc();
-        
+        $stmt = $db->prepare("SELECT password FROM users WHERE id = ?");
+        $stmt->execute([$userId]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
         if (!$user || !password_verify($currentPassword, $user['password'])) {
             echo json_encode(['success' => false, 'error' => 'Current password is incorrect']);
             exit;
         }
-        
+
         // Update password
         $hashedPassword = password_hash($newPassword, PASSWORD_BCRYPT);
-        $stmt = $conn->prepare("UPDATE users SET password = ?, updated_at = NOW() WHERE id = ?");
-        $stmt->bind_param("si", $hashedPassword, $userId);
-        
-        if ($stmt->execute()) {
+        $stmt = $db->prepare("UPDATE users SET password = ?, updated_at = datetime('now') WHERE id = ?");
+        $stmt->execute([$hashedPassword, $userId]);
+
+        if ($stmt->rowCount() > 0) {
             echo json_encode(['success' => true]);
         } else {
             echo json_encode(['success' => false, 'error' => 'Failed to update password']);
         }
-        
-        $stmt->close();
-        $conn->close();
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
@@ -254,15 +235,13 @@ function deleteUser() {
             exit;
         }
         
-        $conn = getDBConnection();
-        
+        $db = getDB();
+
         // Get user ID from email if only email is provided
         if (!$userId && $email) {
-            $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
-            $stmt->bind_param("s", $email);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $user = $result->fetch_assoc();
+            $stmt = $db->prepare("SELECT id FROM users WHERE email = ?");
+            $stmt->execute([$email]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
             if ($user) {
                 $userId = $user['id'];
             } else {
@@ -270,24 +249,21 @@ function deleteUser() {
                 exit;
             }
         }
-        
+
         // Delete user's related data first
-        $conn->query("DELETE FROM documents WHERE user_id = $userId");
-        $conn->query("DELETE FROM concerns WHERE user_id = $userId");
-        $conn->query("DELETE FROM notifications WHERE user_id = $userId");
-        
+        $db->exec("DELETE FROM documents WHERE user_id = $userId");
+        $db->exec("DELETE FROM concerns WHERE user_id = $userId");
+        $db->exec("DELETE FROM notifications WHERE user_id = $userId");
+
         // Delete user
-        $stmt = $conn->prepare("DELETE FROM users WHERE id = ?");
-        $stmt->bind_param("i", $userId);
-        
-        if ($stmt->execute()) {
+        $stmt = $db->prepare("DELETE FROM users WHERE id = ?");
+        $stmt->execute([$userId]);
+
+        if ($stmt->rowCount() > 0) {
             echo json_encode(['success' => true]);
         } else {
             echo json_encode(['success' => false, 'error' => 'Failed to delete user']);
         }
-        
-        $stmt->close();
-        $conn->close();
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
@@ -296,16 +272,10 @@ function deleteUser() {
 
 function listUsers() {
     try {
-        $conn = getDBConnection();
-        $result = $conn->query("SELECT id, first_name, middle_name, last_name, email, role, address, phone, created_at FROM users ORDER BY created_at DESC");
-        
-        $users = [];
-        while ($row = $result->fetch_assoc()) {
-            $users[] = $row;
-        }
-        
+        $db = getDB();
+        $users = fetchAll("SELECT id, first_name, middle_name, last_name, email, role, address, phone, created_at FROM users ORDER BY created_at DESC");
+
         echo json_encode(['success' => true, 'data' => $users]);
-        $conn->close();
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }

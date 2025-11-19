@@ -1,53 +1,29 @@
 <?php
 /**
  * Database Connection Handler
- * Provides BOTH PDO and MySQLi connections for compatibility
+ * SQLite PDO Connection
  */
 
 require_once 'config.php';
 
-// MySQLi Connection (for legacy code)
-function getDBConnection() {
-    static $mysqli = null;
-    
-    if ($mysqli === null) {
-        $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-        
-        if ($mysqli->connect_error) {
-            error_log("MySQLi Connection Error: " . $mysqli->connect_error);
-            // Check if we're in an API context (headers not yet sent for JSON)
-            if (headers_sent() === false && strpos($_SERVER['REQUEST_URI'] ?? '', '/api/') !== false) {
-                header('Content-Type: application/json');
-                echo json_encode([
-                    'success' => false, 
-                    'error' => 'Database connection failed. Please check your configuration.'
-                ]);
-                exit;
-            }
-            throw new Exception("Database connection failed: " . $mysqli->connect_error);
-        }
-        
-        $mysqli->set_charset(DB_CHARSET);
-    }
-    
-    return $mysqli;
-}
-
-// PDO Connection (for modern code)
+// PDO Connection (SQLite)
 class Database {
     private static $instance = null;
     private $conn;
-    
+
     private function __construct() {
         try {
-            $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET;
+            $dsn = "sqlite:" . DB_PATH;
             $options = [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                 PDO::ATTR_EMULATE_PREPARES => false,
             ];
-            
-            $this->conn = new PDO($dsn, DB_USER, DB_PASS, $options);
+
+            $this->conn = new PDO($dsn, null, null, $options);
+
+            // Enable foreign keys
+            $this->conn->exec('PRAGMA foreign_keys = ON;');
         } catch (PDOException $e) {
             error_log("PDO Connection Error: " . $e->getMessage());
             throw new Exception("Database connection failed. Please check your configuration.");

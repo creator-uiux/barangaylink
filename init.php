@@ -145,10 +145,20 @@ function timeAgo($datetime) {
 // Helper function to create notification
 function createNotification($userEmail, $type, $title, $message) {
     try {
-        $sql = "INSERT INTO notifications (user_email, type, title, message, is_read, created_at) 
-                VALUES (:user_email, :type, :title, :message, 0, NOW())";
+        // Get user ID from email
+        $userStmt = getDB()->prepare("SELECT id FROM users WHERE email = ?");
+        $userStmt->execute([$userEmail]);
+        $user = $userStmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user) {
+            error_log("User not found for notification: " . $userEmail);
+            return false;
+        }
+
+        $sql = "INSERT INTO notifications (user_id, type, title, message, is_read, created_at)
+                VALUES (:user_id, :type, :title, :message, 0, NOW())";
         executeQuery($sql, [
-            ':user_email' => $userEmail,
+            ':user_id' => $user['id'],
             ':type' => $type,
             ':title' => $title,
             ':message' => $message
