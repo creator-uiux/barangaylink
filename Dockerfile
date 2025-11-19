@@ -1,8 +1,41 @@
-FROM php:8.2-cli
-WORKDIR /app
+# Use PHP 8.1 CLI as base image
+FROM php:8.1-cli
+
+# Set working directory
+WORKDIR /var/www/html
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    libzip-dev \
+    zip \
+    unzip \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
+
+# Clear cache
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Copy composer files
+COPY composer.json composer.lock ./
+
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader
+
+# Copy application code
 COPY . .
-# Install composer
-RUN apt-get update && apt-get install -y unzip git \
-    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
-    && composer install || true
-CMD php -S 0.0.0.0:$PORT
+
+# Create uploads directory
+RUN mkdir -p uploads && chmod 755 uploads
+
+# Expose port
+EXPOSE 8080
+
+# Start PHP built-in server
+CMD ["php", "-S", "0.0.0.0:8080", "-t", "."]
