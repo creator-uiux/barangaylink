@@ -1,13 +1,31 @@
 services:
   # BarangayLink PHP Application
   - type: web
-    name: barangaylink-db
+    name: barangaylink
     runtime: php
     env: php
     region: singapore
     plan: free
     buildCommand: composer install --no-dev --optimize-autoloader
-    startCommand: php -S 0.0.0.0:$PORT -t .
+    startCommand: |
+      # Wait for MySQL to be ready
+      echo "Waiting for MySQL to be ready..."
+      while ! php -r "
+      try {
+          \$pdo = new PDO('mysql:host=' . getenv('DB_HOST') . ';port=3306;charset=utf8mb4', getenv('DB_USER'), getenv('DB_PASS'));
+          echo 'MySQL is ready' . PHP_EOL;
+          exit(0);
+      } catch (Exception \$e) {
+          echo 'MySQL is unavailable - sleeping' . PHP_EOL;
+          exit(1);
+      }
+      "; do
+          sleep 2
+      done
+      echo "MySQL is up - initializing database"
+      php init_db.php
+      echo "Starting PHP server"
+      php -S 0.0.0.0:$PORT -t .
     healthCheckPath: /
     
     envVars:
