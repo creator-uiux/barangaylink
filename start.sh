@@ -1,9 +1,17 @@
 #!/bin/bash
 
-# Wait for MySQL to be ready
+# Wait for MySQL to be ready using PHP
 echo "Waiting for MySQL to be ready..."
-while ! mysqladmin ping -h"$DB_HOST" -P3306 -u"$DB_USER" -p"$DB_PASS" --silent; do
-    echo "MySQL is unavailable - sleeping"
+while ! php -r "
+try {
+    \$pdo = new PDO('mysql:host=' . getenv('DB_HOST') . ';port=3306;charset=utf8mb4', getenv('DB_USER'), getenv('DB_PASS'));
+    echo 'MySQL is ready' . PHP_EOL;
+    exit(0);
+} catch (Exception \$e) {
+    echo 'MySQL is unavailable - sleeping' . PHP_EOL;
+    exit(1);
+}
+"; do
     sleep 2
 done
 
