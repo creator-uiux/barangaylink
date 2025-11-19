@@ -8,22 +8,25 @@ services:
     plan: free
     buildCommand: composer install --no-dev --optimize-autoloader
     startCommand: |
-      # Wait for MySQL to be ready
+      # Wait for MySQL to be ready (with timeout)
       echo "Waiting for MySQL to be ready..."
-      while ! php -r "
-      try {
-          \$pdo = new PDO('mysql:host=' . getenv('DB_HOST') . ';port=3306;charset=utf8mb4', getenv('DB_USER'), getenv('DB_PASS'));
-          echo 'MySQL is ready' . PHP_EOL;
-          exit(0);
-      } catch (Exception \$e) {
-          echo 'MySQL is unavailable - sleeping' . PHP_EOL;
-          exit(1);
-      }
-      "; do
-          sleep 2
+      for i in {1..60}; do
+        if php -r "
+        try {
+            \$pdo = new PDO('mysql:host=' . getenv('DB_HOST') . ';port=3306;charset=utf8mb4', getenv('DB_USER'), getenv('DB_PASS'));
+            echo 'MySQL is ready' . PHP_EOL;
+            exit(0);
+        } catch (Exception \$e) {
+            echo 'MySQL is unavailable - sleeping' . PHP_EOL;
+            exit(1);
+        }
+        "; then
+          break
+        fi
+        sleep 2
       done
-      echo "MySQL is up - initializing database"
-      php init_db.php
+      echo "Proceeding with database initialization (MySQL may still be waking)"
+      php init_db.php || echo "Database initialization failed, but proceeding"
       echo "Starting PHP server"
       php -S 0.0.0.0:$PORT -t .
     healthCheckPath: /
