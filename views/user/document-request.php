@@ -4,6 +4,12 @@
  * COMPLETELY FIXED - WORKING NOW!
  */
 
+$user = getCurrentUser();
+if (!$user) {
+    header('Location: index.php');
+    exit;
+}
+
 $db = getDB();
 $userId = $user['id'];
 

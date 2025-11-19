@@ -134,30 +134,27 @@ function updateProfile() {
         $userId = $_POST['user_id'] ?? 0;
         $address = trim($_POST['address'] ?? '');
         $phone = trim($_POST['phone'] ?? '');
-        
+
         if (!$userId) {
-            $_SESSION['error'] = 'Invalid user ID';
-            header('Location: ../index.php?view=profile');
+            echo json_encode(['success' => false, 'error' => 'Invalid user ID']);
             exit;
         }
-        
+
         // Validate address
         if ($address && strlen($address) < 10) {
-            $_SESSION['error'] = 'Please provide a complete address (at least 10 characters)';
-            header('Location: ../index.php?view=profile');
+            echo json_encode(['success' => false, 'error' => 'Please provide a complete address (at least 10 characters)']);
             exit;
         }
-        
+
         // Validate phone
         if ($phone) {
             $phoneRegex = '/^(\+\d{1,3}[- ]?)?\d{10,}$/';
             if (!preg_match($phoneRegex, str_replace(' ', '', $phone))) {
-                $_SESSION['error'] = 'Please enter a valid phone number';
-                header('Location: ../index.php?view=profile');
+                echo json_encode(['success' => false, 'error' => 'Please enter a valid phone number']);
                 exit;
             }
         }
-        
+
         $db = getDB();
         $stmt = $db->prepare("UPDATE users SET address = ?, phone = ?, updated_at = datetime('now') WHERE id = ?");
         $stmt->execute([$address, $phone, $userId]);
@@ -169,15 +166,12 @@ function updateProfile() {
                 $_SESSION['auth']['user']['phone'] = $phone;
             }
 
-            $_SESSION['success'] = 'Profile updated successfully!';
-            header('Location: ../index.php?view=profile&saved=1');
+            echo json_encode(['success' => true]);
         } else {
-            $_SESSION['error'] = 'Failed to update profile';
-            header('Location: ../index.php?view=profile');
+            echo json_encode(['success' => false, 'error' => 'Failed to update profile']);
         }
     } catch (Exception $e) {
-        $_SESSION['error'] = 'An error occurred: ' . $e->getMessage();
-        header('Location: ../index.php?view=profile');
+        echo json_encode(['success' => false, 'error' => 'An error occurred: ' . $e->getMessage()]);
     }
     exit;
 }

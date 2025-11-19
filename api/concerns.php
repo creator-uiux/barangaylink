@@ -126,7 +126,7 @@ function createConcern() {
                 $admins = $adminStmt->fetchAll(PDO::FETCH_ASSOC);
 
                 foreach ($admins as $admin) {
-                    $notifStmt = $db->prepare("INSERT INTO notifications (user_id, type, title, message, related_type, related_id, created_at) VALUES (?, 'info', 'Concern Submitted', ?, 'concern', ?, datetime('now'))");
+                    $notifStmt = $db->prepare("INSERT INTO notifications (user_id, type, title, message, related_type, related_id, created_at) VALUES (?, 'info', 'Concern Submitted', ?, 'concern', ?, NOW())");
                     $notifStmt->execute([$admin['id'], "$fullName has submitted a concern.", $insertId]);
                 }
                 error_log("Notifications created for " . count($admins) . " admins");

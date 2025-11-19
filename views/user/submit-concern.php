@@ -4,6 +4,12 @@
  * EVERY FEATURE, EVERY FIELD, EVERY STYLE MATCHED EXACTLY
  */
 
+$user = getCurrentUser();
+if (!$user) {
+    header('Location: index.php');
+    exit;
+}
+
 $db = getDB();
 $userId = $user['id'];
 

@@ -20,23 +20,8 @@ define('DEFAULT_TIMEZONE', getenv('DEFAULT_TIMEZONE') ?: 'Asia/Manila');
 date_default_timezone_set(DEFAULT_TIMEZONE);
 
 // Database Configuration
-if (APP_ENVIRONMENT === 'production') {
-    // Use MySQL for production (Render)
-    define('DB_TYPE', 'mysql');
-    define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
-    define('DB_NAME', getenv('DB_NAME') ?: 'barangaylink');
-    define('DB_USER', getenv('DB_USER') ?: 'root');
-    define('DB_PASS', getenv('DB_PASS') ?: '');
-    define('DB_CHARSET', getenv('DB_CHARSET') ?: 'utf8mb4');
-} else {
-    // Use MySQL for development/local
-    define('DB_TYPE', 'mysql');
-    define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
-    define('DB_NAME', getenv('DB_NAME') ?: 'barangaylink');
-    define('DB_USER', getenv('DB_USER') ?: 'root');
-    define('DB_PASS', getenv('DB_PASS') ?: '');
-    define('DB_CHARSET', getenv('DB_CHARSET') ?: 'utf8mb4');
-}
+define('DB_TYPE', 'sqlite');
+define('DB_PATH', __DIR__ . '/database/barangaylink.db');
 
 // Admin Credentials (hardcoded for demo - SAME as config.ts)
 define('ADMIN_EMAIL', getenv('ADMIN_EMAIL') ?: 'admin@barangaylink.gov.ph');

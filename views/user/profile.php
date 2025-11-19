@@ -4,6 +4,12 @@
  * EXACT MATCH - Every feature, every field, every style
  */
 
+$user = getCurrentUser();
+if (!$user) {
+    header('Location: ../index.php');
+    exit;
+}
+
 $db = getDB();
 $userId = $user['id'];
 
@@ -99,7 +105,7 @@ $saved = isset($_GET['saved']) && $_GET['saved'] === '1';
             </div>
         </div>
 
-        <form id="profileForm" method="POST" action="api/users.php">
+    <form id="profileForm" method="POST" action="../api/users.php">
             <input type="hidden" name="action" value="update_profile">
             <input type="hidden" name="user_id" value="<?php echo $userId; ?>">
             
@@ -196,6 +202,7 @@ $saved = isset($_GET['saved']) && $_GET['saved'] === '1';
                         class="phone-input w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="+63 912 345 6789"
                         style="display: none;"
+                        required
                     />
                     <p class="phone-input text-xs text-gray-500 mt-1" style="display: none;">
                         Philippine format: +63 followed by your number
