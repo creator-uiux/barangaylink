@@ -21,9 +21,13 @@ date_default_timezone_set(DEFAULT_TIMEZONE);
 
 // Database Configuration
 if (APP_ENVIRONMENT === 'production') {
-    // Use SQLite for production (Render)
-    define('DB_TYPE', 'sqlite');
-    define('DB_FILE', __DIR__ . '/database/barangaylink.db');
+    // Use MySQL for production (Render)
+    define('DB_TYPE', 'mysql');
+    define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
+    define('DB_NAME', getenv('DB_NAME') ?: 'barangaylink');
+    define('DB_USER', getenv('DB_USER') ?: 'root');
+    define('DB_PASS', getenv('DB_PASS') ?: '');
+    define('DB_CHARSET', getenv('DB_CHARSET') ?: 'utf8mb4');
 } else {
     // Use MySQL for development/local
     define('DB_TYPE', 'mysql');
