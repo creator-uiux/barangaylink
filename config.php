@@ -22,10 +22,11 @@ date_default_timezone_set(DEFAULT_TIMEZONE);
 // Database Configuration
 define('DB_TYPE', 'mysql');
 define('DB_PATH', __DIR__ . '/database/barangaylink.db');
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'barangaylink');
-define('DB_USER', 'root');
-define('DB_PASS', '');
+define('DB_HOST', getenv('MYSQLHOST') ?: 'localhost');
+define('DB_PORT', getenv('MYSQLPORT') ?: '3306');
+define('DB_NAME', getenv('MYSQLDATABASE') ?: 'barangaylink');
+define('DB_USER', getenv('MYSQLUSER') ?: 'root');
+define('DB_PASS', getenv('MYSQLPASSWORD') ?: '');
 define('DB_CHARSET', 'utf8mb4');
 
 // Admin Credentials (hardcoded for demo - SAME as config.ts)
