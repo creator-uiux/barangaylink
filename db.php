@@ -33,7 +33,7 @@ class Database {
             }
         } catch (PDOException $e) {
             error_log("PDO Connection Error: " . $e->getMessage());
-            throw new Exception("Database connection failed. Please check your configuration.");
+            throw new Exception("Database connection failed: " . $e->getMessage());
         }
     }
 

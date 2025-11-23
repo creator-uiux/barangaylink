@@ -110,7 +110,7 @@ function createDocument() {
         $db = getDB();
 
         // Prepare statement
-        $stmt = $db->prepare("INSERT INTO documents (user_id, document_type, purpose, quantity, notes, status, created_at) VALUES (?, ?, ?, ?, ?, 'pending', datetime('now'))");
+        $stmt = $db->prepare("INSERT INTO documents (user_id, document_type, purpose, quantity, notes, status, created_at) VALUES (?, ?, ?, ?, ?, 'pending', NOW())");
         $stmt->execute([$userId, $documentType, $purpose, $quantity, $notes]);
 
         if ($stmt->rowCount() > 0) {
@@ -130,7 +130,7 @@ function createDocument() {
                 $admins = $adminStmt->fetchAll(PDO::FETCH_ASSOC);
 
                 foreach ($admins as $admin) {
-                    $notifStmt = $db->prepare("INSERT INTO notifications (user_id, type, title, message, related_type, related_id, created_at) VALUES (?, 'info', 'Document Request', ? , 'document', ?, datetime('now'))");
+                    $notifStmt = $db->prepare("INSERT INTO notifications (user_id, type, title, message, related_type, related_id, created_at) VALUES (?, 'info', 'Document Request', ? , 'document', ?, NOW())");
                     $notifStmt->execute([$admin['id'], "$fullName has requested a document.", $insertId]);
                 }
                 error_log("Notifications created for " . count($admins) . " admins");
@@ -195,11 +195,37 @@ function updateDocumentStatus() {
         }
         
         $db = getDB();
-        $stmt = $db->prepare("UPDATE documents SET status = ?, admin_notes = ?, updated_at = datetime('now') WHERE id = ?");
+        $stmt = $db->prepare("UPDATE documents SET status = ?, admin_notes = ?, updated_at = NOW() WHERE id = ?");
         $stmt->execute([$status, $adminNotes, $id]);
 
         if ($stmt->rowCount() > 0) {
             error_log("Document status updated successfully");
+
+            // Create notification for the user about status change
+            try {
+                // Get document and user info
+                $docStmt = $db->prepare("SELECT d.document_type, u.email FROM documents d JOIN users u ON d.user_id = u.id WHERE d.id = ?");
+                $docStmt->execute([$id]);
+                $docInfo = $docStmt->fetch(PDO::FETCH_ASSOC);
+
+                if ($docInfo) {
+                    $statusMessages = [
+                        'processing' => 'Your document request is now being processed.',
+                        'approved' => 'Your document request has been approved.',
+                        'rejected' => 'Your document request has been rejected.',
+                        'ready' => 'Your document is ready for pickup.',
+                        'claimed' => 'Your document has been claimed.'
+                    ];
+
+                    $message = isset($statusMessages[$status]) ? $statusMessages[$status] : "Your document status has been updated to: " . ucfirst($status);
+
+                    createNotification($docInfo['email'], 'info', 'Document Status Update', $message);
+                    error_log("Status update notification sent to user");
+                }
+            } catch (Exception $e) {
+                error_log("Failed to create status update notification: " . $e->getMessage());
+            }
+
             echo json_encode(['success' => true]);
         } else {
             error_log("Document not found");
@@ -225,7 +251,7 @@ function approveDocument() {
         }
         
         $db = getDB();
-        $stmt = $db->prepare("UPDATE documents SET status = 'approved', admin_notes = ?, updated_at = datetime('now') WHERE id = ?");
+        $stmt = $db->prepare("UPDATE documents SET status = 'approved', admin_notes = ?, updated_at = NOW() WHERE id = ?");
         $stmt->execute([$adminNotes, $id]);
 
         if ($stmt->rowCount() > 0) {
@@ -253,7 +279,7 @@ function rejectDocument() {
         }
         
         $db = getDB();
-        $stmt = $db->prepare("UPDATE documents SET status = 'rejected', admin_notes = ?, updated_at = datetime('now') WHERE id = ?");
+        $stmt = $db->prepare("UPDATE documents SET status = 'rejected', admin_notes = ?, updated_at = NOW() WHERE id = ?");
         $stmt->execute([$adminNotes, $id]);
 
         if ($stmt->rowCount() > 0) {

@@ -186,32 +186,19 @@ function handleSignup() {
 
     // Create new user
     $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
-    $stmt = $db->prepare("INSERT INTO users (first_name, middle_name, last_name, email, password, address, phone, role, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'resident', datetime('now'))");
+    $stmt = $db->prepare("INSERT INTO users (first_name, middle_name, last_name, email, password, address, phone, role, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'resident', NOW())");
     $stmt->execute([$firstName, $middleName, $lastName, $email, $hashedPassword, $address, $phone]);
 
     if ($stmt->rowCount() > 0) {
         $userId = $db->lastInsertId();
 
         // Create welcome notification
-        $notificationStmt = $db->prepare("INSERT INTO notifications (user_id, type, title, message, created_at) VALUES (?, 'success', 'Welcome to BarangayLink!', 'Your account has been created successfully. Welcome to our digital governance platform.', datetime('now'))");
+        $notificationStmt = $db->prepare("INSERT INTO notifications (user_id, type, title, message, created_at) VALUES (?, 'success', 'Welcome to BarangayLink!', 'Your account has been created successfully. Welcome to our digital governance platform.', NOW())");
         $notificationStmt->execute([$userId]);
-        
-        // Log user in
-        $_SESSION['auth'] = [
-            'isAuthenticated' => true,
-            'user' => [
-                'id' => $userId,
-                'email' => $email,
-                'firstName' => $firstName,
-                'middleName' => $middleName,
-                'lastName' => $lastName,
-                'name' => trim($firstName . ' ' . $middleName . ' ' . $lastName),
-                'role' => 'resident',
-                'address' => $address,
-                'phone' => $phone
-            ]
-        ];
-        header('Location: index.php?view=dashboard');
+
+        // Set success message for popup and redirect to landing page for sign-in
+        $_SESSION['signup_success_popup'] = 'You have been registered successfully, Login now!';
+        header('Location: index.php');
         exit;
     } else {
         $_SESSION['error'] = 'An error occurred during registration';

@@ -1,33 +1,27 @@
 <?php
 /**
  * Database Initialization Script
- * Creates SQLite database and tables if they don't exist
+ * Creates MySQL database and tables if they don't exist
  */
 
 require_once 'config.php';
 
 try {
-    // Ensure database directory exists
-    $dbDir = dirname(DB_PATH);
-    if (!is_dir($dbDir)) {
-        mkdir($dbDir, 0755, true);
-    }
-
-    // Check if database file exists
-    $dbExists = file_exists(DB_PATH);
-
-    if (!$dbExists) {
-        echo "Creating SQLite database...\n";
-    } else {
-        echo "Database already exists.\n";
-    }
-
-    // Connect to SQLite database (creates file if it doesn't exist)
-    $pdo = new PDO("sqlite:" . DB_PATH);
+    // Connect to MySQL server (without specifying database)
+    $pdo = new PDO("mysql:host=" . DB_HOST . ";charset=" . DB_CHARSET, DB_USER, DB_PASS);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+    // Create database if it doesn't exist
+    $pdo->exec("CREATE DATABASE IF NOT EXISTS `" . DB_NAME . "` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+
+    // Connect to the specific database
+    $pdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET, DB_USER, DB_PASS);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    echo "Connected to MySQL database successfully.\n";
+
     // Load and execute schema
-    $schemaPath = __DIR__ . '/database/schema_sqlite.sql';
+    $schemaPath = __DIR__ . '/database/schema.sql';
 
     if (!file_exists($schemaPath)) {
         echo "Error: Schema file not found at $schemaPath\n";
@@ -38,8 +32,21 @@ try {
 
     $schema = file_get_contents($schemaPath);
 
-    // Execute schema
-    $pdo->exec($schema);
+    // Split schema into individual statements and execute them
+    $statements = array_filter(array_map('trim', explode(';', $schema)));
+
+    foreach ($statements as $statement) {
+        if (!empty($statement) && !preg_match('/^--/', $statement)) {
+            try {
+                $pdo->exec($statement);
+            } catch (PDOException $e) {
+                // Skip errors for statements that might already exist (like CREATE DATABASE, USE, etc.)
+                if (!preg_match('/already exists|database exists/i', $e->getMessage())) {
+                    echo "Warning: " . $e->getMessage() . "\n";
+                }
+            }
+        }
+    }
 
     echo "Database schema imported successfully!\n";
 

@@ -427,6 +427,29 @@ if (!isAuthenticated() || $user['role'] !== 'admin') {
             return icons[type] || icons.info;
         }
 
+        function loadUnreadCount() {
+            fetch('/api/notifications.php?action=unread-count&user_email=' + encodeURIComponent(adminEmail))
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Admin unread count loaded:', data);
+                    if (data.success) {
+                        const badge = document.getElementById('notification-badge');
+                        const countSpan = document.getElementById('notification-count');
+                        const unreadCountSpan = document.getElementById('unread-count');
+
+                        if (data.count > 0) {
+                            badge.classList.remove('hidden');
+                            countSpan.textContent = data.count > 99 ? '99+' : data.count;
+                        } else {
+                            badge.classList.add('hidden');
+                        }
+
+                        unreadCountSpan.textContent = data.count;
+                    }
+                })
+                .catch(error => console.error('Error loading unread count:', error));
+        }
+
         function loadNotifications() {
             fetch('/api/notifications.php?action=list&user_email=' + encodeURIComponent(adminEmail))
                 .then(response => response.json())
@@ -551,11 +574,11 @@ if (!isAuthenticated() || $user['role'] !== 'admin') {
             .catch(error => console.error('Error marking all as read:', error));
         }
 
-        // Load notifications on page load
-        loadNotifications();
+        // Load unread count on page load
+        loadUnreadCount();
 
-        // Refresh notifications every 1 second for real-time updates
-        setInterval(loadNotifications, 1000);
+        // Refresh unread count every 30 seconds for real-time updates
+        setInterval(loadUnreadCount, 30000);
     </script>
 </body>
 </html>

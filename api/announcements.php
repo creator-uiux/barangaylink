@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     $db = getDB();
-    $stmt = $db->prepare("INSERT INTO announcements (title, content, created_at) VALUES (?, ?, datetime('now'))");
+    $stmt = $db->prepare("INSERT INTO announcements (title, content, created_at) VALUES (?, ?, NOW())");
     $stmt->execute([$title, $content]);
 
     if ($stmt->rowCount() > 0) {

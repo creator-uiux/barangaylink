@@ -82,7 +82,7 @@ function createUser() {
         $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
 
         // Insert user
-        $stmt = $db->prepare("INSERT INTO users (first_name, middle_name, last_name, email, password, role, address, phone, is_active, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, datetime('now'))");
+        $stmt = $db->prepare("INSERT INTO users (first_name, middle_name, last_name, email, password, role, address, phone, is_active, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, NOW())");
         $stmt->execute([$firstName, $middleName, $lastName, $email, $hashedPassword, $role, $address, $phone]);
 
         if ($stmt->rowCount() > 0) {
@@ -115,7 +115,7 @@ function updateUser() {
         $db = getDB();
 
         // Update user
-        $stmt = $db->prepare("UPDATE users SET first_name = ?, middle_name = ?, last_name = ?, role = ?, address = ?, phone = ?, updated_at = datetime('now') WHERE email = ?");
+        $stmt = $db->prepare("UPDATE users SET first_name = ?, middle_name = ?, last_name = ?, role = ?, address = ?, phone = ?, updated_at = NOW() WHERE email = ?");
         $stmt->execute([$firstName, $middleName, $lastName, $role, $address, $phone, $originalEmail]);
 
         if ($stmt->rowCount() > 0) {
@@ -156,7 +156,7 @@ function updateProfile() {
         }
 
         $db = getDB();
-        $stmt = $db->prepare("UPDATE users SET address = ?, phone = ?, updated_at = datetime('now') WHERE id = ?");
+        $stmt = $db->prepare("UPDATE users SET address = ?, phone = ?, updated_at = NOW() WHERE id = ?");
         $stmt->execute([$address, $phone, $userId]);
 
         if ($stmt->rowCount() > 0) {
@@ -206,7 +206,7 @@ function changePassword() {
 
         // Update password
         $hashedPassword = password_hash($newPassword, PASSWORD_BCRYPT);
-        $stmt = $db->prepare("UPDATE users SET password = ?, updated_at = datetime('now') WHERE id = ?");
+        $stmt = $db->prepare("UPDATE users SET password = ?, updated_at = NOW() WHERE id = ?");
         $stmt->execute([$hashedPassword, $userId]);
 
         if ($stmt->rowCount() > 0) {

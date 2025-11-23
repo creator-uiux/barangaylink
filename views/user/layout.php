@@ -417,6 +417,29 @@ if (!isAuthenticated() || !$user) {
             return icons[type] || icons.info;
         }
 
+        function loadUnreadCount() {
+            fetch('/api/notifications.php?action=unread-count&user_email=' + encodeURIComponent(userEmail))
+                .then(response => response.json())
+                .then(data => {
+                    console.log('User unread count loaded:', data);
+                    if (data.success) {
+                        const badge = document.getElementById('notification-badge');
+                        const countSpan = document.getElementById('notification-count');
+                        const unreadCountSpan = document.getElementById('unread-count');
+
+                        if (data.count > 0) {
+                            badge.classList.remove('hidden');
+                            countSpan.textContent = data.count > 99 ? '99+' : data.count;
+                        } else {
+                            badge.classList.add('hidden');
+                        }
+
+                        unreadCountSpan.textContent = data.count;
+                    }
+                })
+                .catch(error => console.error('Error loading unread count:', error));
+        }
+
         function loadNotifications() {
             fetch('/api/notifications.php?action=list&user_email=' + encodeURIComponent(userEmail))
                 .then(response => response.json())
@@ -505,16 +528,15 @@ if (!isAuthenticated() || !$user) {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({
-                    action: 'mark_read',
-                    notification_id: notificationId,
-                    user_email: userEmail
+                    action: 'mark-read',
+                    notification_id: notificationId
                 })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     // Update local state
-                    notifications = notifications.map(n => 
+                    notifications = notifications.map(n =>
                         n.id === notificationId ? { ...n, read: true } : n
                     );
                     updateNotificationUI();
@@ -528,8 +550,7 @@ if (!isAuthenticated() || !$user) {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({
-                    action: 'mark_all_read',
-                    user_email: userEmail
+                    action: 'mark-all-read'
                 })
             })
             .then(response => response.json())
@@ -543,11 +564,11 @@ if (!isAuthenticated() || !$user) {
             .catch(error => console.error('Error marking all as read:', error));
         }
 
-        // Load notifications on page load
-        loadNotifications();
+        // Load unread count on page load
+        loadUnreadCount();
 
-        // Refresh notifications every 30 seconds for real-time updates
-        setInterval(loadNotifications, 1000);
+        // Refresh unread count every 30 seconds for real-time updates
+        setInterval(loadUnreadCount, 30000);
     </script>
 </body>
 </html>

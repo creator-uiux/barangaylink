@@ -106,7 +106,7 @@ function createConcern() {
         $db = getDB();
 
         // Prepare statement
-        $stmt = $db->prepare("INSERT INTO concerns (user_id, category, subject, description, location, status, created_at) VALUES (?, ?, ?, ?, ?, 'pending', datetime('now'))");
+        $stmt = $db->prepare("INSERT INTO concerns (user_id, category, subject, description, location, status, created_at) VALUES (?, ?, ?, ?, ?, 'pending', NOW())");
         $stmt->execute([$userId, $category, $subject, $description, $location]);
 
         if ($stmt->rowCount() > 0) {
@@ -195,7 +195,7 @@ function updateConcernStatus() {
         error_log("Using status: '$dbStatus'");
 
         $db = getDB();
-        $stmt = $db->prepare("UPDATE concerns SET status = ?, admin_response = ?, updated_at = datetime('now') WHERE id = ?");
+        $stmt = $db->prepare("UPDATE concerns SET status = ?, admin_response = ?, updated_at = NOW() WHERE id = ?");
         $stmt->execute([$dbStatus, $response, $id]);
 
         if ($stmt->rowCount() > 0) {
@@ -237,7 +237,7 @@ function respondToConcern() {
 
         // Update both response and status if status is provided
         if (!empty($status)) {
-            $stmt = $db->prepare("UPDATE concerns SET status = ?, admin_response = ?, updated_at = datetime('now') WHERE id = ?");
+            $stmt = $db->prepare("UPDATE concerns SET status = ?, admin_response = ?, updated_at = NOW() WHERE id = ?");
             $stmt->execute([$dbStatus, $response, $id]);
         } else {
             $stmt = $db->prepare("UPDATE concerns SET admin_response = ?, updated_at = datetime('now') WHERE id = ?");

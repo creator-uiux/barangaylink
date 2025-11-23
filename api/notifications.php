@@ -170,7 +170,7 @@ function handleCreateNotification() {
 
     try {
         $sql = "INSERT INTO notifications (user_id, type, title, message, related_type, related_id, action_url, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))";
+                VALUES (?, ?, ?, ?, ?, ?, ?, NOW())";
 
         executeQuery($sql, [$userId, $type, $title, $message, $relatedType, $relatedId, $actionUrl]);
 

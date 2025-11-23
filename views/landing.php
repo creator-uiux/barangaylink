@@ -13,8 +13,104 @@
             0%, 100% { opacity: 1; }
             50% { opacity: .5; }
         }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.6); }
+        }
         .animate-spin { animation: spin 1s linear infinite; }
         .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        .animate-fade-in { animation: fadeIn 0.6s ease-out; }
+        .animate-float { animation: float 3s ease-in-out infinite; }
+        .animate-glow { animation: glow 2s ease-in-out infinite; }
+
+        /* Enhanced button hover effects */
+        .btn-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-gradient:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6b4190 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Modal backdrop with animated gradient */
+        .modal-backdrop {
+            background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(30,58,138,0.8) 50%, rgba(88,28,135,0.8) 100%);
+            backdrop-filter: blur(8px);
+        }
+
+        /* Custom responsive breakpoints for better mobile support */
+        @media (min-width: 475px) {
+            .xs\:px-4 { padding-left: 1rem; padding-right: 1rem; }
+            .xs\:py-6 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+            .xs\:py-14 { padding-top: 3.5rem; padding-bottom: 3.5rem; }
+            .xs\:py-16 { padding-top: 4rem; padding-bottom: 4rem; }
+            .xs\:py-20 { padding-top: 5rem; padding-bottom: 5rem; }
+            .xs\:mb-16 { margin-bottom: 4rem; }
+            .xs\:mb-20 { margin-bottom: 5rem; }
+            .xs\:mb-10 { margin-bottom: 2.5rem; }
+            .xs\:mb-12 { margin-bottom: 3rem; }
+            .xs\:mb-8 { margin-bottom: 2rem; }
+            .xs\:mb-6 { margin-bottom: 1.5rem; }
+            .xs\:mb-4 { margin-bottom: 1rem; }
+            .xs\:mt-12 { margin-top: 3rem; }
+            .xs\:mt-16 { margin-top: 4rem; }
+            .xs\:mt-8 { margin-top: 2rem; }
+            .xs\:mt-10 { margin-top: 2.5rem; }
+            .xs\:space-x-4 > :not([hidden]) ~ :not([hidden]) { margin-left: 1rem; margin-right: 0; }
+            .xs\:space-x-3 > :not([hidden]) ~ :not([hidden]) { margin-left: 0.75rem; margin-right: 0; }
+            .xs\:space-x-2 > :not([hidden]) ~ :not([hidden]) { margin-left: 0.5rem; margin-right: 0; }
+            .xs\:space-x-1 > :not([hidden]) ~ :not([hidden]) { margin-left: 0.25rem; margin-right: 0; }
+            .xs\:space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 1rem; }
+            .xs\:space-y-3 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.75rem; }
+            .xs\:space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.5rem; }
+            .xs\:gap-10 { gap: 2.5rem; }
+            .xs\:gap-8 { gap: 2rem; }
+            .xs\:w-12 { width: 3rem; }
+            .xs\:h-12 { height: 3rem; }
+            .xs\:w-7 { width: 1.75rem; }
+            .xs\:h-7 { height: 1.75rem; }
+            .xs\:w-5 { width: 1.25rem; }
+            .xs\:h-5 { height: 1.25rem; }
+            .xs\:w-2 { width: 0.5rem; }
+            .xs\:h-2 { height: 0.5rem; }
+            .xs\:w-9 { width: 2.25rem; }
+            .xs\:h-9 { height: 2.25rem; }
+            .xs\:w-6 { width: 1.5rem; }
+            .xs\:h-6 { height: 1.5rem; }
+            .xs\:w-3 { width: 0.75rem; }
+            .xs\:h-3 { height: 0.75rem; }
+            .xs\:text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+            .xs\:text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+            .xs\:text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+            .xs\:text-xs { font-size: 0.75rem; line-height: 1rem; }
+            .xs\:text-base { font-size: 1rem; line-height: 1.5rem; }
+            .xs\:px-4 { padding-left: 1rem; padding-right: 1rem; }
+            .xs\:py-2\.5 { padding-top: 0.625rem; padding-bottom: 0.625rem; }
+            .xs\:px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+            .xs\:px-8 { padding-left: 2rem; padding-right: 2rem; }
+            .xs\:px-10 { padding-left: 2.5rem; padding-right: 2.5rem; }
+            .xs\:py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+            .xs\:py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+            .xs\:py-5 { padding-top: 1.25rem; padding-bottom: 1.25rem; }
+            .xs\:rounded-xl { border-radius: 0.75rem; }
+            .xs\:rounded-2xl { border-radius: 1rem; }
+            .xs\:mt-1 { margin-top: 0.25rem; }
+            .xs\:mt-0\.5 { margin-top: 0.125rem; }
+            .xs\:pt-8 { padding-top: 2rem; }
+            .xs\:pt-6 { padding-top: 1.5rem; }
+            .xs\:mb-3 { margin-bottom: 0.75rem; }
+            .xs\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
     </style>
 </head>
 <body>
@@ -28,37 +124,37 @@
 
         <!-- Header -->
         <header class="bg-white/80 backdrop-blur-lg border-b border-blue-200/50 sticky top-0 z-50 shadow-lg">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center py-6">
-                    <div class="flex items-center space-x-4">
+            <div class="max-w-7xl mx-auto px-2 xs:px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center py-4 xs:py-6">
+                    <div class="flex items-center space-x-2 xs:space-x-4">
                         <div class="relative">
-                            <div class="w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl flex items-center justify-center shadow-xl">
-                                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-10 h-10 xs:w-12 xs:h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl flex items-center justify-center shadow-xl">
+                                <svg class="w-6 h-6 xs:w-7 xs:h-7 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                                 </svg>
                             </div>
-                            <div class="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                                <div class="w-2 h-2 bg-white rounded-full"></div>
+                            <div class="absolute -top-1 -right-1 w-4 h-4 xs:w-5 xs:h-5 sm:w-6 sm:h-6 bg-green-500 rounded-full flex items-center justify-center">
+                                <div class="w-1.5 h-1.5 xs:w-2 xs:h-2 bg-white rounded-full"></div>
                             </div>
                         </div>
                         <div>
-                            <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-900 to-blue-700 bg-clip-text text-transparent">BarangayLink</h1>
-                            <div class="flex items-center space-x-2">
-                                <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                                <p class="text-sm text-blue-600 font-medium">Digital Governance Platform</p>
+                            <h1 class="text-lg xs:text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-900 to-blue-700 bg-clip-text text-transparent">BarangayLink</h1>
+                            <div class="flex items-center space-x-1 xs:space-x-2">
+                                <div class="w-1.5 h-1.5 xs:w-2 xs:h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                                <p class="text-xs xs:text-sm text-blue-600 font-medium">Digital Governance Platform</p>
                             </div>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2 xs:space-x-4">
                         <button
                             onclick="showLoginModal()"
-                            class="px-6 py-3 text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200 font-medium hover:shadow-md"
+                            class="px-3 py-2 xs:px-4 xs:py-2.5 sm:px-6 sm:py-3 text-blue-600 hover:bg-blue-50 rounded-lg xs:rounded-xl transition-all duration-200 font-medium hover:shadow-md text-sm xs:text-base"
                         >
                             Sign In
                         </button>
                         <button
                             onclick="showSignupModal()"
-                            class="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
+                            class="px-4 py-2 xs:px-6 xs:py-2.5 sm:px-8 sm:py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg xs:rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:scale-105 text-sm xs:text-base"
                         >
                             Get Started
                         </button>
@@ -68,37 +164,37 @@
         </header>
 
         <!-- Hero Section -->
-        <section class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-            <div class="text-center max-w-4xl mx-auto mb-20">
-                <div class="mb-8">
-                    <div class="inline-flex items-center space-x-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
-                        <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+        <section class="relative max-w-7xl mx-auto px-2 xs:px-4 sm:px-6 lg:px-8 py-12 xs:py-16 sm:py-20 lg:py-24">
+            <div class="text-center max-w-4xl mx-auto mb-12 xs:mb-16 sm:mb-20">
+                <div class="mb-6 xs:mb-8">
+                    <div class="inline-flex items-center space-x-1 xs:space-x-2 bg-blue-100 text-blue-700 px-3 py-1.5 xs:px-4 xs:py-2 rounded-full text-xs xs:text-sm font-medium mb-4 xs:mb-6">
+                        <div class="w-1.5 h-1.5 xs:w-2 xs:h-2 bg-blue-500 rounded-full animate-pulse"></div>
                         <span>Digital Transformation for Local Governance</span>
                     </div>
                 </div>
-                <h2 class="text-5xl lg:text-6xl font-bold bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-700 bg-clip-text text-transparent mb-6 leading-tight">
-                    Connecting Communities Through 
+                <h2 class="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-bold bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-700 bg-clip-text text-transparent mb-4 xs:mb-6 leading-tight">
+                    Connecting Communities Through
                     <span class="block bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Smart Governance</span>
                 </h2>
-                <p class="text-xl text-gray-600 mb-12 leading-relaxed">
-                    Experience seamless barangay services with our comprehensive digital platform. 
+                <p class="text-base xs:text-lg sm:text-xl text-gray-600 mb-8 xs:mb-10 sm:mb-12 leading-relaxed px-2 xs:px-0">
+                    Experience seamless barangay services with our comprehensive digital platform.
                     From document requests to community updates and emergency alerts - everything you need in one place.
                 </p>
-                <div class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+                <div class="flex flex-col sm:flex-row items-center justify-center space-y-3 xs:space-y-4 sm:space-y-0 sm:space-x-6">
                     <button
                         onclick="showSignupModal()"
-                        class="px-10 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 font-semibold shadow-xl hover:shadow-2xl transform hover:scale-105 text-lg"
+                        class="w-full sm:w-auto px-6 xs:px-8 sm:px-10 py-3 xs:py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl xs:rounded-2xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 font-semibold shadow-xl hover:shadow-2xl transform hover:scale-105 text-base xs:text-lg"
                     >
-                        <div class="flex items-center space-x-3">
+                        <div class="flex items-center justify-center space-x-2 xs:space-x-3">
                             <span>Get Started Today</span>
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 xs:w-5 xs:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
                             </svg>
                         </div>
                     </button>
                     <button
                         onclick="showLoginModal()"
-                        class="px-8 py-4 bg-white text-blue-600 border-2 border-blue-200 rounded-2xl hover:bg-blue-50 hover:border-blue-300 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl"
+                        class="w-full sm:w-auto px-6 xs:px-8 py-3 xs:py-4 bg-white text-blue-600 border-2 border-blue-200 rounded-xl xs:rounded-2xl hover:bg-blue-50 hover:border-blue-300 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl text-base xs:text-lg"
                     >
                         Sign In to Continue
                     </button>
@@ -114,51 +210,51 @@
                 
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <!-- Service Card 1 -->
-                    <div class="group bg-white/80 backdrop-blur-lg rounded-2xl p-8 border border-gray-200/50 hover:border-blue-300/50 hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
-                        <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg group-hover:shadow-xl transition-all duration-300">
-                            <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="group bg-white/80 backdrop-blur-lg rounded-xl xs:rounded-2xl p-4 xs:p-6 sm:p-8 border border-gray-200/50 hover:border-blue-300/50 hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                        <div class="w-12 h-12 xs:w-14 xs:h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mb-4 xs:mb-6 shadow-lg group-hover:shadow-xl transition-all duration-300">
+                            <svg class="w-6 h-6 xs:w-8 xs:h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-800 mb-3">Document Requests</h3>
-                        <p class="text-gray-600 leading-relaxed">Request barangay clearance, indigency certificates, and other official documents online with fast processing.</p>
-                        <div class="mt-6 flex items-center text-blue-600 group-hover:text-blue-700 transition-colors">
-                            <span class="text-sm font-medium">Learn more</span>
-                            <svg class="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <h3 class="text-lg xs:text-xl font-bold text-gray-800 mb-2 xs:mb-3">Document Requests</h3>
+                        <p class="text-sm xs:text-base text-gray-600 leading-relaxed">Request barangay clearance, indigency certificates, and other official documents online with fast processing.</p>
+                        <div class="mt-4 xs:mt-6 flex items-center text-blue-600 group-hover:text-blue-700 transition-colors">
+                            <span class="text-xs xs:text-sm font-medium">Learn more</span>
+                            <svg class="w-3 h-3 xs:w-4 xs:h-4 ml-1 xs:ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                             </svg>
                         </div>
                     </div>
 
                     <!-- Service Card 2 -->
-                    <div class="group bg-white/80 backdrop-blur-lg rounded-2xl p-8 border border-gray-200/50 hover:border-blue-300/50 hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
-                        <div class="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg group-hover:shadow-xl transition-all duration-300">
-                            <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="group bg-white/80 backdrop-blur-lg rounded-xl xs:rounded-2xl p-4 xs:p-6 sm:p-8 border border-gray-200/50 hover:border-blue-300/50 hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                        <div class="w-12 h-12 xs:w-14 xs:h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mb-4 xs:mb-6 shadow-lg group-hover:shadow-xl transition-all duration-300">
+                            <svg class="w-6 h-6 xs:w-8 xs:h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-800 mb-3">Submit Concerns</h3>
-                        <p class="text-gray-600 leading-relaxed">Report community issues and track their resolution status in real-time with detailed updates.</p>
-                        <div class="mt-6 flex items-center text-blue-600 group-hover:text-blue-700 transition-colors">
-                            <span class="text-sm font-medium">Learn more</span>
-                            <svg class="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <h3 class="text-lg xs:text-xl font-bold text-gray-800 mb-2 xs:mb-3">Submit Concerns</h3>
+                        <p class="text-sm xs:text-base text-gray-600 leading-relaxed">Report community issues and track their resolution status in real-time with detailed updates.</p>
+                        <div class="mt-4 xs:mt-6 flex items-center text-blue-600 group-hover:text-blue-700 transition-colors">
+                            <span class="text-xs xs:text-sm font-medium">Learn more</span>
+                            <svg class="w-3 h-3 xs:w-4 xs:h-4 ml-1 xs:ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                             </svg>
                         </div>
                     </div>
 
                     <!-- Service Card 3 -->
-                    <div class="group bg-white/80 backdrop-blur-lg rounded-2xl p-8 border border-gray-200/50 hover:border-blue-300/50 hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
-                        <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg group-hover:shadow-xl transition-all duration-300">
-                            <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="group bg-white/80 backdrop-blur-lg rounded-xl xs:rounded-2xl p-4 xs:p-6 sm:p-8 border border-gray-200/50 hover:border-blue-300/50 hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                        <div class="w-12 h-12 xs:w-14 xs:h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mb-4 xs:mb-6 shadow-lg group-hover:shadow-xl transition-all duration-300">
+                            <svg class="w-6 h-6 xs:w-8 xs:h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-800 mb-3">Events & Announcements</h3>
-                        <p class="text-gray-600 leading-relaxed">Stay updated with the latest community events, news, and programs through instant notifications.</p>
-                        <div class="mt-6 flex items-center text-blue-600 group-hover:text-blue-700 transition-colors">
-                            <span class="text-sm font-medium">Learn more</span>
-                            <svg class="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <h3 class="text-lg xs:text-xl font-bold text-gray-800 mb-2 xs:mb-3">Events & Announcements</h3>
+                        <p class="text-sm xs:text-base text-gray-600 leading-relaxed">Stay updated with the latest community events, news, and programs through instant notifications.</p>
+                        <div class="mt-4 xs:mt-6 flex items-center text-blue-600 group-hover:text-blue-700 transition-colors">
+                            <span class="text-xs xs:text-sm font-medium">Learn more</span>
+                            <svg class="w-3 h-3 xs:w-4 xs:h-4 ml-1 xs:ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                             </svg>
                         </div>
@@ -284,60 +380,60 @@
         </section>
 
         <!-- CTA Section -->
-        <section class="relative py-24 mt-20 overflow-hidden">
+        <section class="relative py-16 xs:py-20 sm:py-24 mt-12 xs:mt-16 sm:mt-20 overflow-hidden">
             <div class="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-700 to-purple-800"></div>
             <div class="absolute inset-0">
-                <div class="absolute top-0 left-1/4 w-72 h-72 bg-white/10 rounded-full blur-3xl"></div>
-                <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
+                <div class="absolute top-0 left-1/4 w-48 h-48 xs:w-64 xs:h-64 sm:w-72 sm:h-72 bg-white/10 rounded-full blur-3xl"></div>
+                <div class="absolute bottom-0 right-1/4 w-64 h-64 xs:w-80 xs:h-80 sm:w-96 sm:h-96 bg-white/5 rounded-full blur-3xl"></div>
             </div>
-            
-            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+
+            <div class="relative max-w-7xl mx-auto px-2 xs:px-4 sm:px-6 lg:px-8 text-center">
                 <div class="max-w-3xl mx-auto">
-                    <h3 class="text-4xl lg:text-5xl font-bold text-white mb-6">
-                        Ready to Join Your 
+                    <h3 class="text-2xl xs:text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 xs:mb-6">
+                        Ready to Join Your
                         <span class="block bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">Digital Barangay?</span>
                     </h3>
-                    <p class="text-xl text-blue-100 mb-12 leading-relaxed">
-                        Transform your community experience with our comprehensive digital governance platform. 
+                    <p class="text-base xs:text-lg sm:text-xl text-blue-100 mb-8 xs:mb-10 sm:mb-12 leading-relaxed px-2 xs:px-0">
+                        Transform your community experience with our comprehensive digital governance platform.
                         Join thousands of residents already using BarangayLink for seamless government services.
                     </p>
-                    
-                    <div class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+
+                    <div class="flex flex-col sm:flex-row items-center justify-center space-y-3 xs:space-y-4 sm:space-y-0 sm:space-x-6">
                         <button
                             onclick="showSignupModal()"
-                            class="px-12 py-5 bg-white text-blue-600 rounded-2xl hover:bg-blue-50 transition-all duration-300 font-bold text-lg shadow-2xl hover:shadow-white/25 transform hover:scale-105"
+                            class="w-full sm:w-auto px-8 xs:px-10 sm:px-12 py-3 xs:py-4 sm:py-5 bg-white text-blue-600 rounded-xl xs:rounded-2xl hover:bg-blue-50 transition-all duration-300 font-bold text-base xs:text-lg shadow-2xl hover:shadow-white/25 transform hover:scale-105"
                         >
-                            <div class="flex items-center space-x-3">
+                            <div class="flex items-center justify-center space-x-2 xs:space-x-3">
                                 <span>Start Your Journey</span>
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-4 h-4 xs:w-5 xs:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
                                 </svg>
                             </div>
                         </button>
-                        
+
                         <button
                             onclick="showLoginModal()"
-                            class="px-10 py-5 bg-white/10 text-white border-2 border-white/30 rounded-2xl hover:bg-white/20 hover:border-white/50 transition-all duration-300 font-semibold backdrop-blur-lg"
+                            class="w-full sm:w-auto px-6 xs:px-8 sm:px-10 py-3 xs:py-4 sm:py-5 bg-white/10 text-white border-2 border-white/30 rounded-xl xs:rounded-2xl hover:bg-white/20 hover:border-white/50 transition-all duration-300 font-semibold backdrop-blur-lg text-base xs:text-lg"
                         >
                             I Already Have an Account
                         </button>
                     </div>
-                    
-                    <div class="mt-12 flex items-center justify-center space-x-8 text-blue-200 text-sm">
-                        <div class="flex items-center space-x-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                    <div class="mt-8 xs:mt-10 sm:mt-12 flex flex-col xs:flex-row items-center justify-center space-y-2 xs:space-y-0 xs:space-x-4 sm:space-x-6 lg:space-x-8 text-blue-200 text-xs xs:text-sm">
+                        <div class="flex items-center space-x-1 xs:space-x-2">
+                            <svg class="w-3 h-3 xs:w-4 xs:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>
                             <span>Free to Use</span>
                         </div>
-                        <div class="flex items-center space-x-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="flex items-center space-x-1 xs:space-x-2">
+                            <svg class="w-3 h-3 xs:w-4 xs:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>
                             <span>Secure & Private</span>
                         </div>
-                        <div class="flex items-center space-x-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="flex items-center space-x-1 xs:space-x-2">
+                            <svg class="w-3 h-3 xs:w-4 xs:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>
                             <span>24/7 Access</span>

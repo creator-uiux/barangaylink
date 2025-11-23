@@ -55,21 +55,21 @@ $saved = isset($_GET['saved']) && $_GET['saved'] === '1';
         </div>
     </div>
 
-    <!-- Success Message - EXACT MATCH TSX Lines 150-157 -->
-    <?php if ($saved): ?>
-        <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center space-x-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-            </svg>
-            <span>Profile updated successfully!</span>
-        </div>
-        <script>
-            // Auto-hide after 3 seconds
-            setTimeout(() => {
-                window.location.href = '?view=profile';
-            }, 3000);
-        </script>
-    <?php endif; ?>
+    <!-- Success Message -->
+    <div id="successMessage" class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center space-x-2" style="display: none;">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+        <span>Profile updated successfully!</span>
+    </div>
+
+    <!-- Error Message -->
+    <div id="errorMessage" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center space-x-2" style="display: none;">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span id="errorText">An error occurred while updating your profile.</span>
+    </div>
 
     <!-- Profile Information - EXACT MATCH TSX Lines 160-308 -->
     <div class="bg-white rounded-lg p-6 border border-gray-200">
@@ -105,10 +105,6 @@ $saved = isset($_GET['saved']) && $_GET['saved'] === '1';
             </div>
         </div>
 
-    <form id="profileForm" method="POST" action="../api/users.php">
-            <input type="hidden" name="action" value="update_profile">
-            <input type="hidden" name="user_id" value="<?php echo $userId; ?>">
-            
             <div class="grid md:grid-cols-2 gap-6">
                 <!-- First Name - EXACT MATCH TSX Lines 204-216 -->
                 <div>
@@ -238,7 +234,6 @@ $saved = isset($_GET['saved']) && $_GET['saved'] === '1';
                     </p>
                 </div>
             </div>
-        </form>
     </div>
 
     <!-- Account Statistics - EXACT MATCH TSX Lines 311-334 -->
@@ -332,24 +327,92 @@ function cancelEdit() {
 function saveProfile() {
     const phone = document.getElementById('phoneInput').value;
     const address = document.getElementById('addressInput').value;
-    
+
     // Validate phone
     if (phone) {
         const phoneRegex = /^(\+\d{1,3}[- ]?)?\d{10,}$/;
         if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
-            alert('Please enter a valid phone number (e.g., +63 912 345 6789)');
+            showError('Please enter a valid phone number (e.g., +63 912 345 6789)');
             return;
         }
     }
-    
+
     // Validate address
     if (address && address.trim().length < 10) {
-        alert('Please provide a complete address (at least 10 characters)');
+        showError('Please provide a complete address (at least 10 characters)');
         return;
     }
-    
-    // Submit form
-    document.getElementById('profileForm').submit();
+
+    // Show loading state
+    const saveBtn = document.getElementById('saveBtn');
+    const originalText = saveBtn.innerHTML;
+    saveBtn.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg><span>Saving...</span>';
+    saveBtn.disabled = true;
+
+    // Prepare form data
+    const formData = new FormData();
+    formData.append('action', 'update_profile');
+    formData.append('user_id', '<?php echo $userId; ?>');
+    formData.append('phone', phone);
+    formData.append('address', address);
+
+    // Send AJAX request
+    fetch('../api/users.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update display fields with new values
+            document.querySelector('.phone-display p').textContent = phone || 'Not provided';
+            document.querySelector('.address-display p').textContent = address || 'Not provided';
+
+            // Update input values
+            document.getElementById('phoneInput').value = phone;
+            document.getElementById('addressInput').value = address;
+
+            // Show success message
+            showSuccess();
+
+            // Exit edit mode after a short delay
+            setTimeout(() => {
+                cancelEdit();
+            }, 1500);
+        } else {
+            showError(data.error || 'Failed to update profile');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showError('An error occurred while updating your profile');
+    })
+    .finally(() => {
+        // Reset button state
+        saveBtn.innerHTML = originalText;
+        saveBtn.disabled = false;
+    });
+}
+
+function showSuccess() {
+    document.getElementById('successMessage').style.display = 'flex';
+    document.getElementById('errorMessage').style.display = 'none';
+
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+        document.getElementById('successMessage').style.display = 'none';
+    }, 3000);
+}
+
+function showError(message) {
+    document.getElementById('errorText').textContent = message;
+    document.getElementById('errorMessage').style.display = 'flex';
+    document.getElementById('successMessage').style.display = 'none';
+
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        document.getElementById('errorMessage').style.display = 'none';
+    }, 5000);
 }
 
 function downloadData() {
