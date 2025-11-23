@@ -40,6 +40,7 @@ class ComposerStaticInit017bbb780286a53741bfc62829974426
         'T' =>
         array (
             'TijsVerkoyen\\CssToInlineStyles\\' => 31,
+            'Tests\\' => 6,
             'Termwind\\' => 9,
         ),
         'S' =>
@@ -157,6 +158,10 @@ class ComposerStaticInit017bbb780286a53741bfc62829974426
         'TijsVerkoyen\\CssToInlineStyles\\' =>
         array (
             0 => __DIR__ . '/..' . '/tijsverkoyen/css-to-inline-styles/src',
+        ),
+        'Tests\\' =>
+        array (
+            0 => __DIR__ . '/../..' . '/tests',
         ),
         'Termwind\\' =>
         array (
@@ -420,6 +425,21 @@ class ComposerStaticInit017bbb780286a53741bfc62829974426
     );
 
     public static $classMap = array (
+        'App\\Http\\Controllers\\AnnouncementController' => __DIR__ . '/../..' . '/app/Http/Controllers/AnnouncementController.php',
+        'App\\Http\\Controllers\\AuthController' => __DIR__ . '/../..' . '/app/Http/Controllers/AuthController.php',
+        'App\\Http\\Controllers\\BarangayOfficialController' => __DIR__ . '/../..' . '/app/Http/Controllers/BarangayOfficialController.php',
+        'App\\Http\\Controllers\\DocumentController' => __DIR__ . '/../..' . '/app/Http/Controllers/DocumentController.php',
+        'App\\Http\\Controllers\\EventController' => __DIR__ . '/../..' . '/app/Http/Controllers/EventController.php',
+        'App\\Http\\Controllers\\NotificationController' => __DIR__ . '/../..' . '/app/Http/Controllers/NotificationController.php',
+        'App\\Http\\Controllers\\UserController' => __DIR__ . '/../..' . '/app/Http/Controllers/UserController.php',
+        'App\\Models\\ActivityLog' => __DIR__ . '/../..' . '/app/Models/ActivityLog.php',
+        'App\\Models\\Announcement' => __DIR__ . '/../..' . '/app/Models/Announcement.php',
+        'App\\Models\\BarangayOfficial' => __DIR__ . '/../..' . '/app/Models/BarangayOfficial.php',
+        'App\\Models\\Concern' => __DIR__ . '/../..' . '/app/Models/Concern.php',
+        'App\\Models\\Document' => __DIR__ . '/../..' . '/app/Models/Document.php',
+        'App\\Models\\EmergencyAlert' => __DIR__ . '/../..' . '/app/Models/EmergencyAlert.php',
+        'App\\Models\\Notification' => __DIR__ . '/../..' . '/app/Models/Notification.php',
+        'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
         'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
         'Brick\\Math\\BigDecimal' => __DIR__ . '/..' . '/brick/math/src/BigDecimal.php',
         'Brick\\Math\\BigInteger' => __DIR__ . '/..' . '/brick/math/src/BigInteger.php',

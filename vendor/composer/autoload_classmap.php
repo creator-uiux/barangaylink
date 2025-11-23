@@ -6,6 +6,21 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'App\\Http\\Controllers\\AnnouncementController' => $baseDir . '/app/Http/Controllers/AnnouncementController.php',
+    'App\\Http\\Controllers\\AuthController' => $baseDir . '/app/Http/Controllers/AuthController.php',
+    'App\\Http\\Controllers\\BarangayOfficialController' => $baseDir . '/app/Http/Controllers/BarangayOfficialController.php',
+    'App\\Http\\Controllers\\DocumentController' => $baseDir . '/app/Http/Controllers/DocumentController.php',
+    'App\\Http\\Controllers\\EventController' => $baseDir . '/app/Http/Controllers/EventController.php',
+    'App\\Http\\Controllers\\NotificationController' => $baseDir . '/app/Http/Controllers/NotificationController.php',
+    'App\\Http\\Controllers\\UserController' => $baseDir . '/app/Http/Controllers/UserController.php',
+    'App\\Models\\ActivityLog' => $baseDir . '/app/Models/ActivityLog.php',
+    'App\\Models\\Announcement' => $baseDir . '/app/Models/Announcement.php',
+    'App\\Models\\BarangayOfficial' => $baseDir . '/app/Models/BarangayOfficial.php',
+    'App\\Models\\Concern' => $baseDir . '/app/Models/Concern.php',
+    'App\\Models\\Document' => $baseDir . '/app/Models/Document.php',
+    'App\\Models\\EmergencyAlert' => $baseDir . '/app/Models/EmergencyAlert.php',
+    'App\\Models\\Notification' => $baseDir . '/app/Models/Notification.php',
+    'App\\Models\\User' => $baseDir . '/app/Models/User.php',
     'Attribute' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
     'Brick\\Math\\BigDecimal' => $vendorDir . '/brick/math/src/BigDecimal.php',
     'Brick\\Math\\BigInteger' => $vendorDir . '/brick/math/src/BigInteger.php',

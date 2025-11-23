@@ -7,7 +7,7 @@
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'dev' => false,
+        'dev' => true,
     ),
     'versions' => array(
         'barangaylink/php-app' => array(
