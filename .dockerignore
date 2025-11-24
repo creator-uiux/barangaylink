@@ -14,3 +14,7 @@ coverage
 *.swp
 *.swo
 *~
+laravel-temp
+database/*.db
+database/*.sql
+TODO.md
