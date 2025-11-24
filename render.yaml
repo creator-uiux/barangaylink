@@ -9,7 +9,7 @@ services:
       - key: APP_KEY
         generateValue: true
       - key: DB_CONNECTION
-        value: sqlite
+        value: pgsql
       - key: APP_DEBUG
         value: false
       - key: APP_URL
@@ -18,7 +18,3 @@ services:
           name: barangaylink
           property: host
     healthCheckPath: /
-    disk:
-      name: sqlite-data
-      mountPath: /var/www/html/database
-      sizeGB: 1

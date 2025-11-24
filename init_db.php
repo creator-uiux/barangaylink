@@ -37,7 +37,7 @@ try {
 
     $schema = file_get_contents($schemaPath);
 
-    // For PostgreSQL, we need to handle the schema differently
+    // Execute schema based on database type
     if (DB_TYPE === 'pgsql') {
         // Split schema into individual statements (PostgreSQL uses ; as delimiter)
         $statements = array_filter(array_map('trim', explode(';', $schema)));
@@ -49,6 +49,22 @@ try {
                 } catch (PDOException $e) {
                     // Skip errors for statements that might already exist
                     if (!preg_match('/already exists|does not exist/i', $e->getMessage())) {
+                        echo "Warning: " . $e->getMessage() . "\n";
+                    }
+                }
+            }
+        }
+    } elseif (DB_TYPE === 'sqlite') {
+        // SQLite handling - similar to PostgreSQL but with different error patterns
+        $statements = array_filter(array_map('trim', explode(';', $schema)));
+
+        foreach ($statements as $statement) {
+            if (!empty($statement) && !preg_match('/^--/', $statement)) {
+                try {
+                    $pdo->exec($statement);
+                } catch (PDOException $e) {
+                    // Skip errors for statements that might already exist
+                    if (!preg_match('/already exists|table.*already exists/i', $e->getMessage())) {
                         echo "Warning: " . $e->getMessage() . "\n";
                     }
                 }

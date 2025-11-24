@@ -20,8 +20,9 @@ define('DEFAULT_TIMEZONE', getenv('DEFAULT_TIMEZONE') ?: 'Asia/Manila');
 date_default_timezone_set(DEFAULT_TIMEZONE);
 
 // Database Configuration
-define('DB_TYPE', 'pgsql');
-define('DB_PATH', __DIR__ . '/database/barangaylink.db'); // Kept for backward compatibility
+// Use PostgreSQL on Render.com, SQLite for local development
+define('DB_TYPE', getenv('PGHOST') ? 'pgsql' : 'sqlite');
+define('DB_PATH', __DIR__ . '/database/barangaylink.db'); // For SQLite
 define('DB_HOST', getenv('PGHOST') ?: getenv('MYSQLHOST') ?: 'localhost');
 define('DB_PORT', getenv('PGPORT') ?: getenv('MYSQLPORT') ?: '5432');
 define('DB_NAME', getenv('PGDATABASE') ?: getenv('MYSQLDATABASE') ?: 'barangaylink');
