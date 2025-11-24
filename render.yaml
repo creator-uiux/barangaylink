@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: barangaylink
+    runtime: docker
+    plan: starter
+    buildCommand: docker build -t barangaylink .
+    startCommand: docker run -p $PORT:80 barangaylink
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: barangaylink-db
+          property: connectionString
+      - key: APP_URL
+        fromService:
+          type: web
+          name: barangaylink
+          property: host
+    healthCheckPath: /
+    autoDeploy: true
+
+databases:
+  - name: barangaylink-db
+    databaseName: barangaylink
+    user: barangaylink_user
+    plan: starter
