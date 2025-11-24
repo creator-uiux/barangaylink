@@ -39,7 +39,6 @@ class ComposerStaticInit017bbb780286a53741bfc62829974426
         'T' =>
         array (
             'TijsVerkoyen\\CssToInlineStyles\\' => 31,
-            'Tests\\' => 6,
             'Termwind\\' => 9,
         ),
         'S' =>
@@ -157,10 +156,6 @@ class ComposerStaticInit017bbb780286a53741bfc62829974426
         'TijsVerkoyen\\CssToInlineStyles\\' =>
         array (
             0 => __DIR__ . '/..' . '/tijsverkoyen/css-to-inline-styles/src',
-        ),
-        'Tests\\' =>
-        array (
-            0 => __DIR__ . '/../..' . '/tests',
         ),
         'Termwind\\' =>
         array (
@@ -424,6 +419,7 @@ class ComposerStaticInit017bbb780286a53741bfc62829974426
     );
 
     public static $classMap = array (
+        'App\\Console\\Kernel' => __DIR__ . '/../..' . '/app/Console/Kernel.php',
         'App\\Http\\Controllers\\AnnouncementController' => __DIR__ . '/../..' . '/app/Http/Controllers/AnnouncementController.php',
         'App\\Http\\Controllers\\AuthController' => __DIR__ . '/../..' . '/app/Http/Controllers/AuthController.php',
         'App\\Http\\Controllers\\BarangayOfficialController' => __DIR__ . '/../..' . '/app/Http/Controllers/BarangayOfficialController.php',
