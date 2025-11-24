@@ -2,7 +2,7 @@
 
 # Wait for database to be ready
 echo "Waiting for database to be ready..."
-while ! mysqladmin ping -h"$MYSQLHOST" -P"$MYSQLPORT" -u"$MYSQLUSER" -p"$MYSQLPASSWORD" --silent; do
+while ! php check_db.php; do
     echo "Database not ready, waiting..."
     sleep 2
 done
