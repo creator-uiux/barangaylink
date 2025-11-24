@@ -23,9 +23,6 @@ RUN chmod +x start.sh && \
     mkdir -p storage bootstrap/cache && \
     chmod -R 755 storage bootstrap/cache
 
-RUN echo "Listen \${PORT:-80}" > /etc/apache2/ports.conf && \
-    sed -i 's/80/\${PORT:-80}/g' /etc/apache2/sites-available/000-default.conf
-
 EXPOSE 80
 
 CMD ["./start.sh"]
