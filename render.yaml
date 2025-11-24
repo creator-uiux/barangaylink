@@ -18,3 +18,5 @@ services:
           name: barangaylink
           property: host
     healthCheckPath: /
+    dependsOn:
+      - barangaylink-db

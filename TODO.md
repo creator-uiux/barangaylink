@@ -15,3 +15,9 @@
 
 ## Migration Complete ✅
 The application now uses PostgreSQL exclusively for both local development and production deployment on Render.com.
+
+## Build Fixes Applied
+- [x] Removed pdo_mysql from Dockerfile (PostgreSQL-only)
+- [x] Added retry logic to start.sh for database initialization
+- [x] Added PostgreSQL service to render.yaml
+- [x] Added dependency between web service and PostgreSQL service

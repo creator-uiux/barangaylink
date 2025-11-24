@@ -12,12 +12,23 @@ fi
 # Initialize database if needed
 if [ ! -f /var/www/html/.db_initialized ]; then
     echo "Initializing database..."
-    php init_db.php
-    if [ $? -eq 0 ]; then
-        touch /var/www/html/.db_initialized
-        echo "Database initialized successfully"
-    else
-        echo "Database initialization failed"
+    # Retry database initialization up to 5 times
+    for i in {1..5}; do
+        echo "Attempt $i of 5..."
+        php init_db.php
+        if [ $? -eq 0 ]; then
+            touch /var/www/html/.db_initialized
+            echo "Database initialized successfully"
+            break
+        else
+            echo "Database initialization attempt $i failed, retrying in 5 seconds..."
+            sleep 5
+        fi
+    done
+
+    # Check if initialization was successful
+    if [ ! -f /var/www/html/.db_initialized ]; then
+        echo "Database initialization failed after 5 attempts"
         exit 1
     fi
 else
