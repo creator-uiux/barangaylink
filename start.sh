@@ -16,5 +16,8 @@ php artisan migrate --force
 sed -i "s/80/$PORT/g" /etc/apache2/ports.conf
 sed -i "s/:80/:$PORT/g" /etc/apache2/sites-available/000-default.conf
 
+# Set ServerName to suppress AH00558 warning
+echo "ServerName localhost" >> /etc/apache2/apache2.conf
+
 # Start Apache in foreground
 apache2-foreground

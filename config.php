@@ -20,7 +20,7 @@ define('DEFAULT_TIMEZONE', getenv('DEFAULT_TIMEZONE') ?: 'Asia/Manila');
 date_default_timezone_set(DEFAULT_TIMEZONE);
 
 // Database Configuration
-define('DB_TYPE', 'mysql');
+define('DB_TYPE', 'sqlite');
 define('DB_PATH', __DIR__ . '/database/barangaylink.db');
 define('DB_HOST', getenv('MYSQLHOST') ?: 'localhost');
 define('DB_PORT', getenv('MYSQLPORT') ?: '3306');
