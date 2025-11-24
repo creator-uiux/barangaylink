@@ -20,14 +20,14 @@ define('DEFAULT_TIMEZONE', getenv('DEFAULT_TIMEZONE') ?: 'Asia/Manila');
 date_default_timezone_set(DEFAULT_TIMEZONE);
 
 // Database Configuration
-define('DB_TYPE', 'sqlite');
-define('DB_PATH', __DIR__ . '/database/barangaylink.db');
-define('DB_HOST', getenv('MYSQLHOST') ?: 'localhost');
-define('DB_PORT', getenv('MYSQLPORT') ?: '3306');
-define('DB_NAME', getenv('MYSQLDATABASE') ?: 'barangaylink');
-define('DB_USER', getenv('MYSQLUSER') ?: 'root');
-define('DB_PASS', getenv('MYSQLPASSWORD') ?: '');
-define('DB_CHARSET', 'utf8mb4');
+define('DB_TYPE', 'pgsql');
+define('DB_PATH', __DIR__ . '/database/barangaylink.db'); // Kept for backward compatibility
+define('DB_HOST', getenv('PGHOST') ?: getenv('MYSQLHOST') ?: 'localhost');
+define('DB_PORT', getenv('PGPORT') ?: getenv('MYSQLPORT') ?: '5432');
+define('DB_NAME', getenv('PGDATABASE') ?: getenv('MYSQLDATABASE') ?: 'barangaylink');
+define('DB_USER', getenv('PGUSER') ?: getenv('MYSQLUSER') ?: 'postgres');
+define('DB_PASS', getenv('PGPASSWORD') ?: getenv('MYSQLPASSWORD') ?: '');
+define('DB_CHARSET', 'utf8mb4'); // Kept for backward compatibility
 
 // Admin Credentials (hardcoded for demo - SAME as config.ts)
 define('ADMIN_EMAIL', getenv('ADMIN_EMAIL') ?: 'admin@barangaylink.gov.ph');

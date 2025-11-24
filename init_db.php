@@ -1,27 +1,32 @@
 <?php
 /**
  * Database Initialization Script
- * Creates MySQL database and tables if they don't exist
+ * Creates PostgreSQL tables if they don't exist
  */
 
 require_once 'config.php';
 
 try {
-    // Connect to MySQL server (without specifying database)
-    $pdo = new PDO("mysql:host=" . DB_HOST . ";charset=" . DB_CHARSET, DB_USER, DB_PASS);
+    // Connect to PostgreSQL database
+    if (DB_TYPE === 'pgsql') {
+        $dsn = "pgsql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME . ";user=" . DB_USER . ";password=" . DB_PASS;
+    } elseif (DB_TYPE === 'mysql') {
+        $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET;
+    } else {
+        throw new Exception("Unsupported database type for initialization: " . DB_TYPE);
+    }
+
+    $pdo = new PDO($dsn, DB_USER, DB_PASS);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // Create database if it doesn't exist
-    $pdo->exec("CREATE DATABASE IF NOT EXISTS `" . DB_NAME . "` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-
-    // Connect to the specific database
-    $pdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET, DB_USER, DB_PASS);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-    echo "Connected to MySQL database successfully.\n";
+    echo "Connected to " . DB_TYPE . " database successfully.\n";
 
     // Load and execute schema
-    $schemaPath = __DIR__ . '/database/schema.sql';
+    if (DB_TYPE === 'pgsql') {
+        $schemaPath = __DIR__ . '/database/schema_pgsql.sql';
+    } else {
+        $schemaPath = __DIR__ . '/database/schema.sql';
+    }
 
     if (!file_exists($schemaPath)) {
         echo "Error: Schema file not found at $schemaPath\n";
@@ -32,17 +37,36 @@ try {
 
     $schema = file_get_contents($schemaPath);
 
-    // Split schema into individual statements and execute them
-    $statements = array_filter(array_map('trim', explode(';', $schema)));
+    // For PostgreSQL, we need to handle the schema differently
+    if (DB_TYPE === 'pgsql') {
+        // Split schema into individual statements (PostgreSQL uses ; as delimiter)
+        $statements = array_filter(array_map('trim', explode(';', $schema)));
 
-    foreach ($statements as $statement) {
-        if (!empty($statement) && !preg_match('/^--/', $statement)) {
-            try {
-                $pdo->exec($statement);
-            } catch (PDOException $e) {
-                // Skip errors for statements that might already exist (like CREATE DATABASE, USE, etc.)
-                if (!preg_match('/already exists|database exists/i', $e->getMessage())) {
-                    echo "Warning: " . $e->getMessage() . "\n";
+        foreach ($statements as $statement) {
+            if (!empty($statement) && !preg_match('/^--/', $statement)) {
+                try {
+                    $pdo->exec($statement);
+                } catch (PDOException $e) {
+                    // Skip errors for statements that might already exist
+                    if (!preg_match('/already exists|does not exist/i', $e->getMessage())) {
+                        echo "Warning: " . $e->getMessage() . "\n";
+                    }
+                }
+            }
+        }
+    } else {
+        // MySQL handling (original logic)
+        $statements = array_filter(array_map('trim', explode(';', $schema)));
+
+        foreach ($statements as $statement) {
+            if (!empty($statement) && !preg_match('/^--/', $statement)) {
+                try {
+                    $pdo->exec($statement);
+                } catch (PDOException $e) {
+                    // Skip errors for statements that might already exist (like CREATE DATABASE, USE, etc.)
+                    if (!preg_match('/already exists|database exists/i', $e->getMessage())) {
+                        echo "Warning: " . $e->getMessage() . "\n";
+                    }
                 }
             }
         }
