@@ -38,7 +38,7 @@ RUN chmod +x /var/www/html/start.sh
 RUN composer install --no-dev --optimize-autoloader
 
 # Generate application key if not set
-#RUN php artisan key:generate
+RUN php artisan key:generate --no-interaction
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
@@ -47,8 +47,16 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache
 
-# Expose port 80
+# Configure Apache to listen on the port provided by Render.com
+RUN echo "Listen \${PORT:-80}" > /etc/apache2/ports.conf
+RUN sed -i 's/80/\${PORT:-80}/g' /etc/apache2/sites-available/000-default.conf
+
+# Expose port (Render.com will set PORT environment variable)
 EXPOSE 80
+
+# Health check for Render.com
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:${PORT:-80}/ || exit 1
 
 # Start the application
 CMD ["./start.sh"]
