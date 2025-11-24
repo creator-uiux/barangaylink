@@ -9,9 +9,13 @@ done
 
 echo "Database is ready!"
 
-# Run Laravel migrations
+# Run Laravel migrations (skip if database not available)
 echo "Running database migrations..."
-php artisan migrate --force
+if php artisan migrate --force; then
+    echo "Migrations completed successfully."
+else
+    echo "Migrations failed. Continuing without migrations..."
+fi
 
 # Clear and cache config
 echo "Caching configuration..."
