@@ -37,9 +37,6 @@ RUN chmod +x /var/www/html/start.sh
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Generate application key if not set
-RUN php artisan key:generate --no-interaction
-
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
     && mkdir -p /var/www/html/storage \
